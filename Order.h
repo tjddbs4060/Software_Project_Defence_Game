@@ -3,10 +3,12 @@
 
 #define ZORDER_BACKGROUND 0
 #define ZORDER_UNIT 1
-#define ZORDER_INTERfACE 2
+#define ZORDER_TIMER 2
+#define ZORDER_INTERfACE 3
 
 #define TAG_BACKGROUND 1000
 #define TAG_UNIT 1001
+#define TaG_TIMER 1002
 #define TAG_INTERFACE 1003
 
 #define ZORDER_ATK 0

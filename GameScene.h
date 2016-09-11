@@ -9,8 +9,14 @@
 class Game : public cocos2d::Layer
 {
 public:
+	Game();
 	virtual bool init();
 	static cocos2d::Scene* scene();
+
+	void onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event) override;
+	void onTouchesCancelled(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event) override;
+	void onTouchesEnded(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event) override;
+	void onTouchesMoved(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event) override;
 
 	CREATE_FUNC(Game);
 
@@ -25,6 +31,8 @@ private:
 	void unit_atk_cooltime(float dt);	//유닛의 공격 가능 여부
 	void unit_atk_motion(Unit* unit);			//유닛 공격 모션
 
+	void monster_location_init(cocos2d::Sprite* sprite);	//몬스터 이동 기본설정
+
 	void selfRemover(Node* sender);	//삭제
 	void monsterRemover(Node* sender);	//몬스터 삭제
 	void unitRemover(Node* sender);		//유닛 삭제]
@@ -33,10 +41,16 @@ private:
 
 	std::vector<Monster*> arr_monster;	//몬스터 배열
 	std::vector<Unit*> arr_unit;	//유닛 배열
+	std::vector<cocos2d::Sprite*> arr_location;	//몬스터 생성 위치
 
+	bool touch;		//터치 여부
+	bool Game_Start;	//게임 시작 여부
 	int cur_level;	//현재 단계
 	int cur_leave;	//현재 몬스터 수
 	int cur_monster;	//현재 레벨에서 나온 몬스터 수
+	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
+	float anc_width;	//최대 넓이
+	cocos2d::Point touch_point;	//시작 터치지점
 };
 
 #endif

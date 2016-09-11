@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-Game::Game() :cur_leave(0), cur_level(0), cur_monster(0) {}
+Game::Game() :cur_leave(0), cur_level(0), cur_monster(0), Game_Start(false), touch(false), anc_height(0), anc_width(0) {}
 
 Scene* Game::scene()
 {
@@ -25,16 +25,126 @@ bool Game::init()
 	SpriteBatchNode* spriteBatchNodeSurface = SpriteBatchNode::create("Plist.png");
 	addChild(spriteBatchNodeSurface, ZORDER_UNIT, TAG_UNIT);
 
+	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
+	sprite_background->setAnchorPoint(Point(0, 0));
+	addChild(sprite_background, ZORDER_BACKGROUND, TAG_BACKGROUND);
+
+	monster_location_init(sprite_background);
+
+	if (winSize.height < sprite_background->getContentSize().height)
+		anc_height = sprite_background->getContentSize().height - winSize.height;
+
+	if (winSize.width < sprite_background->getContentSize().width)
+		anc_width = sprite_background->getContentSize().width - winSize.width;
+
 	schedule(schedule_selector(Game::addmonster), 0.8f);
-	schedule(schedule_selector(Game::unit_atk_cooltime));
-	schedule(schedule_selector(Game::unit_atk_monster));
-	addunit(0.1f);
+	//schedule(schedule_selector(Game::unit_atk_cooltime));
+	//schedule(schedule_selector(Game::unit_atk_monster));
+	//addunit(0.1f);
+
+	auto listener = EventListenerTouchAllAtOnce::create();
+	listener->onTouchesBegan = CC_CALLBACK_2(Game::onTouchesBegan, this);
+	listener->onTouchesCancelled = CC_CALLBACK_2(Game::onTouchesCancelled, this);
+	listener->onTouchesEnded = CC_CALLBACK_2(Game::onTouchesEnded, this);
+	listener->onTouchesMoved = CC_CALLBACK_2(Game::onTouchesMoved, this);
+
+	_eventDispatcher->addEventListenerWithFixedPriority(listener, 1);
 
 	return true;
 }
 
 void Game::addmonster(float dt)
 {
+	int i = 0;
+	Point move[4];
+	Sprite* location = new Sprite();
+	for (std::vector<Sprite*>::iterator iter = arr_location.begin(); iter != arr_location.end(); iter++)
+	{
+		location = (Sprite*)*iter;
+		move[i++] = location->getPosition();
+		location = NULL;
+	}
+
+	int monster_type = rand() % 3 + 1;
+	char szFile[64] = { 0, };
+
+	Size winSize = Director::getInstance()->getWinSize();
+	Monster* monster = new Monster;
+
+	sprintf(szFile, "monster_0%d_02.png", monster_type);
+	monster->setBody(szFile);
+	monster->setEnergy(100.f);		//체력
+	monster->setDefence(0.f);
+	monster->getBody()->setPosition(move[0]);
+
+	getChildByTag(TAG_UNIT)->addChild(monster->getBody(), ZORDER_MONSTER, TAG_MONSTER);
+
+	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
+
+	auto animation_down = Animation::create();
+	auto animation_left = Animation::create();
+	auto animation_right = Animation::create();
+	auto animation_up = Animation::create();
+
+	for (int i = 1; i < 5; i++)
+	{
+		sprintf(szFile, "monster_%02d_%02d.png", monster_type, i);
+		animation_down->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
+	}
+	animation_down->setDelayPerUnit(0.1);
+
+	for (int i = 5; i < 9; i++)
+	{
+		sprintf(szFile, "monster_%02d_%02d.png", monster_type, i);
+		animation_right->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
+	}
+	animation_right->setDelayPerUnit(0.1);
+
+	for (int i = 9; i < 13; i++)
+	{
+		sprintf(szFile, "monster_%02d_%02d.png", monster_type, i);
+		animation_up->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
+	}
+	animation_up->setDelayPerUnit(0.1);
+
+	for (int i = 13; i < 17; i++)
+	{
+		sprintf(szFile, "monster_%02d_%02d.png", monster_type, i);
+		animation_left->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
+	}
+	animation_left->setDelayPerUnit(0.1);
+
+	float w_speed = winSize.width * 0.005;
+	float h_speed = winSize.height * 0.005;
+
+	auto animate_down = Animate::create(animation_down);
+	auto animate_left = Animate::create(animation_left);
+	auto animate_right = Animate::create(animation_right);
+	auto animate_up = Animate::create(animation_up);
+
+	//2.5를 곱한 이유 = animate 한번당 0.4초가 걸림
+	auto rep_down = Repeat::create(animate_down, h_speed * 2.5);
+	auto rep_left = Repeat::create(animate_left, w_speed * 2.5);
+	auto rep_right = Repeat::create(animate_right, w_speed * 2.5);
+	auto rep_up = Repeat::create(animate_up, h_speed * 2.5);
+
+	MoveTo* move_1 = MoveTo::create(h_speed, move[1]);
+	MoveTo* move_2 = MoveTo::create(w_speed, move[2]);
+	MoveTo* move_3 = MoveTo::create(h_speed, move[3]);
+	MoveTo* move_4 = MoveTo::create(w_speed, move[0]);
+
+	auto Spawn_down = Spawn::create(move_1, rep_down, NULL);
+	auto Spawn_right = Spawn::create(move_2, rep_right, NULL);
+	auto Spawn_up = Spawn::create(move_3, rep_up, NULL);
+	auto Spawn_left = Spawn::create(move_4, rep_left, NULL);
+
+	auto sequence = Sequence::create(Spawn_down, Spawn_right, Spawn_up, Spawn_left, NULL);
+	auto rep = RepeatForever::create(sequence);
+
+	monster->getBody()->runAction(rep);
+
+	arr_monster.push_back(monster);
+	/*
 	int monster_type = rand() % 3 + 1;
 	char szFile[64] = { 0, };
 
@@ -50,7 +160,6 @@ void Game::addmonster(float dt)
 	getChildByTag(TAG_UNIT)->addChild(monster->getBody(), ZORDER_MONSTER, TAG_MONSTER);
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
-	
 
 	auto animation_down = Animation::create();
 	auto animation_left = Animation::create();
@@ -115,6 +224,7 @@ void Game::addmonster(float dt)
 	monster->getBody()->runAction(rep);
 
 	arr_monster.push_back(monster);
+	*/
 }
 
 void Game::selfRemover(Node* sender)
@@ -358,195 +468,148 @@ void Game::unit_atk_motion(Unit* unit)
 	unit->getBody()->runAction(animate);
 }
 
-
-/////////////////////////////////////////////////////////////////
-/*
-#include "StartScene.h"
-
-USING_NS_CC;
-
-Scene* Start::scene()
+void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 {
-	auto scene = Scene::create();
-	auto layer = Start::create();
-
-	scene->addChild(layer);
-
-	return scene;
-}
-
-bool Start::init()
-{
-	if (!Layer::init())
-	{
-		return false;
-	}
-
-	Size winSize = Director::getInstance()->getWinSize();
-	auto spriteEX = Sprite::create("exam.png");
-	auto spriteCH = Sprite::create("ch.png");
-	//spriteEX->setAnchorPoint(Point(0.5, 0.5));
-	spriteEX->setPosition(Point(winSize.width / 2, winSize.height / 2));
-	spriteCH->setPosition(Point(winSize.width / 2, winSize.height * 0.2));
-
-	addChild(spriteCH, 1);
-	addChild(spriteEX, 0);
-	schedule(schedule_selector(Start::addenm), 1.0f);
-	schedule(schedule_selector(Start::shoot), 0.6f);
-	schedule(schedule_selector(Start::dropBomb), 4.0f);
-	//unschedule(schedule_selector(Start::addenm));
-
-	Sprite* spriteRotateRadar = Sprite::create("radar_01.png");
-
-	spriteRotateRadar->setAnchorPoint(Point(1, 0));
-	spriteRotateRadar->setPosition(Point(winSize.width * 0.5, winSize.height * 0.25));
-
-	float scale = winSize.height / spriteRotateRadar->getContentSize().height;
-	spriteRotateRadar->setScale(scale);
-	addChild(spriteRotateRadar, 2);
-
-	RotateBy* rotateBy = RotateBy::create(10, 360);
-	RepeatForever* repeatForever = RepeatForever::create(rotateBy);
-	spriteRotateRadar->runAction(repeatForever);
-
-	Sprite* spriteScaleRadar = Sprite::create("radar_00.png");
-	spriteScaleRadar->setPosition(Point(winSize.width * 0.5, winSize.height * 0.25));
-	spriteScaleRadar->setScale(0);
-	addChild(spriteScaleRadar, 3);
-
-	scale = winSize.height / spriteScaleRadar->getContentSize().height;
-	ScaleTo* scaleTo = ScaleTo::create(4, scale);
-	ScaleTo* scaleFrom = ScaleTo::create(0, 0);
-	Sequence* sequenceScale = Sequence::create(scaleTo, scaleFrom, NULL);
-	RepeatForever* scaleForever = RepeatForever::create(sequenceScale);
-	spriteScaleRadar->runAction(scaleForever);
-
-	Sprite* spriteFadeRadar = Sprite::create("radar_00.png");
-	spriteFadeRadar->setPosition(Point(winSize.width * 0.5, winSize.height * 0.25));
-	spriteFadeRadar->setScale(scale);
-	addChild(spriteFadeRadar, 4);
-
-	FadeOut* fadeOut = FadeOut::create(4);
-	FadeIn* fadeIn = FadeIn::create(0);
-	Sequence* sequenceFade = Sequence::create(fadeOut, fadeIn, NULL);
-	RepeatForever* fadeForever = RepeatForever::create(sequenceFade);
-	spriteFadeRadar->runAction(fadeForever);
-
-	return true;
-}
-
-void Start::addenm(float dt)
-{
-	Size winSize = Director::getInstance()->getWinSize();
-
-	auto spriteEn = Sprite::create("en.png");
-	float Xpos = rand() % (int)winSize.width;
-	float Ypos = winSize.height;
-	spriteEn->setPosition(Point(Xpos, Ypos));
-	spriteEn->setAnchorPoint(Point(0.5, 0));
-
-	addChild(spriteEn, 2);
-
-	//MoveTo* moveTo = MoveTo::create(2.f, Point(winSize.width * 0.5, winSize.height * 0.25));
-	//spriteEn->runAction(moveTo);
-
-	Point position = spriteEn->getPosition();
-
-	float xDistance = (winSize.width / 2) - position.x;
-
-	ccBezierConfig bezierConfig;
-
-	bezierConfig.controlPoint_1 = Point(position.x, winSize.height * 0.4f);
-	bezierConfig.controlPoint_2 = Point(position.x + (xDistance / 3), winSize.height * 0.2f);
-	bezierConfig.endPosition = Point(winSize.width * 0.5, winSize.height * 0.25);
-
-	BezierTo* bezierTo = BezierTo::create(10.f, bezierConfig);
-
-	CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Start::selfRemover, this));
-
-	Sequence* sequence = Sequence::create(bezierTo, callfunc, NULL);
-	spriteEn->runAction(sequence);
-
+	touch = true;
+	touch_point = touches[0]->getLocation();
 	/*
-	Size winSize = Director::getInstance()->getWinSize();
-
-	auto spriteEn = Sprite::create("en.png");
-	float Xpos = winSize.width * 0.1;
-	float Ypos = winSize.height * 0.9;
-	spriteEn->setPosition(Point(Xpos, Ypos));
-
-	addChild(spriteEn, 9);
-
-	//MoveTo* moveTo = MoveTo::create(2.f, Point(winSize.width * 0.5, winSize.height * 0.25));
-	//spriteEn->runAction(moveTo);
-
-	auto actionTo1 = MoveTo::create(winSize.height / 200, Point(Xpos, winSize.height * 0.1));
-	auto actionTo2 = MoveTo::create(winSize.width / 200, Point(winSize.width * 0.9, winSize.height * 0.1));
-	auto actionTo3 = MoveTo::create(winSize.height / 200, Point(winSize.width * 0.9, Ypos));
-	auto actionTo4 = MoveTo::create(winSize.width / 200, Point(Xpos, Ypos));
-	auto seq = Sequence::create(actionTo1, actionTo2, actionTo3, actionTo4, NULL);
-	auto rep1 = Repeat::create(seq, 3);
-
-	//pauseSchedulerAndActions(); 액션 일시정지
-	//resulmeSchedulerAndActions(); 액션 재시작
-
-	spriteEn->runAction(rep1);
-	
+	Touch* touch;
+	Vec2 touchPoint;
+	for (int index = 0; index < touches.size(); index++)
+	{
+	touch = touches[index];
+	touchPoint = touch->getLocation();
+	int touchIndex = touch->getID();
+	}
+	*/
 }
 
-void Start::shoot(float dt)
+void Game::onTouchesCancelled(const std::vector<Touch*>& touches, Event *event)
 {
-	Size winSize = Director::getInstance()->getWinSize();
-
-	Sprite* spriteBullet = Sprite::create("sh.png");
-
-	float scale = (winSize.height / 30) / spriteBullet->getContentSize().height;
-	spriteBullet->setScale(scale);
-
-	spriteBullet->setPosition(Point(winSize.width * 0.5, winSize.height * 0.25));
-
-	addChild(spriteBullet, 10);
-
-	MoveBy* moveBy = MoveBy::create(1.f, Point(0, winSize.height / 2));
-
-	ActionInterval* actionInterval = EaseOut::create(moveBy, 1.1f);
-
-	CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Start::selfRemover, this));
-
-	Sequence* sequence = Sequence::create(actionInterval, callfunc, NULL);
-	spriteBullet->runAction(sequence);
+	touch = false;
+	/*
+	Touch* touch;
+	Vec2 touchPoint;
+	for (int index = 0; index < touches.size(); index++)
+	{
+	touch = touches[index];
+	touchPoint = touch->getLocation();
+	int touchIndex = touch->getID();
+	}
+	*/
 }
 
-void Start::dropBomb(float dt)
+void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 {
-	Size winSize = Director::getInstance()->getWinSize();
-
-	Sprite* spriteBomb = Sprite::create("MISSILE.png");
-
-	float bombHeight = spriteBomb->getContentSize().height;
-
-	float beginScale = (winSize.height / 6) / bombHeight;
-	float finishScale = (winSize.height / 40) / bombHeight;
-
-	spriteBomb->setScale(beginScale);
-	float visibleHeight = spriteBomb->getBoundingBox().size.height;
-	spriteBomb->setPosition(Point(winSize.width / 2, 0 - (visibleHeight / 2)));
-
-	addChild(spriteBomb, 5);
-
-	MoveBy* moveBy = MoveBy::create(1.5, Point(0, winSize.height * 0.66));
-	ActionInterval* actionInterval = EaseOut::create(moveBy, 1.8);
-	ScaleTo* scaleTo = ScaleTo::create(1.5, finishScale);
-	Spawn* spawn = Spawn::create(actionInterval, scaleTo, NULL);
-
-	CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Start::selfRemover, this));
-
-	Sequence* sequence = Sequence::create(spawn, callfunc, NULL);
-	spriteBomb->runAction(sequence);
+	touch = false;
+	/*
+	Touch* touch;
+	Vec2 touchPoint;
+	for (int index = 0; index < touches.size(); index++)
+	{
+	touch = touches[index];
+	touchPoint = touch->getLocation();
+	int touchIndex = touch->getID();
+	}
+	*/
 }
 
-void Start::selfRemover(Node* sender)
+void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
-	sender->removeFromParentAndCleanup(true);
+	Point movePoint = touches[0]->getLocation();
+	Point distance = touch_point - movePoint;
+	Point destination = this->getPosition() - distance;
+
+	if (destination.x <= -anc_width)
+		destination.setPoint(-anc_width, destination.y);
+	if (destination.y <= -anc_height)
+		destination.setPoint(destination.x, -anc_height);
+	if (destination.x >= 0)
+		destination.setPoint(0, destination.y);
+	if (destination.y >= 0)
+		destination.setPoint(destination.x, 0);
+
+	touch_point = movePoint;
+
+	if (destination.x <= -anc_width && destination.y <= -anc_height)
+		return;
+
+	if (destination.x >= 0 && destination.y >= 0)
+		return;
+
+	MoveTo* moveto = MoveTo::create(0.f, destination);
+
+	this->runAction(moveto);
+	/*
+	Touch* touch;
+	Vec2 touchPoint;
+	for (int index = 0; index < touches.size(); index++)
+	{
+	touch = touches[index];
+	touchPoint = touch->getLocation();
+	int touchIndex = touch->getID();
+	}
+	*/
 }
-*/
+
+void Game::monster_location_init(Sprite* sprite)
+{
+	Point location_1a = Point(sprite->getContentSize().width * 0.068, sprite->getContentSize().height * 0.645);
+	Point location_1b = Point(sprite->getContentSize().width * 0.163, sprite->getContentSize().height * 0.625);
+	Point location_2a = Point(sprite->getContentSize().width * 0.36, sprite->getContentSize().height * 0.07);
+	Point location_2b = Point(sprite->getContentSize().width * 0.387, sprite->getContentSize().height * 0.1575);
+	Point location_3a = Point(sprite->getContentSize().width * 0.875, sprite->getContentSize().height * 0.325);
+	Point location_3b = Point(sprite->getContentSize().width * 0.9, sprite->getContentSize().height * 0.4125);
+	Point location_4a = Point(sprite->getContentSize().width * 0.6, sprite->getContentSize().height * 0.9125);
+	Point location_4b = Point(sprite->getContentSize().width * 0.68, sprite->getContentSize().height * 0.875);
+
+	Sprite* sprite_monster_location_1 = Sprite::createWithSpriteFrameName("bullet.png");
+	Sprite* sprite_monster_location_2 = Sprite::createWithSpriteFrameName("bullet.png");
+	Sprite* sprite_monster_location_3 = Sprite::createWithSpriteFrameName("bullet.png");
+	Sprite* sprite_monster_location_4 = Sprite::createWithSpriteFrameName("bullet.png");
+
+	sprite_monster_location_1->setPosition(Point(location_1a));
+	sprite_monster_location_2->setPosition(Point(location_2a));
+	sprite_monster_location_3->setPosition(Point(location_3a));
+	sprite_monster_location_4->setPosition(Point(location_4a));
+
+	sprite_monster_location_1->setVisible(false);
+	sprite_monster_location_2->setVisible(false);
+	sprite_monster_location_3->setVisible(false);
+	sprite_monster_location_4->setVisible(false);
+
+	MoveTo* sprite_monster_location_a = MoveTo::create(1.1f, location_1b);
+	MoveTo* sprite_monster_location_b = MoveTo::create(1.1f, location_2b);
+	MoveTo* sprite_monster_location_c = MoveTo::create(1.1f, location_3b);
+	MoveTo* sprite_monster_location_d = MoveTo::create(1.1f, location_4b);
+
+	MoveTo* sprite_monster_location_aa = MoveTo::create(1.1f, location_1a);
+	MoveTo* sprite_monster_location_bb = MoveTo::create(1.1f, location_2a);
+	MoveTo* sprite_monster_location_cc = MoveTo::create(1.1f, location_3a);
+	MoveTo* sprite_monster_location_dd = MoveTo::create(1.1f, location_4a);
+
+	Sequence* sequence_a = Sequence::create(sprite_monster_location_a, sprite_monster_location_aa, NULL);
+	Sequence* sequence_b = Sequence::create(sprite_monster_location_b, sprite_monster_location_bb, NULL);
+	Sequence* sequence_c = Sequence::create(sprite_monster_location_c, sprite_monster_location_cc, NULL);
+	Sequence* sequence_d = Sequence::create(sprite_monster_location_d, sprite_monster_location_dd, NULL);
+
+	auto repeat_a = RepeatForever::create(sequence_a);
+	auto repeat_b = RepeatForever::create(sequence_b);
+	auto repeat_c = RepeatForever::create(sequence_c);
+	auto repeat_d = RepeatForever::create(sequence_d);
+
+	sprite_monster_location_1->runAction(repeat_a);
+	sprite_monster_location_2->runAction(repeat_b);
+	sprite_monster_location_3->runAction(repeat_c);
+	sprite_monster_location_4->runAction(repeat_d);
+
+	addChild(sprite_monster_location_1);
+	addChild(sprite_monster_location_2);
+	addChild(sprite_monster_location_3);
+	addChild(sprite_monster_location_4);
+
+	arr_location.push_back(sprite_monster_location_1);
+	arr_location.push_back(sprite_monster_location_2);
+	arr_location.push_back(sprite_monster_location_3);
+	arr_location.push_back(sprite_monster_location_4);
+}
