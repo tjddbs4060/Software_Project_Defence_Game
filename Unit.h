@@ -15,7 +15,7 @@ public:
 	void setRange(float ran);
 	void setCurSpeed(float spd);	//현재 공격 쿨타임
 	void setBody(char* name);
-
+	
 	float getMaxSpeed();
 	float getCurSpeed();
 	float getDamage();

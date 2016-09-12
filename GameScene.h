@@ -30,12 +30,17 @@ private:
 	void unit_atk_monster(float dt);	//유닛으로부터 몬스터 공격
 	void unit_atk_cooltime(float dt);	//유닛의 공격 가능 여부
 	void unit_atk_motion(Unit* unit);			//유닛 공격 모션
+	void unit_range(Unit* unit);	//유닛 공격범위 보이기
 
 	void monster_location_init(cocos2d::Sprite* sprite);	//몬스터 이동 기본설정
+	void zorder_assort(float dt);		//zorder 정렬
 
 	void selfRemover(Node* sender);	//삭제
 	void monsterRemover(Node* sender);	//몬스터 삭제
-	void unitRemover(Node* sender);		//유닛 삭제]
+	void unitRemover(Node* sender);		//유닛 삭제
+	
+	cocos2d::Point map_out_check(cocos2d::Point point);	//맵을 벗어나는지 확인
+	Unit* touch_unit_check();	//유닛을 클릭했는지 여부
 
 	float calDistance(cocos2d::Point from, cocos2d::Point to);	//두 점 사이의 거리 계산
 
@@ -45,6 +50,7 @@ private:
 
 	bool touch;		//터치 여부
 	bool Game_Start;	//게임 시작 여부
+	bool touch_unit;	//유닛을 터치하였는지 여부
 	int cur_level;	//현재 단계
 	int cur_leave;	//현재 몬스터 수
 	int cur_monster;	//현재 레벨에서 나온 몬스터 수

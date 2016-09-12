@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-Game::Game() :cur_leave(0), cur_level(0), cur_monster(0), Game_Start(false), touch(false), anc_height(0), anc_width(0) {}
+Game::Game() :cur_leave(0), cur_level(0), cur_monster(0), Game_Start(false), touch(false), touch_unit(false), anc_height(0), anc_width(0) {}
 
 Scene* Game::scene()
 {
@@ -29,6 +29,8 @@ bool Game::init()
 	sprite_background->setAnchorPoint(Point(0, 0));
 	addChild(sprite_background, ZORDER_BACKGROUND, TAG_BACKGROUND);
 
+	int i = sprite_background->getTag();
+
 	monster_location_init(sprite_background);
 
 	if (winSize.height < sprite_background->getContentSize().height)
@@ -37,10 +39,11 @@ bool Game::init()
 	if (winSize.width < sprite_background->getContentSize().width)
 		anc_width = sprite_background->getContentSize().width - winSize.width;
 
+	schedule(schedule_selector(Game::zorder_assort));
 	schedule(schedule_selector(Game::addmonster), 0.8f);
-	//schedule(schedule_selector(Game::unit_atk_cooltime));
-	//schedule(schedule_selector(Game::unit_atk_monster));
-	//addunit(0.1f);
+	schedule(schedule_selector(Game::unit_atk_cooltime));
+	schedule(schedule_selector(Game::unit_atk_monster));
+	addunit(0.1f);
 
 	auto listener = EventListenerTouchAllAtOnce::create();
 	listener->onTouchesBegan = CC_CALLBACK_2(Game::onTouchesBegan, this);
@@ -317,6 +320,7 @@ void Game::addunit(float dt)
 	char szFile[64] = { 0, };
 
 	Size winSize = Director::getInstance()->getWinSize();
+
 	Unit* unit = new Unit();
 
 	unit->setBody("unit_01.png");
@@ -324,8 +328,16 @@ void Game::addunit(float dt)
 	unit->setRange(100.f);
 	unit->setSpeed(2.f);
 	unit->getBody()->setPosition(Point(winSize.width * 0.2, winSize.height * 0.5));
+
+	Sprite* sprite = Sprite::createWithSpriteFrameName("range.png");
+	sprite->setAnchorPoint(Point(0.5, 0.5));
+	sprite->setPosition(Point(unit->getBody()->getContentSize().width / 2, unit->getBody()->getContentSize().height / 2));
+	sprite->setOpacity(70);
+	sprite->setVisible(false);
+	sprite->setScale(unit->getRange() / 50.f);		//왜인지 모르겠는데 2배 차이
 	
 	getChildByTag(TAG_UNIT)->addChild(unit->getBody(), ZORDER_CHARACTER, TAG_CHARACTER);
+	getChildByTag(TAG_UNIT)->getChildByTag(TAG_CHARACTER)->addChild(sprite, ZORDER_RANGE, TAG_RANGE);
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 
@@ -472,6 +484,15 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 {
 	touch = true;
 	touch_point = touches[0]->getLocation();
+	
+	Unit* unit = touch_unit_check();
+
+	if (touch_unit_check() != NULL)
+	{
+		touch_unit = true;
+		unit->getBody()->stopAllActions();
+		unit_range(unit);
+	}
 	/*
 	Touch* touch;
 	Vec2 touchPoint;
@@ -487,6 +508,7 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 void Game::onTouchesCancelled(const std::vector<Touch*>& touches, Event *event)
 {
 	touch = false;
+	touch_unit = false;
 	/*
 	Touch* touch;
 	Vec2 touchPoint;
@@ -501,7 +523,21 @@ void Game::onTouchesCancelled(const std::vector<Touch*>& touches, Event *event)
 
 void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 {
+	if (touch_unit == true)
+	{
+		Unit* unit = touch_unit_check();
+
+		MoveTo* moveto = MoveTo::create(calDistance(unit->getBody()->getPosition(), touches[0]->getLocation())/70.0f, touches[0]->getLocation());
+		
+		unit->getBody()->runAction(moveto);
+
+		touch_unit = false;
+
+		unit_range(unit);
+	}
+
 	touch = false;
+	touch_unit = false;
 	/*
 	Touch* touch;
 	Vec2 touchPoint;
@@ -516,18 +552,14 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
+	if (touch_unit == true)
+		return;
+
 	Point movePoint = touches[0]->getLocation();
 	Point distance = touch_point - movePoint;
 	Point destination = this->getPosition() - distance;
 
-	if (destination.x <= -anc_width)
-		destination.setPoint(-anc_width, destination.y);
-	if (destination.y <= -anc_height)
-		destination.setPoint(destination.x, -anc_height);
-	if (destination.x >= 0)
-		destination.setPoint(0, destination.y);
-	if (destination.y >= 0)
-		destination.setPoint(destination.x, 0);
+	destination = map_out_check(destination);
 
 	touch_point = movePoint;
 
@@ -540,6 +572,7 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 	MoveTo* moveto = MoveTo::create(0.f, destination);
 
 	this->runAction(moveto);
+	
 	/*
 	Touch* touch;
 	Vec2 touchPoint;
@@ -550,6 +583,22 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 	int touchIndex = touch->getID();
 	}
 	*/
+}
+
+Point Game::map_out_check(Point point)
+{
+	Point temp = point;
+
+	if (point.x <= -anc_width)
+		temp.setPoint(-anc_width, point.y);
+	if (point.y <= -anc_height)
+		temp.setPoint(point.x, -anc_height);
+	if (point.x >= 0)
+		temp.setPoint(0, point.y);
+	if (point.y >= 0)
+		temp.setPoint(point.x, 0);
+
+	return temp;
 }
 
 void Game::monster_location_init(Sprite* sprite)
@@ -612,4 +661,47 @@ void Game::monster_location_init(Sprite* sprite)
 	arr_location.push_back(sprite_monster_location_2);
 	arr_location.push_back(sprite_monster_location_3);
 	arr_location.push_back(sprite_monster_location_4);
+}
+
+void Game::zorder_assort(float dt)
+{
+	Unit* unit = NULL;
+	Monster* monster = NULL;
+
+	for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
+	{
+		unit = (Unit*)*iterUnit;
+
+		unit->getBody()->setZOrder(1000 - unit->getBody()->getPositionY());
+	}
+
+	for (std::vector<Monster*>::iterator iterMonster = arr_monster.begin(); iterMonster != arr_monster.end(); iterMonster++)
+	{
+		monster = (Monster*)*iterMonster;
+
+		monster->getBody()->setZOrder(1000 - monster->getBody()->getPositionY());
+	}
+}
+
+Unit* Game::touch_unit_check()
+{
+	Unit* unit = NULL;
+	for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
+	{
+		unit = (Unit*)*iterUnit;
+
+		Rect boundingBox = unit->getBody()->getBoundingBox();
+		
+		if (boundingBox.containsPoint(touch_point))
+			return unit;
+	}
+
+	return NULL;
+}
+
+void Game::unit_range(Unit* unit)
+{
+	if (touch_unit == true)
+		unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(true);
+	else unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(false);
 }
