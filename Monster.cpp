@@ -1,6 +1,6 @@
 #include "Monster.h"
 
-Monster::Monster() : body(NULL), maxEnergy(100), curEnergy(0), defence(0)
+Monster::Monster() : body(NULL), maxEnergy(100), curEnergy(0), defence(0), mGold(0)
 {
 }
 
@@ -54,4 +54,14 @@ float Monster::getEnergy()
 float Monster::getDefence()
 {
 	return defence;
+}
+
+void Monster::setGold(int gold)
+{
+	mGold = gold;
+}
+
+int Monster::getGold()
+{
+	return mGold;
 }

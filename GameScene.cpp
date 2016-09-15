@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-Game::Game() :cur_leave(0), cur_level(0), cur_monster(0), Game_Start(false), touch(false), touch_unit(false), anc_height(0), anc_width(0) {}
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), summon_monster(0), anc_height(0), anc_width(0) {}
 
 Scene* Game::scene()
 {
@@ -21,9 +21,17 @@ bool Game::init()
 	srand((unsigned int)time(NULL));
 
 	Size winSize = Director::getInstance()->getWinSize();
+
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Plist.plist");
 	SpriteBatchNode* spriteBatchNodeSurface = SpriteBatchNode::create("Plist.png");
 	addChild(spriteBatchNodeSurface, ZORDER_UNIT, TAG_UNIT);
+
+	InforBoard* inforBoard = InforBoard::create();
+	inforBoard->setTag(TAG_INFORBOARD);
+	inforBoard->setAnchorPoint(Point(0.5, 1));
+	inforBoard->setPosition(Point(winSize.width / 2, winSize.height));
+	inforBoard->setScale(winSize.width / inforBoard->getContentSize().width);
+	spriteBatchNodeSurface->addChild(inforBoard);
 
 	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
 	sprite_background->setAnchorPoint(Point(0, 0));
@@ -40,7 +48,7 @@ bool Game::init()
 		anc_width = sprite_background->getContentSize().width - winSize.width;
 
 	schedule(schedule_selector(Game::zorder_assort));
-	schedule(schedule_selector(Game::addmonster), 0.8f);
+	//schedule(schedule_selector(Game::addmonster), 1.f);
 	schedule(schedule_selector(Game::unit_atk_cooltime));
 	schedule(schedule_selector(Game::unit_atk_monster));
 	addunit(0.1f);
@@ -61,12 +69,15 @@ void Game::addmonster(float dt)
 	int i = 0;
 	Point move[4];
 	Sprite* location = new Sprite();
+	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+
 	for (std::vector<Sprite*>::iterator iter = arr_location.begin(); iter != arr_location.end(); iter++)
 	{
 		location = (Sprite*)*iter;
 		move[i++] = location->getPosition();
 		location = NULL;
 	}
+	summon_monster--;
 
 	int monster_type = rand() % 3 + 1;
 	char szFile[64] = { 0, };
@@ -78,9 +89,10 @@ void Game::addmonster(float dt)
 	monster->setBody(szFile);
 	monster->setEnergy(100.f);		//체력
 	monster->setDefence(0.f);
+	monster->setGold(1);
 	monster->getBody()->setPosition(move[0]);
 
-	getChildByTag(TAG_UNIT)->addChild(monster->getBody(), ZORDER_MONSTER, TAG_MONSTER);
+	getChildByTag(TAG_BACKGROUND)->addChild(monster->getBody(), ZORDER_MONSTER, TAG_MONSTER);
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 
@@ -147,6 +159,9 @@ void Game::addmonster(float dt)
 	monster->getBody()->runAction(rep);
 
 	arr_monster.push_back(monster);
+
+	inforBoard->setMonster(arr_monster.size());
+	inforBoard->update_monster();
 	/*
 	int monster_type = rand() % 3 + 1;
 	char szFile[64] = { 0, };
@@ -268,7 +283,7 @@ void Game::addmonster_death(Point pt)
 	Sprite* sprite_death = Sprite::createWithSpriteFrameName("death_01.png");
 	sprite_death->setPosition(pt);
 	
-	getChildByTag(TAG_UNIT)->addChild(sprite_death, ZORDER_MONSTER_DEATH);
+	getChildByTag(TAG_BACKGROUND)->addChild(sprite_death, ZORDER_MONSTER_DEATH);
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 	
@@ -336,25 +351,25 @@ void Game::addunit(float dt)
 	sprite->setVisible(false);
 	sprite->setScale(unit->getRange() / 50.f);		//왜인지 모르겠는데 2배 차이
 	
-	getChildByTag(TAG_UNIT)->addChild(unit->getBody(), ZORDER_CHARACTER, TAG_CHARACTER);
-	getChildByTag(TAG_UNIT)->getChildByTag(TAG_CHARACTER)->addChild(sprite, ZORDER_RANGE, TAG_RANGE);
+	getChildByTag(TAG_BACKGROUND)->addChild(unit->getBody(), ZORDER_CHARACTER, TAG_CHARACTER);
+	getChildByTag(TAG_BACKGROUND)->getChildByTag(TAG_CHARACTER)->addChild(sprite, ZORDER_RANGE, TAG_RANGE);
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 
 	arr_unit.push_back(unit);
 }
 
-void Game::addunit_mix(cocos2d::Point pt)
+void Game::addunit_mix(Point pt)
 {
 
 }
 
-void Game::addunit_sell(cocos2d::Point pt)
+void Game::addunit_sell(Point pt)
 {
 
 }
 
-float Game::calDistance(cocos2d::Point from, cocos2d::Point to)
+float Game::calDistance(Point from, Point to)
 {
 	float x = from.x - to.x;
 	float y = from.y - to.y;
@@ -406,6 +421,8 @@ void Game::addattack(Monster* monster)
 
 void Game::unit_atk_monster(float dt)
 {
+	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+
 	Size winSize = Director::getInstance()->getWinSize();
 	Unit* unit = NULL;
 	Monster* monster = NULL;
@@ -429,6 +446,7 @@ void Game::unit_atk_monster(float dt)
 
 					if (0 >= monster->subEnergy(unit->getDamage()))
 					{
+						inforBoard->setGold(inforBoard->getGold() + monster->getGold());
 						addmonster_death(monster->getBody()->getPosition());
 						monster->release();
 						delete monster;
@@ -436,6 +454,9 @@ void Game::unit_atk_monster(float dt)
 
 						if (iterMonster == arr_monster.end())
 							break;
+
+						inforBoard->setMonster(arr_monster.size());
+						inforBoard->update_monster();
 					}
 					else
 						break;
@@ -484,7 +505,7 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 {
 	touch = true;
 	touch_point = touches[0]->getLocation();
-	
+
 	Unit* unit = touch_unit_check();
 
 	if (touch_unit_check() != NULL)
@@ -509,6 +530,8 @@ void Game::onTouchesCancelled(const std::vector<Touch*>& touches, Event *event)
 {
 	touch = false;
 	touch_unit = false;
+
+	screen_out();
 	/*
 	Touch* touch;
 	Vec2 touchPoint;
@@ -525,9 +548,12 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 {
 	if (touch_unit == true)
 	{
+		Size winSize = Director::getInstance()->getWinSize();
+		Point pt = getChildByTag(TAG_BACKGROUND)->getPosition();
+
 		Unit* unit = touch_unit_check();
 
-		MoveTo* moveto = MoveTo::create(calDistance(unit->getBody()->getPosition(), touches[0]->getLocation())/70.0f, touches[0]->getLocation());
+		MoveTo* moveto = MoveTo::create(calDistance(unit->getBody()->getPosition(), touches[0]->getLocation())/150.f, touches[0]->getLocation() - pt);
 		
 		unit->getBody()->runAction(moveto);
 
@@ -538,6 +564,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 	touch = false;
 	touch_unit = false;
+
+	screen_out();
 	/*
 	Touch* touch;
 	Vec2 touchPoint;
@@ -557,21 +585,22 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 
 	Point movePoint = touches[0]->getLocation();
 	Point distance = touch_point - movePoint;
-	Point destination = this->getPosition() - distance;
+	Point destination = getChildByTag(TAG_BACKGROUND)->getPosition() - distance;
 
 	destination = map_out_check(destination);
 
 	touch_point = movePoint;
-
+	/*
 	if (destination.x <= -anc_width && destination.y <= -anc_height)
 		return;
 
 	if (destination.x >= 0 && destination.y >= 0)
 		return;
+	*/
 
 	MoveTo* moveto = MoveTo::create(0.f, destination);
 
-	this->runAction(moveto);
+	getChildByTag(TAG_BACKGROUND)->runAction(moveto);
 	
 	/*
 	Touch* touch;
@@ -589,14 +618,14 @@ Point Game::map_out_check(Point point)
 {
 	Point temp = point;
 
-	if (point.x <= -anc_width)
-		temp.setPoint(-anc_width, point.y);
-	if (point.y <= -anc_height)
-		temp.setPoint(point.x, -anc_height);
-	if (point.x >= 0)
-		temp.setPoint(0, point.y);
-	if (point.y >= 0)
-		temp.setPoint(point.x, 0);
+	if (temp.x <= -anc_width)
+		temp.setPoint(-anc_width, temp.y);
+	if (temp.y <= -anc_height)
+		temp.setPoint(temp.x, -anc_height);
+	if (temp.x >= 0.f)
+		temp.setPoint(0, temp.y);
+	if (temp.y >= 0.f)
+		temp.setPoint(temp.x, 0);
 
 	return temp;
 }
@@ -681,10 +710,27 @@ void Game::zorder_assort(float dt)
 
 		monster->getBody()->setZOrder(1000 - monster->getBody()->getPositionY());
 	}
+
+	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+	
+	inforBoard->setTime(inforBoard->getTime() - dt);
+
+	if (summon_monster > 0 && !((int)inforBoard->getTime()))
+	{
+		schedule(schedule_selector(Game::addmonster), 1.f);
+	}
+	else if (summon_monster == 0)
+	{
+		unschedule(schedule_selector(Game::addmonster));
+		summon_monster = 10;
+	}
 }
 
 Unit* Game::touch_unit_check()
 {
+	Size winSize = Director::getInstance()->getWinSize();
+	Point pt = getChildByTag(TAG_BACKGROUND)->getPosition();
+
 	Unit* unit = NULL;
 	for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
 	{
@@ -692,7 +738,7 @@ Unit* Game::touch_unit_check()
 
 		Rect boundingBox = unit->getBody()->getBoundingBox();
 		
-		if (boundingBox.containsPoint(touch_point))
+		if (boundingBox.containsPoint(touch_point - pt))
 			return unit;
 	}
 
@@ -704,4 +750,9 @@ void Game::unit_range(Unit* unit)
 	if (touch_unit == true)
 		unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(true);
 	else unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(false);
+}
+
+void Game::screen_out()
+{
+	getChildByTag(TAG_BACKGROUND)->setPosition(getChildByTag(TAG_BACKGROUND)->getPosition());
 }

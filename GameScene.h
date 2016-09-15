@@ -5,6 +5,7 @@
 #include "Order.h"
 #include "Monster.h"
 #include "Unit.h"
+#include "InforBoard.h"
 
 class Game : public cocos2d::Layer
 {
@@ -34,6 +35,7 @@ private:
 
 	void monster_location_init(cocos2d::Sprite* sprite);	//몬스터 이동 기본설정
 	void zorder_assort(float dt);		//zorder 정렬
+	void screen_out();		//화면 벗어남 확인
 
 	void selfRemover(Node* sender);	//삭제
 	void monsterRemover(Node* sender);	//몬스터 삭제
@@ -51,9 +53,7 @@ private:
 	bool touch;		//터치 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
-	int cur_level;	//현재 단계
-	int cur_leave;	//현재 몬스터 수
-	int cur_monster;	//현재 레벨에서 나온 몬스터 수
+	int summon_monster;	//몬스터 소환 마리수
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이
 	cocos2d::Point touch_point;	//시작 터치지점

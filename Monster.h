@@ -13,8 +13,10 @@ public:
 	void setEnergy(float max);
 	void setBody(char* name);
 	void setDefence(float def);
+	void setGold(int gold);
 	float getEnergy();
 	float getDefence();
+	int getGold();
 
 	cocos2d::Sprite* getBody();
 	float subEnergy(float damage);
@@ -26,6 +28,7 @@ private:
 	float maxEnergy;		//최대 체력
 	float curEnergy;		//현재 체력
 	float defence;			//방어력
+	int mGold;
 };
 
 #endif
