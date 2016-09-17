@@ -7,6 +7,7 @@
 #define ZORDER_UNIT 1
 #define ZORDER_INFORBOARD 2
 #define ZORDER_INTERfACE 3
+#define ZORDER_MENU 4
 
 #define TAG_BACKGROUND 1000
 #define TAG_UNIT 1001
@@ -22,5 +23,10 @@
 #define TAG_RANGE 2001
 #define TAG_MONSTER 2002
 #define TAG_CHARACTER 2003
+
+#define TAG_MENU 3000
+#define TAG_MENU_SOUL 3001
+
+#define TAG_SOUL_NUMBER 500
 
 #endif

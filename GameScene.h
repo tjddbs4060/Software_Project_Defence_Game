@@ -33,6 +33,8 @@ private:
 	void unit_atk_motion(Unit* unit);			//유닛 공격 모션
 	void unit_range(Unit* unit);	//유닛 공격범위 보이기
 
+	void onMenu(cocos2d::Object* sender);	//인터페이스 메뉴
+
 	void monster_location_init(cocos2d::Sprite* sprite);	//몬스터 이동 기본설정
 	void zorder_assort(float dt);		//zorder 정렬
 	void screen_out();		//화면 벗어남 확인
@@ -53,6 +55,8 @@ private:
 	bool touch;		//터치 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
+	bool new_soul_1;		//추가된 시민 확인 여부
+	bool new_soul_2;		//추가된 시민 확인 여부
 	int summon_monster;	//몬스터 소환 마리수
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이

@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-InforBoard::InforBoard() : mTime(10), mGold(0), mJewelry(0), mLevel(0), mMonster(0)
+InforBoard::InforBoard() : mTime(3), mGold(0), mJewelry(0), mLevel(0), mMonster(0), mSoul(0)
 {
 }
 
@@ -181,4 +181,14 @@ void InforBoard::update_monster()
 	}
 	changeNumber(TAG_BOARD_MONSTER + 10, 0);
 	changeNumber(TAG_BOARD_MONSTER + 11, 5);
+}
+
+void InforBoard::setSoul(int soul)
+{
+	mSoul = soul;
+}
+
+int InforBoard::getSoul()
+{
+	return mSoul;
 }

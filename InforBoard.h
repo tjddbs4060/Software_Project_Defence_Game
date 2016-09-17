@@ -24,11 +24,13 @@ public:
 	void setJewelry(int jewelry);
 	void setLevel(int level);
 	void setMonster(int monster);
+	void setSoul(int soul);
 	float getTime();
 	int getGold();
 	int getJewelry();
 	int getLevel();
 	int getMonster();
+	int getSoul();
 
 	void addNumberSprite(int tag, cocos2d::Point position, float scale);	//숫자 추가
 	void changeNumber(int tag, int number);	//숫자 변경
@@ -43,6 +45,7 @@ private:
 	int mJewelry;
 	int mLevel;
 	int mMonster;
+	int mSoul;
 };
 
 #endif

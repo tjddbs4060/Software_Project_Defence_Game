@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), summon_monster(0), anc_height(0), anc_width(0) {}
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), summon_monster(0), anc_height(0), anc_width(0) {}
 
 Scene* Game::scene()
 {
@@ -26,6 +26,25 @@ bool Game::init()
 	SpriteBatchNode* spriteBatchNodeSurface = SpriteBatchNode::create("Plist.png");
 	addChild(spriteBatchNodeSurface, ZORDER_UNIT, TAG_UNIT);
 
+	Sprite* menuNormal = Sprite::createWithSpriteFrameName("Soul.png");
+	MenuItemSprite* menuSoul = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
+	menuSoul->setTag(TAG_MENU_SOUL);
+	menuSoul->setPosition(Point(-(winSize.width / 2) + 30, 30));
+	Menu* menu = Menu::create(menuSoul, NULL);
+	addChild(menu, ZORDER_MENU, TAG_MENU);
+
+	for (int i = 1; i <= 10; i++)
+	{
+		char szFile[32] = { 0, };
+
+		sprintf(szFile, "soul_number_%d.png", i);
+		Sprite* sprite = Sprite::createWithSpriteFrameName(szFile);
+		sprite->setPosition(30, 30);
+		sprite->setTag(TAG_SOUL_NUMBER + i);
+		sprite->setVisible(false);
+		menuSoul->addChild(sprite);
+	}
+	
 	InforBoard* inforBoard = InforBoard::create();
 	inforBoard->setTag(TAG_INFORBOARD);
 	inforBoard->setAnchorPoint(Point(0.5, 1));
@@ -51,7 +70,7 @@ bool Game::init()
 	//schedule(schedule_selector(Game::addmonster), 1.f);
 	schedule(schedule_selector(Game::unit_atk_cooltime));
 	schedule(schedule_selector(Game::unit_atk_monster));
-	addunit(0.1f);
+	//addunit(0.1f);
 
 	auto listener = EventListenerTouchAllAtOnce::create();
 	listener->onTouchesBegan = CC_CALLBACK_2(Game::onTouchesBegan, this);
@@ -717,12 +736,43 @@ void Game::zorder_assort(float dt)
 
 	if (summon_monster > 0 && !((int)inforBoard->getTime()))
 	{
+		if (summon_monster == 11)
+		{
+			summon_monster = 10;
+			inforBoard->setSoul(inforBoard->getSoul() + 3);
+		}
 		schedule(schedule_selector(Game::addmonster), 1.f);
+		new_soul_1 = true;
+		new_soul_2 = false;
 	}
 	else if (summon_monster == 0)
 	{
 		unschedule(schedule_selector(Game::addmonster));
-		summon_monster = 10;
+		summon_monster = 11;
+	}
+	
+	if (inforBoard->getSoul() <= 0)
+		return;
+
+	int temp = inforBoard->getSoul();
+
+	if (new_soul_1 == true)
+	{
+		new_soul_1 == false;
+		
+		if (new_soul_2 == false)
+		{
+			new_soul_2 = true;
+
+			if (temp < 10)
+				getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SOUL)->getChildByTag(TAG_SOUL_NUMBER + temp)->setVisible(true);
+			else getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SOUL)->getChildByTag(TAG_SOUL_NUMBER + 10)->setVisible(true);
+		}
+	}
+	else
+	{
+		for (int i = 1; i <= 10; i++)
+			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SOUL)->getChildByTag(TAG_SOUL_NUMBER + i)->setVisible(false);
 	}
 }
 
@@ -755,4 +805,15 @@ void Game::unit_range(Unit* unit)
 void Game::screen_out()
 {
 	getChildByTag(TAG_BACKGROUND)->setPosition(getChildByTag(TAG_BACKGROUND)->getPosition());
+}
+
+void Game::onMenu(Object* sender)
+{
+	switch (((Node*)sender)->getTag())
+	{
+	case TAG_MENU_SOUL:
+		new_soul_1 = false;
+		new_soul_2 = false;
+		break;
+	}
 }
