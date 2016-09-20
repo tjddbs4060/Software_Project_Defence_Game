@@ -6,6 +6,7 @@
 #include "Monster.h"
 #include "Unit.h"
 #include "InforBoard.h"
+#include "SoulBoard.h"
 
 class Game : public cocos2d::Layer
 {
@@ -53,6 +54,7 @@ private:
 	std::vector<cocos2d::Sprite*> arr_location;	//몬스터 생성 위치
 
 	bool touch;		//터치 여부
+	bool touch_soul;	//시민 인터페이스 터치 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
 	bool new_soul_1;		//추가된 시민 확인 여부

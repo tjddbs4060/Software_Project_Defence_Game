@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-InforBoard::InforBoard() : mTime(3), mGold(0), mJewelry(0), mLevel(0), mMonster(0), mSoul(0)
+InforBoard::InforBoard() : mTime(5), mGold(0), mJewelry(0), mLevel(0), mMonster(0), mSoul(0)
 {
 }
 
@@ -122,7 +122,7 @@ InforBoard* InforBoard::create()
 	return NULL;
 }
 
-void InforBoard::addNumberSprite(int tag, cocos2d::Point position, float scale)
+void InforBoard::addNumberSprite(int tag, Point position, float scale)
 {
 	Sprite* sprite = Sprite::createWithSpriteFrameName("number_0.png");
 	sprite->setPosition(position);
@@ -147,7 +147,7 @@ void InforBoard::update_time()
 
 	if (mTime < 0)
 	{
-		setTime(60);
+		setTime(60);///////////
 		setLevel(getLevel() + 1);
 	}
 
@@ -158,8 +158,6 @@ void InforBoard::update_time()
 void InforBoard::update_G_J(int tag, int number)
 {
 	int temp = number;
-	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
-	char szFile[32] = { 0, };
 
 	for (int i = 0; i < 5; i++)
 	{

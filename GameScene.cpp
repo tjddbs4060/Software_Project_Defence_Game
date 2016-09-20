@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), summon_monster(0), anc_height(0), anc_width(0) {}
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), touch_soul(false), summon_monster(0), anc_height(0), anc_width(0) {}
 
 Scene* Game::scene()
 {
@@ -30,6 +30,7 @@ bool Game::init()
 	MenuItemSprite* menuSoul = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
 	menuSoul->setTag(TAG_MENU_SOUL);
 	menuSoul->setPosition(Point(-(winSize.width / 2) + 30, 30));
+
 	Menu* menu = Menu::create(menuSoul, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
@@ -51,6 +52,12 @@ bool Game::init()
 	inforBoard->setPosition(Point(winSize.width / 2, winSize.height));
 	inforBoard->setScale(winSize.width / inforBoard->getContentSize().width);
 	spriteBatchNodeSurface->addChild(inforBoard);
+
+	SoulBoard* soulBoard = SoulBoard::create();
+	soulBoard->setTag(TAG_INTERFACE_SOUL);
+	soulBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
+	soulBoard->setVisible(false);
+	spriteBatchNodeSurface->addChild(soulBoard);
 
 	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
 	sprite_background->setAnchorPoint(Point(0, 0));
@@ -525,6 +532,9 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 	touch = true;
 	touch_point = touches[0]->getLocation();
 
+	if (touch_soul == true)
+		return;
+
 	Unit* unit = touch_unit_check();
 
 	if (touch_unit_check() != NULL)
@@ -581,6 +591,111 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		unit_range(unit);
 	}
 
+	if (touch_soul == true)
+	{
+		SoulBoard* soulBoard = (SoulBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL);
+		InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+
+		float x = soulBoard->getPositionX() - (soulBoard->getContentSize().width/2);
+		float y = soulBoard->getPositionY() - (soulBoard->getContentSize().height/2);
+
+		Rect hero_down = Rect(x + 57, y + 95, 10, 10);
+		Rect hero_up = Rect(x + 85, y + 95, 10, 10);
+		Rect gold_down = Rect(x + 108, y + 95, 10, 10);
+		Rect gold_up = Rect(x + 136, y + 95, 10, 10);
+		Rect jewelry_down = Rect(x + 158, y + 95, 10, 10);
+		Rect jewelry_up = Rect(x + 186, y + 95, 10, 10);
+		Rect esc_button = Rect(x + 230, y + 184, 10, 10);
+		Rect ok_button = Rect(x + 107, y + 50, 40, 12);
+
+		if (hero_down.containsPoint(touches[0]->getLocation()))
+		{
+			if (soulBoard->getHero() > 0)
+			{
+				soulBoard->setHero(soulBoard->getHero() - 1);
+				soulBoard->setSoul(soulBoard->getSoul() + 1);
+				inforBoard->setSoul(inforBoard->getSoul() + 1);
+			}
+		}
+		else if (hero_up.containsPoint(touches[0]->getLocation()))
+		{
+			if (soulBoard->getSoul() > 0)
+			{
+				soulBoard->setHero(soulBoard->getHero() + 1);
+				soulBoard->setSoul(soulBoard->getSoul() - 1);
+				inforBoard->setSoul(inforBoard->getSoul() - 1);
+			}
+		}
+		else if (gold_down.containsPoint(touches[0]->getLocation()))
+		{
+			if (soulBoard->getGold() > 0)
+			{
+				soulBoard->setGold(soulBoard->getGold() - 1);
+				soulBoard->setSoul(soulBoard->getSoul() + 1);
+				inforBoard->setSoul(inforBoard->getSoul() + 1);
+			}
+		}
+		else if (gold_up.containsPoint(touches[0]->getLocation()))
+		{
+			if (soulBoard->getSoul() > 0)
+			{
+				soulBoard->setGold(soulBoard->getGold() + 1);
+				soulBoard->setSoul(soulBoard->getSoul() - 1);
+				inforBoard->setSoul(inforBoard->getSoul() - 1);
+			}
+		}
+		else if (jewelry_down.containsPoint(touches[0]->getLocation()))
+		{
+			if (soulBoard->getJewelry() > 0)
+			{
+				soulBoard->setJewelry(soulBoard->getJewelry() - 1);
+				soulBoard->setSoul(soulBoard->getSoul() + 1);
+				inforBoard->setSoul(inforBoard->getSoul() + 1);
+			}
+		}
+		else if (jewelry_up.containsPoint(touches[0]->getLocation()))
+		{
+			if (soulBoard->getSoul() > 0)
+			{
+				soulBoard->setJewelry(soulBoard->getJewelry() + 1);
+				soulBoard->setSoul(soulBoard->getSoul() - 1);
+				inforBoard->setSoul(inforBoard->getSoul() - 1);
+			}
+		}
+		else if (esc_button.containsPoint(touches[0]->getLocation()))
+		{
+			touch_soul = false;
+			new_soul_1 = true;
+			new_soul_2 = false;
+
+			inforBoard->setSoul(soulBoard->getHero() + soulBoard->getGold() + soulBoard->getJewelry() + soulBoard->getSoul());
+
+			soulBoard->setVisible(false);
+			soulBoard->setHero(0);
+			soulBoard->setGold(0);
+			soulBoard->setJewelry(0);
+			soulBoard->setSoul(inforBoard->getSoul());
+		}
+		else if (ok_button.containsPoint(touches[0]->getLocation()))
+		{
+			touch_soul = false;
+			new_soul_1 = true;
+			new_soul_2 = false;
+
+			inforBoard->setGold(inforBoard->getGold() + soulBoard->getGold());
+			inforBoard->setJewelry(inforBoard->getJewelry() + soulBoard->getJewelry());
+			inforBoard->setSoul(soulBoard->getSoul());
+
+			soulBoard->setVisible(false);
+			soulBoard->setHero(0);
+			soulBoard->setGold(0);
+			soulBoard->setJewelry(0);
+			soulBoard->setSoul(inforBoard->getSoul());
+		}
+
+		soulBoard->updateNumber(soulBoard);
+	}
+
 	touch = false;
 	touch_unit = false;
 
@@ -600,6 +715,9 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
 	if (touch_unit == true)
+		return;
+
+	if (touch_soul == true)
 		return;
 
 	Point movePoint = touches[0]->getLocation();
@@ -731,6 +849,7 @@ void Game::zorder_assort(float dt)
 	}
 
 	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+	SoulBoard* soulBoard = (SoulBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL);
 	
 	inforBoard->setTime(inforBoard->getTime() - dt);
 
@@ -740,6 +859,8 @@ void Game::zorder_assort(float dt)
 		{
 			summon_monster = 10;
 			inforBoard->setSoul(inforBoard->getSoul() + 3);
+			soulBoard->setSoul(inforBoard->getSoul());
+			soulBoard->updateNumber(soulBoard);
 		}
 		schedule(schedule_selector(Game::addmonster), 1.f);
 		new_soul_1 = true;
@@ -754,15 +875,17 @@ void Game::zorder_assort(float dt)
 	if (inforBoard->getSoul() <= 0)
 		return;
 
-	int temp = inforBoard->getSoul();
+	//int temp = inforBoard->getSoul() + soulBoard->getHero() + soulBoard->getGold() + soulBoard->getJewelry() + soulBoard->getSoul();
+	int temp = soulBoard->getHero() + soulBoard->getGold() + soulBoard->getJewelry() + soulBoard->getSoul();
 
 	if (new_soul_1 == true)
 	{
-		new_soul_1 == false;
-		
 		if (new_soul_2 == false)
 		{
 			new_soul_2 = true;
+
+			for (int i = 1; i <= 10; i++)
+				getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SOUL)->getChildByTag(TAG_SOUL_NUMBER + i)->setVisible(false);
 
 			if (temp < 10)
 				getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SOUL)->getChildByTag(TAG_SOUL_NUMBER + temp)->setVisible(true);
@@ -812,8 +935,11 @@ void Game::onMenu(Object* sender)
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_MENU_SOUL:
+		touch_soul = true;
 		new_soul_1 = false;
 		new_soul_2 = false;
+
+		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL)->setVisible(true);
 		break;
 	}
 }
