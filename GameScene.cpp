@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), touch_soul(false), summon_monster(0), anc_height(0), anc_width(0) {}
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), touch_soul(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0) {}
 
 Scene* Game::scene()
 {
@@ -356,19 +356,21 @@ void Game::unitRemover(Node* sender)
 	}
 }
 
-void Game::addunit(float dt)
+void Game::addunit()
 {
-	char szFile[64] = { 0, };
+	//랜덤으로 나와라
 
 	Size winSize = Director::getInstance()->getWinSize();
-
+	Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
+	float xpos = pt.x / 2;
+	float ypos = pt.y / 2;
 	Unit* unit = new Unit();
 
-	unit->setBody("unit_01.png");
+	unit->setBody("unit_left_atk_1.png");
 	unit->setDamage(70.f);
 	unit->setRange(100.f);
 	unit->setSpeed(2.f);
-	unit->getBody()->setPosition(Point(winSize.width * 0.2, winSize.height * 0.5));
+	unit->getBody()->setPosition(Point(xpos, ypos));
 
 	Sprite* sprite = Sprite::createWithSpriteFrameName("range.png");
 	sprite->setAnchorPoint(Point(0.5, 0.5));
@@ -378,7 +380,7 @@ void Game::addunit(float dt)
 	sprite->setScale(unit->getRange() / 50.f);		//왜인지 모르겠는데 2배 차이
 	
 	getChildByTag(TAG_BACKGROUND)->addChild(unit->getBody(), ZORDER_CHARACTER, TAG_CHARACTER);
-	getChildByTag(TAG_BACKGROUND)->getChildByTag(TAG_CHARACTER)->addChild(sprite, ZORDER_RANGE, TAG_RANGE);
+	unit->getBody()->addChild(sprite, ZORDER_RANGE, TAG_RANGE);
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 
@@ -452,6 +454,7 @@ void Game::unit_atk_monster(float dt)
 	Size winSize = Director::getInstance()->getWinSize();
 	Unit* unit = NULL;
 	Monster* monster = NULL;
+	bool right;
 
 	for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
 	{
@@ -465,8 +468,12 @@ void Game::unit_atk_monster(float dt)
 			{
 				if (unit->getMaxSpeed() <= unit->getCurSpeed())
 				{
+					if (unit->getBody()->getPositionX() - monster->getBody()->getPositionX() > 0)
+						right = false;
+					else right = true;
+
 					unit->setCurSpeed(0);
-					unit_atk_motion(unit);
+					unit_atk_motion(unit, right);
 					addattack(monster);
 					//addattack(unit->getBody()->getPosition(), monster->getBody()->getPosition(), unit);
 
@@ -506,7 +513,7 @@ void Game::unit_atk_cooltime(float dt)
 	}
 }
 
-void Game::unit_atk_motion(Unit* unit)
+void Game::unit_atk_motion(Unit* unit, bool right)
 {
 	char szFile[64] = { 0, };
 
@@ -514,6 +521,28 @@ void Game::unit_atk_motion(Unit* unit)
 
 	auto animation = Animation::create();
 
+	if (right == true)
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			sprintf(szFile, "unit_right_atk_%d.png", i);
+			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
+		}
+		animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_right_atk_1.png"));
+	}
+	else
+	{
+		for (int i = 0; i < 4; i++)
+		{
+			sprintf(szFile, "unit_left_atk_%d.png", i);
+			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
+		}
+		animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_left_atk_1.png"));
+	}
+
+	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.05f);
+	
+	/*
 	for (int i = 2; i < 4; i++)
 	{
 		sprintf(szFile, "unit_%02d.png", i);
@@ -521,7 +550,7 @@ void Game::unit_atk_motion(Unit* unit)
 	}
 	animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_01.png"));
 	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.1f);
-
+	*/
 	Animate* animate = Animate::create(animation);
 	
 	unit->getBody()->runAction(animate);
@@ -535,13 +564,14 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 	if (touch_soul == true)
 		return;
 
-	Unit* unit = touch_unit_check();
+	touch_unit_check();
 
-	if (touch_unit_check() != NULL)
+	if (now_unit != NULL)
 	{
 		touch_unit = true;
-		unit->getBody()->stopAllActions();
-		unit_range(unit);
+		now_unit->getBody()->stopAllActions();
+		now_unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(true);
+		//unit_range(now_unit);
 	}
 	/*
 	Touch* touch;
@@ -573,22 +603,45 @@ void Game::onTouchesCancelled(const std::vector<Touch*>& touches, Event *event)
 	*/
 }
 
+void Game::allstop_motion(Node* sender)
+{
+	sender->stopAllActions();
+}
+
 void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 {
 	if (touch_unit == true)
 	{
+		SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 		Size winSize = Director::getInstance()->getWinSize();
 		Point pt = getChildByTag(TAG_BACKGROUND)->getPosition();
 
-		Unit* unit = touch_unit_check();
+		MoveTo* moveto = MoveTo::create(calDistance(now_unit->getBody()->getPosition(), touches[0]->getLocation() - pt)/150.f, touches[0]->getLocation() - pt);
+		CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::allstop_motion, this));
+		auto animation = Animation::create();
 
-		MoveTo* moveto = MoveTo::create(calDistance(unit->getBody()->getPosition(), touches[0]->getLocation())/150.f, touches[0]->getLocation() - pt);
-		
-		unit->getBody()->runAction(moveto);
+		if (now_unit->getBody()->getPositionX() - (touches[0]->getLocation().x - pt.x) > 0)
+		{
+			animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_left_atk_1.png"));
+			now_unit->setRight(false);
+		}
+		else
+		{
+			animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_right_atk_1.png"));
+			now_unit->setRight(true);
+		}
+		animation->setDelayPerUnit(0.0001f);
 
+		Animate* animate = Animate::create(animation);
+		Sequence* sequence = Sequence::create(moveto, animate, callfunc, NULL);
+
+		move_unit(now_unit, now_unit->getRight());
+		now_unit->getBody()->runAction(sequence);
+
+		//now_unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(false);
+		//unit_range(now_unit);
 		touch_unit = false;
-
-		unit_range(unit);
+		now_unit = NULL;
 	}
 
 	if (touch_soul == true)
@@ -682,8 +735,28 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			new_soul_1 = true;
 			new_soul_2 = false;
 
-			inforBoard->setGold(inforBoard->getGold() + soulBoard->getGold());
-			inforBoard->setJewelry(inforBoard->getJewelry() + soulBoard->getJewelry());
+			int gold_rand;
+			int jewelry_rand;
+
+			for (int i = 0; i < soulBoard->getHero(); i++)
+				addunit();
+
+			for (int i = 0; i < soulBoard->getGold(); i++)
+			{
+				gold_rand = rand() % 10 + 1;
+
+				inforBoard->setGold(inforBoard->getGold() + gold_rand);
+			}
+
+			for (int i = 0; i < soulBoard->getJewelry(); i++)
+			{
+				jewelry_rand = rand() % 1000;
+
+				if (jewelry_rand < 5000)
+					inforBoard->setJewelry(inforBoard->getJewelry() + 1);
+
+			}
+
 			inforBoard->setSoul(soulBoard->getSoul());
 
 			soulBoard->setVisible(false);
@@ -899,7 +972,7 @@ void Game::zorder_assort(float dt)
 	}
 }
 
-Unit* Game::touch_unit_check()
+void Game::touch_unit_check()
 {
 	Size winSize = Director::getInstance()->getWinSize();
 	Point pt = getChildByTag(TAG_BACKGROUND)->getPosition();
@@ -912,17 +985,13 @@ Unit* Game::touch_unit_check()
 		Rect boundingBox = unit->getBody()->getBoundingBox();
 		
 		if (boundingBox.containsPoint(touch_point - pt))
-			return unit;
+		{
+			now_unit = unit;
+			return;
+		}
 	}
 
-	return NULL;
-}
-
-void Game::unit_range(Unit* unit)
-{
-	if (touch_unit == true)
-		unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(true);
-	else unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(false);
+	return;
 }
 
 void Game::screen_out()
@@ -942,4 +1011,40 @@ void Game::onMenu(Object* sender)
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL)->setVisible(true);
 		break;
 	}
+}
+
+void Game::move_unit(Unit* unit, bool right)
+{
+	char szFile[64] = { 0, };
+
+	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
+
+	auto animation = Animation::create();
+
+	if (right == true)
+	{
+		for (int i = 1; i < 10; i++)
+		{
+			sprintf(szFile, "unit_right_%d.png", i);
+			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
+		}
+		animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_right_atk_3.png"));
+	}
+	else
+	{
+		for (int i = 1; i < 10; i++)
+		{
+			sprintf(szFile, "unit_left_%d.png", i);
+			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
+		}
+		animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_left_atk_3.png"));
+	}
+
+	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.02f);
+
+	Animate* animate = Animate::create(animation);
+	RepeatForever* repeat = RepeatForever::create(animate);
+
+	unit->getBody()->runAction(repeat);
+	unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(false);
 }

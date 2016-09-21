@@ -576,39 +576,6 @@
 				<key>sourceSize</key>
 				<string>{30,30}</string>
 			</dict>
-			<key>unit_01.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{950,370},{30,30}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{30,30}</string>
-			</dict>
-			<key>unit_02.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{980,390},{30,30}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{30,30}</string>
-			</dict>
-			<key>unit_03.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{860,400},{30,30}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{30,30}</string>
-			</dict>
 			<key>bullet.png</key>
 			<dict>
 				<key>frame</key>
@@ -689,7 +656,7 @@
 			<key>number_4.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{890,400},{15,15}}</string>
+				<string>{{640,230},{15,15}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -700,7 +667,7 @@
 			<key>number_5.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{905,400},{15,15}}</string>
+				<string>{{655,230},{15,15}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -711,7 +678,7 @@
 			<key>number_6.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{920,400},{15,15}}</string>
+				<string>{{670,230},{15,15}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -722,7 +689,7 @@
 			<key>number_7.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{935,400},{15,15}}</string>
+				<string>{{685,230},{15,15}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -733,7 +700,7 @@
 			<key>number_8.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{950,400},{15,15}}</string>
+				<string>{{700,230},{15,15}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -744,7 +711,7 @@
 			<key>number_9.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{965,400},{15,15}}</string>
+				<string>{{715,230},{15,15}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -755,7 +722,7 @@
 			<key>number_col.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{890,415},{15,15}}</string>
+				<string>{{730,230},{15,15}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -905,6 +872,314 @@
 				<false />
 				<key>sourceSize</key>
 				<string>{250,200}</string>
+			</dict>
+			<key>unit_left_0.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{950,370},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_1.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{980,390},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_2.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{860,400},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_3.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{890,400},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_4.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{920,400},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_5.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{950,400},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_6.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{980,420},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_7.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{860,430},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_8.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{890,430},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_9.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{920,430},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_atk_0.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{950,430},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_atk_1.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{980,450},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_atk_2.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{860,460},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_left_atk_3.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{890,460},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_0.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{920,460},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_1.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{950,460},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_2.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{980,480},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_3.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{550,200},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_4.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{580,200},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_5.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{610,200},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_6.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{640,200},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_7.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{670,200},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_8.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{700,200},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_9.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{730,200},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_atk_0.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{760,200},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_atk_1.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{550,230},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_atk_2.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{580,230},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
+			</dict>
+			<key>unit_right_atk_3.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{610,230},{30,30}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{30,30}</string>
 			</dict>
 		</dict>
 		<key>metadata</key>

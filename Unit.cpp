@@ -1,6 +1,6 @@
 #include "Unit.h"
 
-Unit::Unit() : body(NULL), max_speed(1.f), cur_speed(0), range(50.f), type(0), damage(0)
+Unit::Unit() : body(NULL), max_speed(1.f), cur_speed(0), range(50.f), type(0), damage(0), right(false)
 {
 }
 
@@ -29,6 +29,11 @@ void Unit::setCurSpeed(float spd)
 	cur_speed = spd;
 }
 
+void Unit::setRight(bool tf)
+{
+	right = tf;
+}
+
 float Unit::getMaxSpeed()
 {
 	return max_speed;
@@ -47,6 +52,11 @@ float Unit::getDamage()
 float Unit::getRange()
 {
 	return range;
+}
+
+bool Unit::getRight()
+{
+	return right;
 }
 
 void Unit::setBody(char* name)

@@ -25,14 +25,14 @@ public:
 private:
 	void addmonster(float dt);	//몬스터 추가
 	void addmonster_death(cocos2d::Point pt);	//몬스터가 죽으면 폭발 애니메이션
-	void addunit(float dt);	//유닛 추가
+	void addunit();		//유닛 추가
 	void addunit_mix(cocos2d::Point pt);	//조합하여 유닛 삭제
 	void addunit_sell(cocos2d::Point pt);	//팔아서 유닛 삭제
 	void addattack(Monster* monster);	//공격 모션
 	void unit_atk_monster(float dt);	//유닛으로부터 몬스터 공격
 	void unit_atk_cooltime(float dt);	//유닛의 공격 가능 여부
-	void unit_atk_motion(Unit* unit);			//유닛 공격 모션
-	void unit_range(Unit* unit);	//유닛 공격범위 보이기
+	void unit_atk_motion(Unit* unit, bool right);	//유닛 공격 모션
+	void move_unit(Unit* unit, bool right);		//유닛 움직임 모션
 
 	void onMenu(cocos2d::Object* sender);	//인터페이스 메뉴
 
@@ -43,9 +43,10 @@ private:
 	void selfRemover(Node* sender);	//삭제
 	void monsterRemover(Node* sender);	//몬스터 삭제
 	void unitRemover(Node* sender);		//유닛 삭제
+	void allstop_motion(Node* sender);	//모션 멈춤
 	
 	cocos2d::Point map_out_check(cocos2d::Point point);	//맵을 벗어나는지 확인
-	Unit* touch_unit_check();	//유닛을 클릭했는지 여부
+	void touch_unit_check();	//유닛을 클릭했는지 여부
 
 	float calDistance(cocos2d::Point from, cocos2d::Point to);	//두 점 사이의 거리 계산
 
@@ -63,6 +64,8 @@ private:
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이
 	cocos2d::Point touch_point;	//시작 터치지점
+
+	Unit* now_unit;	//현재 선택한 유닛
 };
 
 #endif
