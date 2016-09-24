@@ -1,5 +1,7 @@
 #include "GameScene.h"
 
+#pragma execution_character_set("UTF-8")
+
 USING_NS_CC;
 
 Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), touch_soul(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0) {}
@@ -186,8 +188,7 @@ void Game::addmonster(float dt)
 
 	arr_monster.push_back(monster);
 
-	inforBoard->setMonster(arr_monster.size());
-	inforBoard->update_monster();
+	inforBoard->setMonster(inforBoard->getMonster() + 1);
 	/*
 	int monster_type = rand() % 3 + 1;
 	char szFile[64] = { 0, };
@@ -359,6 +360,7 @@ void Game::unitRemover(Node* sender)
 void Game::addunit()
 {
 	//·£´ýÀ¸·Î ³ª¿Í¶ó
+	addlabel("SSS±Þ ¿µ¿õ ¸ð½Ã¸¶ÄÉ¾Æ¸®¸¶¼Ä", 0, 0);
 
 	Size winSize = Director::getInstance()->getWinSize();
 	Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
@@ -485,11 +487,10 @@ void Game::unit_atk_monster(float dt)
 						delete monster;
 						iterMonster = arr_monster.erase(iterMonster);
 
+						inforBoard->setMonster(inforBoard->getMonster() - 1);
+
 						if (iterMonster == arr_monster.end())
 							break;
-
-						inforBoard->setMonster(arr_monster.size());
-						inforBoard->update_monster();
 					}
 					else
 						break;
@@ -746,15 +747,18 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				gold_rand = rand() % 10 + 1;
 
 				inforBoard->setGold(inforBoard->getGold() + gold_rand);
+				addlabel(NULL, gold_rand, 1);
 			}
 
 			for (int i = 0; i < soulBoard->getJewelry(); i++)
 			{
-				jewelry_rand = rand() % 1000;
+				jewelry_rand = rand() % 10000;
 
 				if (jewelry_rand < 5000)
+				{
 					inforBoard->setJewelry(inforBoard->getJewelry() + 1);
-
+					addlabel(NULL, jewelry_rand, 2);
+				}
 			}
 
 			inforBoard->setSoul(soulBoard->getSoul());
@@ -934,6 +938,7 @@ void Game::zorder_assort(float dt)
 			inforBoard->setSoul(inforBoard->getSoul() + 3);
 			soulBoard->setSoul(inforBoard->getSoul());
 			soulBoard->updateNumber(soulBoard);
+			addlabel(NULL, 3, 3);
 		}
 		schedule(schedule_selector(Game::addmonster), 1.f);
 		new_soul_1 = true;
@@ -946,7 +951,12 @@ void Game::zorder_assort(float dt)
 	}
 	
 	if (inforBoard->getSoul() <= 0)
+	{
+		for (int i = 1; i <= 10; i++)
+			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SOUL)->getChildByTag(TAG_SOUL_NUMBER + i)->setVisible(false);
+
 		return;
+	}
 
 	//int temp = inforBoard->getSoul() + soulBoard->getHero() + soulBoard->getGold() + soulBoard->getJewelry() + soulBoard->getSoul();
 	int temp = soulBoard->getHero() + soulBoard->getGold() + soulBoard->getJewelry() + soulBoard->getSoul();
@@ -1047,4 +1057,65 @@ void Game::move_unit(Unit* unit, bool right)
 
 	unit->getBody()->runAction(repeat);
 	unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(false);
+}
+
+void Game::addlabel(char* name, int gold, int choice)
+{
+	Size winSize = Director::getInstance()->getWinSize();
+	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
+	Sprite* sprite = Sprite::createWithSpriteFrameName("Label.png");
+	Label* label;
+	char szFile[64] = { 0, };
+	float height = arr_label.size() * 15;
+
+	switch (choice)
+	{
+	case 0:
+		sprintf(szFile, "%s%s", name, " ¼ÒÈ¯");
+		label = Label::createWithSystemFont(szFile, "Arial", 10);
+		break;
+	case 1:
+		sprintf(szFile, "%d%s", gold, " °ñµå È¹µæ");
+		label = Label::createWithSystemFont(szFile, "Arial", 10);
+		break;
+	case 2:
+		sprintf(szFile, "1 º¸¼® È¹µæ");
+		label = Label::createWithSystemFont(szFile, "Arial", 10);
+		break;
+	case 3:
+		sprintf(szFile, "%s%d%s", "½Ã¹Î ", gold, " È¹µæ");;
+		label = Label::createWithSystemFont(szFile, "Arial", 10);
+		break;
+	}
+
+	sprite->setPosition(winSize.width / 2, winSize.height * 0.8 - height);
+	sprite->setOpacity(100);
+
+	label->setPosition(Point(sprite->getContentSize().width / 2, sprite->getContentSize().height / 2));
+	addChild(sprite, ZORDER_LABEL, TAG_LABEL);
+	sprite->addChild(label, ZORDER_LABEL, TAG_LABEL);
+
+	FadeOut* fadeout = FadeOut::create(1.5f);
+	CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::labelRemover, this));
+	Sequence* sequence = Sequence::create(fadeout, callfunc, NULL);
+
+	sprite->runAction(sequence);
+
+	arr_label.push_back(sprite);
+}
+
+void Game::labelRemover(Node* sender)
+{
+	Sprite* sprite = NULL;
+
+	for (std::vector<Sprite*>::iterator iterLabel = arr_label.begin(); iterLabel != arr_label.end(); iterLabel++)
+	{
+		sprite = (Sprite*)*iterLabel;
+
+		sprite->removeFromParentAndCleanup(true);
+		delete sprite;
+		iterLabel = arr_label.erase(iterLabel);
+
+		break;
+	}
 }

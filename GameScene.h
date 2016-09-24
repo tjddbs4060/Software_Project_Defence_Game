@@ -33,6 +33,7 @@ private:
 	void unit_atk_cooltime(float dt);	//유닛의 공격 가능 여부
 	void unit_atk_motion(Unit* unit, bool right);	//유닛 공격 모션
 	void move_unit(Unit* unit, bool right);		//유닛 움직임 모션
+	void addlabel(char* name, int gold, int choice);	//라벨 생성
 
 	void onMenu(cocos2d::Object* sender);	//인터페이스 메뉴
 
@@ -44,6 +45,7 @@ private:
 	void monsterRemover(Node* sender);	//몬스터 삭제
 	void unitRemover(Node* sender);		//유닛 삭제
 	void allstop_motion(Node* sender);	//모션 멈춤
+	void labelRemover(Node* sender);	//라벨 제거
 	
 	cocos2d::Point map_out_check(cocos2d::Point point);	//맵을 벗어나는지 확인
 	void touch_unit_check();	//유닛을 클릭했는지 여부
@@ -53,6 +55,7 @@ private:
 	std::vector<Monster*> arr_monster;	//몬스터 배열
 	std::vector<Unit*> arr_unit;	//유닛 배열
 	std::vector<cocos2d::Sprite*> arr_location;	//몬스터 생성 위치
+	std::vector<cocos2d::Sprite*> arr_label;	//생성된 라벨 배열
 
 	bool touch;		//터치 여부
 	bool touch_soul;	//시민 인터페이스 터치 여부
