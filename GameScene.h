@@ -63,6 +63,7 @@ private:
 	bool touch_unit;	//유닛을 터치하였는지 여부
 	bool new_soul_1;		//추가된 시민 확인 여부
 	bool new_soul_2;		//추가된 시민 확인 여부
+	bool skip;			//skip 여부
 	int summon_monster;	//몬스터 소환 마리수
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이

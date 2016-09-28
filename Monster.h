@@ -24,6 +24,8 @@ public:
 
 private:
 	cocos2d::Sprite* body;	//이미지
+	cocos2d::Sprite* hp_bar;	//hp 뒷배경
+	cocos2d::Sprite* hp;	//실제 hp 이미지
 
 	float maxEnergy;		//최대 체력
 	float curEnergy;		//현재 체력

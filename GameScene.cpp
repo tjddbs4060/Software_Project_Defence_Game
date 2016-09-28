@@ -4,7 +4,8 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), touch_soul(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0) {}
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
+skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0) {}
 
 Scene* Game::scene()
 {
@@ -32,8 +33,24 @@ bool Game::init()
 	MenuItemSprite* menuSoul = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
 	menuSoul->setTag(TAG_MENU_SOUL);
 	menuSoul->setPosition(Point(-(winSize.width / 2) + 30, 30));
+	
+	menuNormal = Sprite::createWithSpriteFrameName("skip.png");
+	MenuItemSprite* menuSkip = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
+	menuSkip->setTag(TAG_MENU_SKIP);
+	menuSkip->setPosition(Point(-(winSize.width / 2) + 30, winSize.height / 4));
+	
+	Sprite* skip_back = Sprite::createWithSpriteFrameName("skip_background.png");
+	skip_back->setVisible(false);
+	skip_back->setTag(TAG_MENU_SKIP_BACK);
+	skip_back->setPosition(menuNormal->getContentSize().width / 2, menuNormal->getContentSize().height / 2);
+	
+	RotateBy* rotate = RotateBy::create(2.f, 360);
+	RepeatForever* repeat = RepeatForever::create(rotate);
 
-	Menu* menu = Menu::create(menuSoul, NULL);
+	skip_back->runAction(repeat);
+	menuSkip->addChild(skip_back);
+
+	Menu* menu = Menu::create(menuSoul, menuSkip, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	for (int i = 1; i <= 10; i++)
@@ -189,87 +206,6 @@ void Game::addmonster(float dt)
 	arr_monster.push_back(monster);
 
 	inforBoard->setMonster(inforBoard->getMonster() + 1);
-	/*
-	int monster_type = rand() % 3 + 1;
-	char szFile[64] = { 0, };
-
-	Size winSize = Director::getInstance()->getWinSize();
-	Monster* monster = new Monster;
-
-	sprintf(szFile, "monster_0%d_02.png", monster_type);
-	monster->setBody(szFile);
-	monster->setEnergy(100.f);		//체력
-	monster->setDefence(0.f);
-	monster->getBody()->setPosition(Point(winSize.width * 0.1, winSize.height * 0.9));
-
-	getChildByTag(TAG_UNIT)->addChild(monster->getBody(), ZORDER_MONSTER, TAG_MONSTER);
-
-	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
-
-	auto animation_down = Animation::create();
-	auto animation_left = Animation::create();
-	auto animation_right = Animation::create();
-	auto animation_up = Animation::create();
-	
-	for (int i = 1; i < 5; i++)
-	{
-		sprintf(szFile, "monster_%02d_%02d.png", monster_type, i);
-		animation_down->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
-	}
-	animation_down->setDelayPerUnit(0.1);
-	
-	for (int i = 5; i < 9; i++)
-	{
-		sprintf(szFile, "monster_%02d_%02d.png", monster_type, i);
-		animation_right->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
-	}
-	animation_right->setDelayPerUnit(0.1);
-
-	for (int i = 9; i < 13; i++)
-	{
-		sprintf(szFile, "monster_%02d_%02d.png", monster_type, i);
-		animation_up->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
-	}
-	animation_up->setDelayPerUnit(0.1);
-
-	for (int i = 13; i < 17; i++)
-	{
-		sprintf(szFile, "monster_%02d_%02d.png", monster_type, i);
-		animation_left->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
-	}
-	animation_left->setDelayPerUnit(0.1);
-	
-	float w_speed = winSize.width * 0.005;
-	float h_speed = winSize.height * 0.005;
-
-	auto animate_down = Animate::create(animation_down);
-	auto animate_left = Animate::create(animation_left);
-	auto animate_right = Animate::create(animation_right);
-	auto animate_up = Animate::create(animation_up);
-
-	//2.5를 곱한 이유 = animate 한번당 0.4초가 걸림
-	auto rep_down = Repeat::create(animate_down, h_speed * 2.5);
-	auto rep_left = Repeat::create(animate_left, w_speed * 2.5);
-	auto rep_right = Repeat::create(animate_right, w_speed * 2.5);
-	auto rep_up = Repeat::create(animate_up, h_speed * 2.5);
-	
-	MoveTo* move_1 = MoveTo::create(h_speed, Point(winSize.width * 0.1, winSize.height * 0.1));
-	MoveTo* move_2 = MoveTo::create(w_speed, Point(winSize.width * 0.9, winSize.height * 0.1));
-	MoveTo* move_3 = MoveTo::create(h_speed, Point(winSize.width * 0.9, winSize.height * 0.9));
-	MoveTo* move_4 = MoveTo::create(w_speed, Point(winSize.width * 0.1, winSize.height * 0.9));
-	
-	auto Spawn_down = Spawn::create(move_1, rep_down, NULL);
-	auto Spawn_right = Spawn::create(move_2, rep_right, NULL);
-	auto Spawn_up = Spawn::create(move_3, rep_up, NULL);
-	auto Spawn_left = Spawn::create(move_4, rep_left, NULL);
-
-	auto sequence = Sequence::create(Spawn_down, Spawn_right, Spawn_up, Spawn_left, NULL);
-	auto rep = RepeatForever::create(sequence);
-
-	monster->getBody()->runAction(rep);
-
-	arr_monster.push_back(monster);
-	*/
 }
 
 void Game::selfRemover(Node* sender)
@@ -924,7 +860,7 @@ void Game::zorder_assort(float dt)
 
 		monster->getBody()->setZOrder(1000 - monster->getBody()->getPositionY());
 	}
-
+	
 	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
 	SoulBoard* soulBoard = (SoulBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL);
 	
@@ -948,6 +884,9 @@ void Game::zorder_assort(float dt)
 	{
 		unschedule(schedule_selector(Game::addmonster));
 		summon_monster = 11;
+
+		if (skip == true)
+			inforBoard->setTime(1);
 	}
 	
 	if (inforBoard->getSoul() <= 0)
@@ -1011,6 +950,8 @@ void Game::screen_out()
 
 void Game::onMenu(Object* sender)
 {
+	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+	
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_MENU_SOUL:
@@ -1019,6 +960,20 @@ void Game::onMenu(Object* sender)
 		new_soul_2 = false;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL)->setVisible(true);
+		break;
+	case TAG_MENU_SKIP:
+		if (skip == false)
+		{
+			skip = true;
+			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SKIP)->getChildByTag(TAG_MENU_SKIP_BACK)->setVisible(true);
+			inforBoard->setTime(1);
+		}
+		else
+		{
+			skip = false;
+			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SKIP)->getChildByTag(TAG_MENU_SKIP_BACK)->setVisible(false);
+		}
+
 		break;
 	}
 }

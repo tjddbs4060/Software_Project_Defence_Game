@@ -29,6 +29,8 @@
 
 #define TAG_MENU 3000
 #define TAG_MENU_SOUL 3001
+#define TAG_MENU_SKIP 3002
+#define TAG_MENU_SKIP_BACK 3003
 
 #define TAG_SOUL_NUMBER 500
 
