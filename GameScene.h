@@ -7,6 +7,7 @@
 #include "Unit.h"
 #include "InforBoard.h"
 #include "SoulBoard.h"
+#include "Gamble.h"
 
 class Game : public cocos2d::Layer
 {
@@ -34,6 +35,7 @@ private:
 	void unit_atk_motion(Unit* unit, bool right);	//유닛 공격 모션
 	void move_unit(Unit* unit, bool right);		//유닛 움직임 모션
 	void addlabel(char* name, int gold, int choice);	//라벨 생성
+	bool rand_cal(float per);		//확률 계산기
 
 	void onMenu(cocos2d::Object* sender);	//인터페이스 메뉴
 
@@ -59,6 +61,7 @@ private:
 
 	bool touch;		//터치 여부
 	bool touch_soul;	//시민 인터페이스 터치 여부
+	bool touch_gamble;	//도박 인터페이스 터치 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
 	bool new_soul_1;		//추가된 시민 확인 여부

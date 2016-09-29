@@ -4,7 +4,7 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
 skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0) {}
 
 Scene* Game::scene()
@@ -33,24 +33,29 @@ bool Game::init()
 	MenuItemSprite* menuSoul = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
 	menuSoul->setTag(TAG_MENU_SOUL);
 	menuSoul->setPosition(Point(-(winSize.width / 2) + 30, 30));
-	
+
 	menuNormal = Sprite::createWithSpriteFrameName("skip.png");
 	MenuItemSprite* menuSkip = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
 	menuSkip->setTag(TAG_MENU_SKIP);
 	menuSkip->setPosition(Point(-(winSize.width / 2) + 30, winSize.height / 4));
-	
+
 	Sprite* skip_back = Sprite::createWithSpriteFrameName("skip_background.png");
 	skip_back->setVisible(false);
 	skip_back->setTag(TAG_MENU_SKIP_BACK);
 	skip_back->setPosition(menuNormal->getContentSize().width / 2, menuNormal->getContentSize().height / 2);
-	
+
 	RotateBy* rotate = RotateBy::create(2.f, 360);
 	RepeatForever* repeat = RepeatForever::create(rotate);
 
 	skip_back->runAction(repeat);
 	menuSkip->addChild(skip_back);
 
-	Menu* menu = Menu::create(menuSoul, menuSkip, NULL);
+	menuNormal = Sprite::createWithSpriteFrameName("Gamble.png");
+	MenuItemSprite* menuGamble = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
+	menuGamble->setTag(TAG_MENU_GAMBLE);
+	menuGamble->setPosition(Point(-(winSize.width / 2) + 30, -20));
+
+	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	for (int i = 1; i <= 10; i++)
@@ -64,7 +69,7 @@ bool Game::init()
 		sprite->setVisible(false);
 		menuSoul->addChild(sprite);
 	}
-	
+
 	InforBoard* inforBoard = InforBoard::create();
 	inforBoard->setTag(TAG_INFORBOARD);
 	inforBoard->setAnchorPoint(Point(0.5, 1));
@@ -77,6 +82,12 @@ bool Game::init()
 	soulBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
 	soulBoard->setVisible(false);
 	spriteBatchNodeSurface->addChild(soulBoard);
+
+	Gamble* gamble = Gamble::create();
+	gamble->setTag(TAG_INTERFACE_GAMBLE);
+	gamble->setPosition(Point(winSize.width / 2, winSize.height / 2));
+	gamble->setVisible(false);
+	spriteBatchNodeSurface->addChild(gamble);
 
 	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
 	sprite_background->setAnchorPoint(Point(0, 0));
@@ -245,13 +256,13 @@ void Game::addmonster_death(Point pt)
 
 	Sprite* sprite_death = Sprite::createWithSpriteFrameName("death_01.png");
 	sprite_death->setPosition(pt);
-	
+
 	getChildByTag(TAG_BACKGROUND)->addChild(sprite_death, ZORDER_MONSTER_DEATH);
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
-	
+
 	auto animation = Animation::create();
-	
+
 	for (int i = 1; i < 4; i++)
 	{
 		sprintf(szFile, "death_%02d.png", i);
@@ -316,7 +327,7 @@ void Game::addunit()
 	sprite->setOpacity(70);
 	sprite->setVisible(false);
 	sprite->setScale(unit->getRange() / 50.f);		//¿ÖÀÎÁö ¸ð¸£°Ú´Âµ¥ 2¹è Â÷ÀÌ
-	
+
 	getChildByTag(TAG_BACKGROUND)->addChild(unit->getBody(), ZORDER_CHARACTER, TAG_CHARACTER);
 	unit->getBody()->addChild(sprite, ZORDER_RANGE, TAG_RANGE);
 
@@ -345,24 +356,6 @@ float Game::calDistance(Point from, Point to)
 
 void Game::addattack(Monster* monster)
 {
-	/*
-	Size winSize = Director::getInstance()->getWinSize();
-
-	float distance = calDistance(from, to);
-	
-	Sprite* sprite_bullet = Sprite::createWithSpriteFrameName("bullet.png");
-	sprite_bullet->setPosition(from);
-
-	MoveTo* moveTo = MoveTo::create(0.03f, to);
-	MoveTo* stop = MoveTo::create(unit->getMaxSpeed() * 0.2, from);
-	CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::selfRemover, this));
-	Sequence* sequence = Sequence::create(stop, moveTo, callfunc, NULL);
-
-	sprite_bullet->runAction(sequence);
-	
-	getChildByTag(TAG_UNIT)->addChild(sprite_bullet, ZORDER_ATK);
-	*/
-	//cocos2d::Point from, cocos2d::Point to, Unit* unit
 	Sprite* sprite_bullet = Sprite::createWithSpriteFrameName("bullet.png");
 	sprite_bullet->setPosition(Point(15, 15));
 
@@ -381,7 +374,7 @@ void Game::addattack(Monster* monster)
 	Sequence* sequence = Sequence::create(animate, callfunc, NULL);
 
 	sprite_bullet->runAction(sequence);
-	
+
 	monster->getBody()->addChild(sprite_bullet, ZORDER_BULLET);
 }
 
@@ -478,7 +471,7 @@ void Game::unit_atk_motion(Unit* unit, bool right)
 	}
 
 	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.05f);
-	
+
 	/*
 	for (int i = 2; i < 4; i++)
 	{
@@ -489,7 +482,7 @@ void Game::unit_atk_motion(Unit* unit, bool right)
 	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.1f);
 	*/
 	Animate* animate = Animate::create(animation);
-	
+
 	unit->getBody()->runAction(animate);
 }
 
@@ -498,7 +491,7 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 	touch = true;
 	touch_point = touches[0]->getLocation();
 
-	if (touch_soul == true)
+	if (touch_soul == true || touch_gamble == true)
 		return;
 
 	touch_unit_check();
@@ -553,7 +546,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		Size winSize = Director::getInstance()->getWinSize();
 		Point pt = getChildByTag(TAG_BACKGROUND)->getPosition();
 
-		MoveTo* moveto = MoveTo::create(calDistance(now_unit->getBody()->getPosition(), touches[0]->getLocation() - pt)/150.f, touches[0]->getLocation() - pt);
+		MoveTo* moveto = MoveTo::create(calDistance(now_unit->getBody()->getPosition(), touches[0]->getLocation() - pt) / 150.f, touches[0]->getLocation() - pt);
 		CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::allstop_motion, this));
 		auto animation = Animation::create();
 
@@ -585,9 +578,9 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 	{
 		SoulBoard* soulBoard = (SoulBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL);
 		InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
-
-		float x = soulBoard->getPositionX() - (soulBoard->getContentSize().width/2);
-		float y = soulBoard->getPositionY() - (soulBoard->getContentSize().height/2);
+		
+		float x = soulBoard->getPositionX() - (soulBoard->getContentSize().width / 2);
+		float y = soulBoard->getPositionY() - (soulBoard->getContentSize().height / 2);
 
 		Rect hero_down = Rect(x + 57, y + 95, 10, 10);
 		Rect hero_up = Rect(x + 85, y + 95, 10, 10);
@@ -673,7 +666,6 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			new_soul_2 = false;
 
 			int gold_rand;
-			int jewelry_rand;
 
 			for (int i = 0; i < soulBoard->getHero(); i++)
 				addunit();
@@ -688,12 +680,10 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 			for (int i = 0; i < soulBoard->getJewelry(); i++)
 			{
-				jewelry_rand = rand() % 10000;
-
-				if (jewelry_rand < 5000)
+				if (rand_cal(0.5))
 				{
 					inforBoard->setJewelry(inforBoard->getJewelry() + 1);
-					addlabel(NULL, jewelry_rand, 2);
+					addlabel(NULL, 0, 2);
 				}
 			}
 
@@ -708,7 +698,68 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 		soulBoard->updateNumber(soulBoard);
 	}
+	
+	if (touch_gamble == true)
+	{
+		InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+		Gamble* gamble = (Gamble*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_GAMBLE);
 
+		int temp = 0;
+		float x = gamble->getPositionX() - (gamble->getContentSize().width / 2);
+		float y = gamble->getPositionY() - (gamble->getContentSize().height / 2);
+
+		Rect low_button = Rect(x + 56, y + 83, 40, 12);
+		Rect mid_button = Rect(x + 106, y + 83, 40, 12);
+		Rect high_button = Rect(x + 156, y + 83, 40, 12);
+		Rect esc_button = Rect(x + 230, y + 184, 10, 10);
+
+		if (low_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - 10 >= 0)
+			{
+				temp = gamble->low_gamble();
+
+				inforBoard->setGold(inforBoard->getGold() - 10);
+				inforBoard->setGold(inforBoard->getGold() + temp);
+
+				addlabel(NULL, temp, 5);
+			}
+			else addlabel(NULL, temp, 4);
+		}
+		else if (mid_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - 100 >= 0)
+			{
+				temp = gamble->middle_gamble();
+
+				inforBoard->setGold(inforBoard->getGold() - 100);
+				inforBoard->setGold(inforBoard->getGold() + temp);
+
+				addlabel(NULL, temp, 5);
+			}
+			else addlabel(NULL, temp, 4);
+		}
+		else if (high_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - 500 >= 0)
+			{
+				temp = gamble->high_gamble();
+
+				inforBoard->setGold(inforBoard->getGold() - 500);
+				inforBoard->setGold(inforBoard->getGold() + temp);
+
+				addlabel(NULL, temp, 5);
+			}
+			else addlabel(NULL, temp, 4);
+		}
+		else if (esc_button.containsPoint(touches[0]->getLocation()))
+		{
+			touch_gamble = false;
+
+			gamble->setVisible(false);
+		}
+	}
+	
 	touch = false;
 	touch_unit = false;
 
@@ -727,10 +778,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
-	if (touch_unit == true)
-		return;
-
-	if (touch_soul == true)
+	if (touch_unit == true || touch_soul == true || touch_gamble == true)
 		return;
 
 	Point movePoint = touches[0]->getLocation();
@@ -751,7 +799,7 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 	MoveTo* moveto = MoveTo::create(0.f, destination);
 
 	getChildByTag(TAG_BACKGROUND)->runAction(moveto);
-	
+
 	/*
 	Touch* touch;
 	Vec2 touchPoint;
@@ -860,10 +908,10 @@ void Game::zorder_assort(float dt)
 
 		monster->getBody()->setZOrder(1000 - monster->getBody()->getPositionY());
 	}
-	
+
 	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
 	SoulBoard* soulBoard = (SoulBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL);
-	
+
 	inforBoard->setTime(inforBoard->getTime() - dt);
 
 	if (summon_monster > 0 && !((int)inforBoard->getTime()))
@@ -888,7 +936,7 @@ void Game::zorder_assort(float dt)
 		if (skip == true)
 			inforBoard->setTime(1);
 	}
-	
+
 	if (inforBoard->getSoul() <= 0)
 	{
 		for (int i = 1; i <= 10; i++)
@@ -932,7 +980,7 @@ void Game::touch_unit_check()
 		unit = (Unit*)*iterUnit;
 
 		Rect boundingBox = unit->getBody()->getBoundingBox();
-		
+
 		if (boundingBox.containsPoint(touch_point - pt))
 		{
 			now_unit = unit;
@@ -951,22 +999,33 @@ void Game::screen_out()
 void Game::onMenu(Object* sender)
 {
 	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
-	
+
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_MENU_SOUL:
+		if (touch_gamble == true) break;
+
 		touch_soul = true;
 		new_soul_1 = false;
 		new_soul_2 = false;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL)->setVisible(true);
 		break;
+	case TAG_MENU_GAMBLE:
+		if (touch_soul == true) break;
+
+		touch_gamble = true;
+
+		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_GAMBLE)->setVisible(true);
+		break;
 	case TAG_MENU_SKIP:
 		if (skip == false)
 		{
 			skip = true;
 			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SKIP)->getChildByTag(TAG_MENU_SKIP_BACK)->setVisible(true);
-			inforBoard->setTime(1);
+			
+			if (inforBoard->getTime() < 50 && inforBoard->getTime() > 1)
+				inforBoard->setTime(1);
 		}
 		else
 		{
@@ -1026,11 +1085,11 @@ void Game::addlabel(char* name, int gold, int choice)
 	switch (choice)
 	{
 	case 0:
-		sprintf(szFile, "%s%s", name, " ¼ÒÈ¯");
+		sprintf(szFile, "%s ¼ÒÈ¯", name);
 		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	case 1:
-		sprintf(szFile, "%d%s", gold, " °ñµå È¹µæ");
+		sprintf(szFile, "%d °ñµå È¹µæ", gold);
 		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	case 2:
@@ -1038,7 +1097,15 @@ void Game::addlabel(char* name, int gold, int choice)
 		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	case 3:
-		sprintf(szFile, "%s%d%s", "½Ã¹Î ", gold, " È¹µæ");;
+		sprintf(szFile, "½Ã¹Î %d È¹µæ", gold);
+		label = Label::createWithSystemFont(szFile, "Arial", 10);
+		break;
+	case 4:
+		sprintf(szFile, "°ñµå ºÎÁ·");
+		label = Label::createWithSystemFont(szFile, "Arial", 10);
+		break;
+	case 5:
+		sprintf(szFile, "µµ¹Ú ¼º°ø! %d °ñµå È¹µæ!", gold);
 		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	}
@@ -1073,4 +1140,13 @@ void Game::labelRemover(Node* sender)
 
 		break;
 	}
+}
+
+bool Game::rand_cal(float per)
+{
+	float num = rand() % 10000;
+
+	if (num / 10000 < per)
+		return true;
+	else return false;
 }
