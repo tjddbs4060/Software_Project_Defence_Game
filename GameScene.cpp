@@ -1,5 +1,7 @@
 #include "GameScene.h"
 
+#include <vector>
+
 #pragma execution_character_set("UTF-8")
 
 USING_NS_CC;
@@ -22,6 +24,8 @@ bool Game::init()
 		return false;
 	}
 	srand((unsigned int)time(NULL));
+
+	//get_db_data("hero/S/4");
 
 	Size winSize = Director::getInstance()->getWinSize();
 
@@ -307,8 +311,10 @@ void Game::unitRemover(Node* sender)
 void Game::addunit()
 {
 	//랜덤으로 나와라
-	addlabel("SSS급 영웅 모시마케아리마셍", 0, 0);
-
+	//Database* da;
+	//addlabel(use_database() , 0, 0);
+	//addlabel("SSS급 영웅 모시마케아리마셍", 0, 0);
+	
 	Size winSize = Director::getInstance()->getWinSize();
 	Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
 	float xpos = pt.x / 2;
@@ -1149,4 +1155,40 @@ bool Game::rand_cal(float per)
 	if (num / 10000 < per)
 		return true;
 	else return false;
+}
+
+void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response)
+{
+	std::vector<char> * buffer = response->getResponseData();
+
+	Label * label;
+	char szFile[64] = { 0, };
+	for (unsigned int i = 0; i < buffer->size(); i++)
+		sprintf(szFile, "%s%c", szFile, (*buffer)[i]);
+
+	label = Label::createWithSystemFont(szFile, "Arial", 15);
+	label->setPosition(Point(200, 210));
+	addChild(label);
+
+	/*
+	printf("Response Code : %li \n", response->getResponseCode());
+
+	if (200 == response->getResponseCode())
+	printf("Successful");
+	else
+	printf("Failed");
+	*/
+}
+
+void Game::get_db_data(char * data)
+{
+	__String * dataToSend = __String::create(data);
+
+	cocos2d::network::HttpRequest * request = new cocos2d::network::HttpRequest();
+	request->setUrl("localhost:3000");
+	request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
+	request->setRequestData(dataToSend->getCString(), dataToSend->length());
+	request->setResponseCallback(CC_CALLBACK_2(Game::onHttpRequestCompleted, this));
+	cocos2d::network::HttpClient::getInstance()->send(request);
+	request->release();
 }
