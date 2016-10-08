@@ -33,7 +33,7 @@ server.on('request', function(req, res){
           var sql = 'select * from hero where type = ? and count = ?';
 
           connection.query(sql, [data[1], data[2]], function(err, row, fields) {
-            res.end(row[0].name);
+            res.end('hero/'+row[0].name+'/'+row[0].type+'/'+row[0].count+'/'+row[0].speed+'/'+row[0].atk_range+'/'+row[0].damage);
           });
         }
         else {

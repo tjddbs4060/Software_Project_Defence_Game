@@ -8,6 +8,9 @@
 #include "InforBoard.h"
 #include "SoulBoard.h"
 #include "Gamble.h"
+#include "Use_String.h"
+
+#include <string>
 
 #include "network/HttpClient.h"
 #include "network/HttpConnection-winrt.h"
@@ -32,7 +35,7 @@ public:
 private:
 	void addmonster(float dt);	//몬스터 추가
 	void addmonster_death(cocos2d::Point pt);	//몬스터가 죽으면 폭발 애니메이션
-	void addunit();		//유닛 추가
+	void addunit(char* name, char* type, int number, float speed, float range, float damage);		//유닛 추가
 	void addunit_mix(cocos2d::Point pt);	//조합하여 유닛 삭제
 	void addunit_sell(cocos2d::Point pt);	//팔아서 유닛 삭제
 	void addattack(Monster* monster);	//공격 모션
@@ -51,6 +54,7 @@ private:
 	void monster_location_init(cocos2d::Sprite* sprite);	//몬스터 이동 기본설정
 	void zorder_assort(float dt);		//zorder 정렬
 	void screen_out();		//화면 벗어남 확인
+	void add_unit_queue(float dt);	//유닛 생성 큐(큐에 들어오면 바로 생성)
 
 	void selfRemover(Node* sender);	//삭제
 	void monsterRemover(Node* sender);	//몬스터 삭제
@@ -62,9 +66,10 @@ private:
 	void touch_unit_check();	//유닛을 클릭했는지 여부
 
 	float calDistance(cocos2d::Point from, cocos2d::Point to);	//두 점 사이의 거리 계산
-
+	
 	std::vector<Monster*> arr_monster;	//몬스터 배열
 	std::vector<Unit*> arr_unit;	//유닛 배열
+	std::vector<Use_String*> arr_unit_queue;	//데이터를 가져온 유닛 큐
 	std::vector<cocos2d::Sprite*> arr_location;	//몬스터 생성 위치
 	std::vector<cocos2d::Sprite*> arr_label;	//생성된 라벨 배열
 
@@ -77,6 +82,7 @@ private:
 	bool new_soul_2;		//추가된 시민 확인 여부
 	bool skip;			//skip 여부
 	int summon_monster;	//몬스터 소환 마리수
+	int stage;
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이
 	cocos2d::Point touch_point;	//시작 터치지점

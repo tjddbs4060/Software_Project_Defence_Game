@@ -7,7 +7,7 @@
 USING_NS_CC;
 
 Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
-skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0) {}
+skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0) {}
 
 Scene* Game::scene()
 {
@@ -111,6 +111,7 @@ bool Game::init()
 	//schedule(schedule_selector(Game::addmonster), 1.f);
 	schedule(schedule_selector(Game::unit_atk_cooltime));
 	schedule(schedule_selector(Game::unit_atk_monster));
+	schedule(schedule_selector(Game::add_unit_queue));
 	//addunit(0.1f);
 
 	auto listener = EventListenerTouchAllAtOnce::create();
@@ -308,23 +309,22 @@ void Game::unitRemover(Node* sender)
 	}
 }
 
-void Game::addunit()
+void Game::addunit(char* name, char* type, int number, float speed, float range, float damage)
 {
-	//랜덤으로 나와라
-	//Database* da;
-	//addlabel(use_database() , 0, 0);
-	//addlabel("SSS급 영웅 모시마케아리마셍", 0, 0);
-	
 	Size winSize = Director::getInstance()->getWinSize();
+
+	addlabel(name, 0, 0);
+
 	Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
 	float xpos = pt.x / 2;
 	float ypos = pt.y / 2;
 	Unit* unit = new Unit();
 
+	//name을 이용한 이미지
 	unit->setBody("unit_left_atk_1.png");
-	unit->setDamage(70.f);
-	unit->setRange(100.f);
-	unit->setSpeed(2.f);
+	unit->setDamage(damage);
+	unit->setRange(range);
+	unit->setSpeed(speed);
 	unit->getBody()->setPosition(Point(xpos, ypos));
 
 	Sprite* sprite = Sprite::createWithSpriteFrameName("range.png");
@@ -674,7 +674,36 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			int gold_rand;
 
 			for (int i = 0; i < soulBoard->getHero(); i++)
-				addunit();
+			{
+				//hero/type/count
+				char send_data[64] = { 0, };
+				char * type;
+				int type_rand;
+				int count;
+
+				if (stage < 15)
+					type_rand = 0;
+				else {
+					type_rand = rand() % 5;
+				}
+
+				switch (type_rand) {
+				case 0:
+				case 1:
+				case 2:
+				case 3:
+					type = "D";
+					count = rand() % 10 + 1;
+					break;
+				case 4:
+					type = "C";
+					count = rand() % 12 + 1;
+					break;
+				}
+
+				sprintf(send_data, "hero/%s/%d", type, count);
+				get_db_data(send_data);
+			}
 
 			for (int i = 0; i < soulBoard->getGold(); i++)
 			{
@@ -780,6 +809,73 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 	int touchIndex = touch->getID();
 	}
 	*/
+}
+
+void Game::add_unit_queue(float dt)
+{
+	Use_String* queue = NULL;
+
+	for (std::vector<Use_String*>::iterator iterQueue = arr_unit_queue.begin(); iterQueue != arr_unit_queue.end(); iterQueue++)
+	{
+		queue = (Use_String*)*iterQueue;
+
+		char * rev = queue->getString();
+		strtok(rev, "/");
+		char * name = strtok(NULL, "/");
+		char * type = strtok(NULL, "/");
+		char * count = strtok(NULL, "/");
+		char * speed = strtok(NULL, "/");
+		char * range = strtok(NULL, "/");
+		char * damage = strtok(NULL, "/");
+
+		addunit(name, type, atoi(count), atof(speed), atof(range), atof(damage));
+		
+		delete queue;
+		iterQueue = arr_unit_queue.erase(iterQueue);
+
+		if (iterQueue == arr_unit_queue.end())
+			break;
+	}
+
+	/*
+	//String *str = new String(queue->subString(queue->getFindChar('/', 1) + 1, queue->getFindChar('/', 2) - 1));
+
+	Use_String *sub_name = new Use_String();
+	Use_String *sub_type = new Use_String();
+	Use_String *sub_count = new Use_String();
+	Use_String *sub_speed = new Use_String();
+	Use_String *sub_range = new Use_String();
+	Use_String *sub_damage = new Use_String();
+
+	queue->subString(queue->getFindChar('/', 1) + 1, queue->getFindChar('/', 2) - 1);
+
+	char name[64] = { 0, };
+	char type[64] = { 0, };
+	char count[64] = { 0, };
+	char speed[64] = { 0, };
+	char range[64] = { 0, };
+	char damgage[64] = { 0, };
+
+	name[0] = queue->Index_char(queue->getFindChar('/', 1) + 1);
+
+	sub_name->setString(name);
+	sub_type->setString("D");
+	sub_count->setString("8");
+	sub_speed->setString("2.00");
+	sub_range->setString("100");
+	sub_damage->setString("80");
+	*/
+	/*
+	sub_name->setString(queue->subString(queue->getFindChar('/', 1) + 1, queue->getFindChar('/', 2) - 1));
+	sub_type->setString(queue->subString(queue->getFindChar('/', 2) + 1, queue->getFindChar('/', 3) - 1));
+	sub_count->setString(queue->subString(queue->getFindChar('/', 3) + 1, queue->getFindChar('/', 4) - 1));
+	sub_speed->setString(queue->subString(queue->getFindChar('/', 4) + 1, queue->getFindChar('/', 5) - 1));
+	sub_range->setString(queue->subString(queue->getFindChar('/', 5) + 1, queue->getFindChar('/', 6) - 1));
+	sub_damage->setString(queue->subString(queue->getFindChar('/', 6) + 1, queue->getLength() - 1));
+	*/
+
+	//addunit(sub_name->getString(), sub_type->getString(), sub_count->Convert_int(), sub_speed->Conver_float(), sub_range->Conver_float(), sub_damage->Conver_float());
+
 }
 
 void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
@@ -929,6 +1025,7 @@ void Game::zorder_assort(float dt)
 			soulBoard->setSoul(inforBoard->getSoul());
 			soulBoard->updateNumber(soulBoard);
 			addlabel(NULL, 3, 3);
+			stage++;
 		}
 		schedule(schedule_selector(Game::addmonster), 1.f);
 		new_soul_1 = true;
@@ -1161,14 +1258,17 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 {
 	std::vector<char> * buffer = response->getResponseData();
 
-	Label * label;
+	Use_String * use_string = new Use_String();
 	char szFile[64] = { 0, };
 	for (unsigned int i = 0; i < buffer->size(); i++)
-		sprintf(szFile, "%s%c", szFile, (*buffer)[i]);
-
-	label = Label::createWithSystemFont(szFile, "Arial", 15);
-	label->setPosition(Point(200, 210));
-	addChild(label);
+		szFile[i] = (*buffer)[i];
+	
+	if (szFile[0] == 'h' && szFile[1] == 'e' && szFile[2] == 'r' && szFile[3] == 'o')
+	{
+		use_string->setString(szFile);
+		//use_string->setString("hero/ROCKMAN/D/5/2.00/100/300");
+		arr_unit_queue.push_back(use_string);
+	}
 
 	/*
 	printf("Response Code : %li \n", response->getResponseCode());
