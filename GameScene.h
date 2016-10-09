@@ -82,9 +82,11 @@ private:
 	bool new_soul_2;		//추가된 시민 확인 여부
 	bool skip;			//skip 여부
 	int summon_monster;	//몬스터 소환 마리수
-	int stage;
+	int stage;		//현재 스테이지
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이
+	float monster_hp_def[2];	//현재 몬스터의 hp, def
+
 	cocos2d::Point touch_point;	//시작 터치지점
 
 	Unit* now_unit;	//현재 선택한 유닛

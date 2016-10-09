@@ -7,7 +7,11 @@
 USING_NS_CC;
 
 Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
-skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0) {}
+skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0)
+{
+	for (int i = 0; i < 2; i++)
+		monster_hp_def[i] = 0;
+}
 
 Scene* Game::scene()
 {
@@ -19,6 +23,15 @@ Scene* Game::scene()
 
 bool Game::init()
 {
+	if (!Layer::init())
+	{
+		return false;
+	}
+
+	get_db_data("createtable");
+
+	return true;
+	/*
 	if (!Layer::init())
 	{
 		return false;
@@ -123,6 +136,7 @@ bool Game::init()
 	_eventDispatcher->addEventListenerWithFixedPriority(listener, 1);
 
 	return true;
+	*/
 }
 
 void Game::addmonster(float dt)
@@ -148,8 +162,8 @@ void Game::addmonster(float dt)
 
 	sprintf(szFile, "monster_0%d_02.png", monster_type);
 	monster->setBody(szFile);
-	monster->setEnergy(100.f);		//체력
-	monster->setDefence(0.f);
+	monster->setEnergy(monster_hp_def[0]);		//체력
+	monster->setDefence(monster_hp_def[1]);
 	monster->setGold(1);
 	monster->getBody()->setPosition(move[0]);
 
@@ -1020,12 +1034,16 @@ void Game::zorder_assort(float dt)
 	{
 		if (summon_monster == 11)
 		{
+			char szFile[64];
+
+			stage++;
+			sprintf(szFile, "monster/%d", stage);
+			get_db_data(szFile);
 			summon_monster = 10;
 			inforBoard->setSoul(inforBoard->getSoul() + 3);
 			soulBoard->setSoul(inforBoard->getSoul());
 			soulBoard->updateNumber(soulBoard);
 			addlabel(NULL, 3, 3);
-			stage++;
 		}
 		schedule(schedule_selector(Game::addmonster), 1.f);
 		new_soul_1 = true;
@@ -1266,8 +1284,16 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 	if (szFile[0] == 'h' && szFile[1] == 'e' && szFile[2] == 'r' && szFile[3] == 'o')
 	{
 		use_string->setString(szFile);
-		//use_string->setString("hero/ROCKMAN/D/5/2.00/100/300");
 		arr_unit_queue.push_back(use_string);
+	}
+	else if (szFile[0] == 'm' && szFile[1] == 'o' && szFile[2] == 'n' && szFile[3] == 's' && szFile[4] == 't' && szFile[5] == 'e' && szFile[6] == 'r')
+	{
+		strtok(szFile, "/");
+		char * hp = strtok(NULL, "/");
+		char * def = strtok(NULL, "/");
+
+		monster_hp_def[0] = atof(hp);
+		monster_hp_def[1] = atof(def);
 	}
 
 	/*
