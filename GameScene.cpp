@@ -7,10 +7,12 @@
 USING_NS_CC;
 
 Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
-skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0)
+skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
+
+	strcpy(id, "asdf");
 }
 
 Scene* Game::scene()
@@ -27,18 +29,7 @@ bool Game::init()
 	{
 		return false;
 	}
-
-	get_db_data("createtable");
-
-	return true;
-	/*
-	if (!Layer::init())
-	{
-		return false;
-	}
 	srand((unsigned int)time(NULL));
-
-	//get_db_data("hero/S/4");
 
 	Size winSize = Director::getInstance()->getWinSize();
 
@@ -125,6 +116,7 @@ bool Game::init()
 	schedule(schedule_selector(Game::unit_atk_cooltime));
 	schedule(schedule_selector(Game::unit_atk_monster));
 	schedule(schedule_selector(Game::add_unit_queue));
+	schedule(schedule_selector(Game::server_continue), 0.1f);
 	//addunit(0.1f);
 
 	auto listener = EventListenerTouchAllAtOnce::create();
@@ -136,7 +128,6 @@ bool Game::init()
 	_eventDispatcher->addEventListenerWithFixedPriority(listener, 1);
 
 	return true;
-	*/
 }
 
 void Game::addmonster(float dt)
@@ -164,7 +155,7 @@ void Game::addmonster(float dt)
 	monster->setBody(szFile);
 	monster->setEnergy(monster_hp_def[0]);		//Ã¼·Â
 	monster->setDefence(monster_hp_def[1]);
-	monster->setGold(1);
+	monster->setNum(monster_index++);
 	monster->getBody()->setPosition(move[0]);
 
 	getChildByTag(TAG_BACKGROUND)->addChild(monster->getBody(), ZORDER_MONSTER, TAG_MONSTER);
@@ -236,6 +227,9 @@ void Game::addmonster(float dt)
 	arr_monster.push_back(monster);
 
 	inforBoard->setMonster(inforBoard->getMonster() + 1);
+
+	sprintf(szFile, "add_monster/%s/%.2f/%.2f/%g/%g/%d", id, monster->getBody()->getPositionX(), monster->getBody()->getPositionY(), monster->getEnergy(), monster->getDefence(), monster->getNum());
+	get_db_data(szFile);
 }
 
 void Game::selfRemover(Node* sender)
@@ -326,6 +320,7 @@ void Game::unitRemover(Node* sender)
 void Game::addunit(char* name, char* type, int number, float speed, float range, float damage)
 {
 	Size winSize = Director::getInstance()->getWinSize();
+	char szFile[64] = { 0, };
 
 	addlabel(name, 0, 0);
 
@@ -354,6 +349,9 @@ void Game::addunit(char* name, char* type, int number, float speed, float range,
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 
 	arr_unit.push_back(unit);
+
+	sprintf(szFile, "add_unit/%s/%.2f/%.2f/%g/%g/%s", id, unit->getBody()->getPositionX(), unit->getBody()->getPositionY(), unit->getDamage(), unit->getRange(), id);
+	get_db_data(szFile);
 }
 
 void Game::addunit_mix(Point pt)
@@ -430,7 +428,11 @@ void Game::unit_atk_monster(float dt)
 
 					if (0 >= monster->subEnergy(unit->getDamage()))
 					{
-						inforBoard->setGold(inforBoard->getGold() + monster->getGold());
+						char szFile[64] = { 0, };
+
+						sprintf(szFile, "delete_monster/%d", monster->getNum());
+						get_db_data(szFile);
+
 						addmonster_death(monster->getBody()->getPosition());
 						monster->release();
 						delete monster;
@@ -1027,7 +1029,7 @@ void Game::zorder_assort(float dt)
 
 	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
 	SoulBoard* soulBoard = (SoulBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL);
-
+	
 	inforBoard->setTime(inforBoard->getTime() - dt);
 
 	if (summon_monster > 0 && !((int)inforBoard->getTime()))
@@ -1278,15 +1280,23 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 
 	Use_String * use_string = new Use_String();
 	char szFile[64] = { 0, };
+	char temp[64] = { 0, };
+	char * compare;
 	for (unsigned int i = 0; i < buffer->size(); i++)
 		szFile[i] = (*buffer)[i];
-	
-	if (szFile[0] == 'h' && szFile[1] == 'e' && szFile[2] == 'r' && szFile[3] == 'o')
+
+	if (buffer->size() == 0)
+		return;
+
+	strcpy(temp, szFile);
+	compare = strtok(temp, "/");
+
+	if (!strcmp(compare, "hero"))
 	{
 		use_string->setString(szFile);
 		arr_unit_queue.push_back(use_string);
 	}
-	else if (szFile[0] == 'm' && szFile[1] == 'o' && szFile[2] == 'n' && szFile[3] == 's' && szFile[4] == 't' && szFile[5] == 'e' && szFile[6] == 'r')
+	else if (!strcmp(compare, "monster"))
 	{
 		strtok(szFile, "/");
 		char * hp = strtok(NULL, "/");
@@ -1317,4 +1327,32 @@ void Game::get_db_data(char * data)
 	request->setResponseCallback(CC_CALLBACK_2(Game::onHttpRequestCompleted, this));
 	cocos2d::network::HttpClient::getInstance()->send(request);
 	request->release();
+}
+
+void Game::server_continue(float dt)
+{
+	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+
+	char szFile[64] = { 0, };
+	Unit* unit = NULL;
+	Monster* monster = NULL;
+
+	sprintf(szFile, "time/%.2f/%s", inforBoard->getTime(), id);
+	get_db_data(szFile);
+	
+	/*
+	for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
+	{
+		unit = (Unit*)*iterUnit;
+
+		sprintf(szFile, "update_unit/%.2f/%.2f", unit->getBody()->getPositionX(), unit->getBody()->getPositionY());
+	}
+
+	for (std::vector<Monster*>::iterator iterMonster = arr_monster.begin(); iterMonster != arr_monster.end(); iterMonster++)
+	{
+		monster = (Monster*)*iterMonster;
+
+		sprintf(szFile, "update_monster/%.2f/%.2f/%g", monster->getBody()->getPositionX(), monster->getBody()->getPositionY(), monster->getEnergy());
+	}
+	*/
 }

@@ -1,6 +1,6 @@
 #include "Monster.h"
 
-Monster::Monster() : body(NULL), hp(NULL), maxEnergy(100), curEnergy(0), defence(0), mGold(0)
+Monster::Monster() : body(NULL), hp(NULL), maxEnergy(100), curEnergy(0), defence(0), num(0)
 {
 	hp_bar = cocos2d::Sprite::createWithSpriteFrameName("hp_background.png");
 }
@@ -74,12 +74,12 @@ float Monster::getDefence()
 	return defence;
 }
 
-void Monster::setGold(int gold)
+void Monster::setNum(int index)
 {
-	mGold = gold;
+	num = index;
 }
 
-int Monster::getGold()
+int Monster::getNum()
 {
-	return mGold;
+	return num;
 }

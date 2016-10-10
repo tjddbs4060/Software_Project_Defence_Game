@@ -43,25 +43,64 @@ server.on('request', function(req, res){
             res.end('monster/'+row[0].hp+'/'+row[0].def);
           });
         }
-        else if (data[0] == 'createtable') {
-          var sql = 'select * from room_list order by num desc';
+        else if (data[0] == 'create_room') {
+          var sql = 'insert into room_list (id, person, level) values (?, 1, ?)';
 
-          connection.query(sql, function(err, row, fields) {
-            sql = 'create table ?_join_person(id char(15) not null, hero_type char(5), hero_count int(5), origin_id char(15) not null)';
+          connection.query(sql, [data[1], data[2]], function(err1, row1, fields1) {
+            sql = 'select num, id from room_list where id = ?';
 
-            connection.query(sql, [row[0].num+1], function(err, row, fields) {});
+            connection.query(sql, [data[1]], function(err2, row2, fields2) {
+              sql = 'insert into room_info (num, id, person_num) values (?, ?, 1)';
 
-            sql = 'create table ?_room_boss(hero_type char(5), hero_count int(5), id char(15), boss_hp float(10))'
-            connection.query(sql, [row[0].num+1], function(err, row, fields) {});
+              connection.query(sql, [row2[0].num, row2[0].id], function() {
+                console.log('success create_room');
+                res.end('');
+              });
+            });
+          });
+        }
+        else if (data[0] == 'add_monster') {
+          var sql = 'insert into room_monster values (?, ?, ?, ?, ?, ?)';
 
-            sql = 'create table ?_room_monster(id char(15) not null, monster_hp float(10), xpos float(10), ypos float(10))'
-            connection.query(sql, [row[0].num+1], function(err, row, fields) {});
+          connection.query(sql, [data[1], data[2], data[3], data[4], data[5], data[6]], function() {
+            console.log('success add_monster');
+            res.end('');
+          });
+        }
+        else if (data[0] == 'delete_monster') {
+          var sql = 'delete from room_monster where num = ?';
 
-            sql = 'insert into room_list values(?, 1, false)';
-            connection.query(sql, [row[0].num+1], function(err, row, fields) {});
+          connection.query(sql, [data[1]], function() {
+            console.log('success delete_monster');
+            res.end('');
+          })
+        }
+        else if (data[0] == 'add_unit') {
+          var sql = 'insert into room_unit values (?, ?, ?, ?, ?, false, ?)';
+
+          connection.query(sql, [data[1], data[2], data[3], data[4], data[5], data[6]], function() {
+            console.log('success add_unit');
+            res.end('');
+          });
+        }
+        else if (data[0] == 'time') {
+          var sql = 'update room_list set time = ? where id = ?';
+
+          connection.query(sql, [data[1], data[2]], function() {
+            console.log('success time');
+            res.end('');
+          });
+        }
+        else if (data[0] == 'start') {
+          var sql = 'update room_list set start = true where id = ?';
+
+          connection.query(sql, [data[1]], function() {
+            console.log('start');
+            res.end('start');
           });
         }
         else {
+          console.log('error');
           res.end('error');
         }
     });

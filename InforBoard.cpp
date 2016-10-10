@@ -147,7 +147,7 @@ void InforBoard::update_time()
 
 	if (mTime < 0)
 	{
-		setTime(60);///////////
+		setTime(60);
 		setLevel(getLevel() + 1);
 	}
 

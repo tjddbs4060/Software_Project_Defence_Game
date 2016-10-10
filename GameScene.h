@@ -55,6 +55,7 @@ private:
 	void zorder_assort(float dt);		//zorder 정렬
 	void screen_out();		//화면 벗어남 확인
 	void add_unit_queue(float dt);	//유닛 생성 큐(큐에 들어오면 바로 생성)
+	void server_continue(float dt);	//서버와 통신
 
 	void selfRemover(Node* sender);	//삭제
 	void monsterRemover(Node* sender);	//몬스터 삭제
@@ -83,9 +84,11 @@ private:
 	bool skip;			//skip 여부
 	int summon_monster;	//몬스터 소환 마리수
 	int stage;		//현재 스테이지
+	int monster_index;	//몬스터 index
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이
 	float monster_hp_def[2];	//현재 몬스터의 hp, def
+	char id[64];
 
 	cocos2d::Point touch_point;	//시작 터치지점
 
