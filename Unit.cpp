@@ -1,7 +1,9 @@
 #include "Unit.h"
 
-Unit::Unit() : body(NULL), max_speed(1.f), cur_speed(0), range(50.f), type(0), damage(0), right(false)
+Unit::Unit() : body(NULL), max_speed(1.f), cur_speed(0), range(50.f), damage(0), right(false)
 {
+	for (int i = 0; i < 2; i++)
+		type[i] = 0;
 }
 
 Unit::~Unit()
@@ -34,6 +36,11 @@ void Unit::setRight(bool tf)
 	right = tf;
 }
 
+void Unit::setType(char* rank)
+{
+	strcpy(type, rank);
+}
+
 float Unit::getMaxSpeed()
 {
 	return max_speed;
@@ -57,6 +64,11 @@ float Unit::getRange()
 bool Unit::getRight()
 {
 	return right;
+}
+
+char* Unit::getType()
+{
+	return type;
 }
 
 void Unit::setBody(char* name)

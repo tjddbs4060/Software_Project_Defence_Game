@@ -1,16 +1,17 @@
 #include "GameScene.h"
 
-#include <vector>
-
 #pragma execution_character_set("UTF-8")
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
 skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
+
+	for (int i = 0; i < 6; i++)
+		upgrade_count[i] = 0;
 
 	strcpy(id, "asdf");
 }
@@ -63,7 +64,12 @@ bool Game::init()
 	menuGamble->setTag(TAG_MENU_GAMBLE);
 	menuGamble->setPosition(Point(-(winSize.width / 2) + 30, -20));
 
-	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, NULL);
+	menuNormal = Sprite::createWithSpriteFrameName("upgrade.png");
+	MenuItemSprite* menuUpgrade = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
+	menuUpgrade->setTag(TAG_MENU_UPGRADE);
+	menuUpgrade->setPosition(Point(-(winSize.width / 2) + 30, -70));
+
+	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	for (int i = 1; i <= 10; i++)
@@ -91,6 +97,12 @@ bool Game::init()
 	soulBoard->setVisible(false);
 	spriteBatchNodeSurface->addChild(soulBoard);
 
+	UpgradeBoard* upgradeBoard = UpgradeBoard::create();
+	upgradeBoard->setTag(TAG_INTERFACE_UPGRADE);
+	upgradeBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
+	upgradeBoard->setVisible(false);
+	spriteBatchNodeSurface->addChild(upgradeBoard);
+
 	Gamble* gamble = Gamble::create();
 	gamble->setTag(TAG_INTERFACE_GAMBLE);
 	gamble->setPosition(Point(winSize.width / 2, winSize.height / 2));
@@ -116,7 +128,7 @@ bool Game::init()
 	schedule(schedule_selector(Game::unit_atk_cooltime));
 	schedule(schedule_selector(Game::unit_atk_monster));
 	schedule(schedule_selector(Game::add_unit_queue));
-	schedule(schedule_selector(Game::server_continue), 0.1f);
+	schedule(schedule_selector(Game::server_continue), 0.9f);
 	//addunit(0.1f);
 
 	auto listener = EventListenerTouchAllAtOnce::create();
@@ -228,7 +240,7 @@ void Game::addmonster(float dt)
 
 	inforBoard->setMonster(inforBoard->getMonster() + 1);
 
-	sprintf(szFile, "add_monster/%s/%.2f/%.2f/%g/%g/%d", id, monster->getBody()->getPositionX(), monster->getBody()->getPositionY(), monster->getEnergy(), monster->getDefence(), monster->getNum());
+	sprintf(szFile, "add_monster/%s/%g/%g/%d", id, monster->getEnergy(), monster->getDefence(), monster->getNum());
 	get_db_data(szFile);
 }
 
@@ -334,6 +346,7 @@ void Game::addunit(char* name, char* type, int number, float speed, float range,
 	unit->setDamage(damage);
 	unit->setRange(range);
 	unit->setSpeed(speed);
+	unit->setType(type);
 	unit->getBody()->setPosition(Point(xpos, ypos));
 
 	Sprite* sprite = Sprite::createWithSpriteFrameName("range.png");
@@ -346,17 +359,17 @@ void Game::addunit(char* name, char* type, int number, float speed, float range,
 	getChildByTag(TAG_BACKGROUND)->addChild(unit->getBody(), ZORDER_CHARACTER, TAG_CHARACTER);
 	unit->getBody()->addChild(sprite, ZORDER_RANGE, TAG_RANGE);
 
-	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
-
 	arr_unit.push_back(unit);
 
-	sprintf(szFile, "add_unit/%s/%.2f/%.2f/%g/%g/%s", id, unit->getBody()->getPositionX(), unit->getBody()->getPositionY(), unit->getDamage(), unit->getRange(), id);
+	upgrade_update(type);
+
+	sprintf(szFile, "add_unit/%s/%g/%g/%s", id, unit->getDamage(), unit->getRange(), id);
 	get_db_data(szFile);
 }
 
 void Game::addunit_mix(Point pt)
 {
-
+	
 }
 
 void Game::addunit_sell(Point pt)
@@ -425,7 +438,7 @@ void Game::unit_atk_monster(float dt)
 					unit_atk_motion(unit, right);
 					addattack(monster);
 					//addattack(unit->getBody()->getPosition(), monster->getBody()->getPosition(), unit);
-
+					
 					if (0 >= monster->subEnergy(unit->getDamage()))
 					{
 						char szFile[64] = { 0, };
@@ -513,7 +526,7 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 	touch = true;
 	touch_point = touches[0]->getLocation();
 
-	if (touch_soul == true || touch_gamble == true)
+	if (touch_soul == true || touch_gamble == true || touch_upgrade == true)
 		return;
 
 	touch_unit_check();
@@ -810,6 +823,108 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			gamble->setVisible(false);
 		}
 	}
+
+	if (touch_upgrade == true)
+	{
+		InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+		UpgradeBoard* upgrade = (UpgradeBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_UPGRADE);
+
+		float x = upgrade->getPositionX() - (upgrade->getContentSize().width / 2);
+		float y = upgrade->getPositionY() - (upgrade->getContentSize().height / 2);
+
+		Rect D_button = Rect(x + 56, y + 110, 40, 40);
+		Rect C_button = Rect(x + 106, y + 110, 40, 40);
+		Rect B_button = Rect(x + 156, y + 110, 40, 40);
+		Rect A_button = Rect(x + 56, y + 50, 40, 40);
+		Rect S_button = Rect(x + 106, y + 50, 40, 40);
+		Rect SS_button = Rect(x + 156, y + 50, 40, 40);
+		Rect esc_button = Rect(x + 230, y + 184, 10, 10);
+
+		if (D_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - (10 + upgrade_count[0]) >= 0)
+			{
+				upgrade_count[0]++;
+				upgrade->setD(upgrade_count[0]);
+				upgrade_update("D");
+				inforBoard->setGold(inforBoard->getGold() - (10 + upgrade_count[0]));
+
+				addlabel("D", 0, 6);
+			}
+			else addlabel(NULL, 0, 7);
+		}
+		else if (C_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - (20 + upgrade_count[1] * 2) >= 0)
+			{
+				upgrade_count[1]++;
+				upgrade->setC(upgrade_count[1]);
+				upgrade_update("C");
+				inforBoard->setGold(inforBoard->getGold() - (20 + upgrade_count[1] * 2));
+
+				addlabel("C", 0, 6);
+			}
+			else addlabel(NULL, 0, 7);
+		}
+		else if (B_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - (50 + upgrade_count[2] * 5) >= 0)
+			{
+				upgrade_count[2]++;
+				upgrade->setB(upgrade_count[2]);
+				upgrade_update("B");
+				inforBoard->setGold(inforBoard->getGold() - (50 + upgrade_count[2] * 5));
+
+				addlabel("B", 0, 6);
+			}
+			else addlabel(NULL, 0, 7);
+		}
+		else if (A_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - (100 + upgrade_count[2] * 10) >= 0)
+			{
+				upgrade_count[3]++;
+				upgrade->setA(upgrade_count[3]);
+				upgrade_update("A");
+				inforBoard->setGold(inforBoard->getGold() - (100 + upgrade_count[2] * 10));
+
+				addlabel("A", 0, 6);
+			}
+			else addlabel(NULL, 0, 7);
+		}
+		else if (S_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - (300 + upgrade_count[2] * 30) >= 0)
+			{
+				upgrade_count[4]++;
+				upgrade->setS(upgrade_count[4]);
+				upgrade_update("S");
+				inforBoard->setGold(inforBoard->getGold() - (300 + upgrade_count[2] * 30));
+
+				addlabel("S", 0, 6);
+			}
+			else addlabel(NULL, 0, 7);
+		}
+		else if (SS_button.containsPoint(touches[0]->getLocation()))
+		{
+			if (inforBoard->getGold() - (500 + upgrade_count[2] * 50) >= 0)
+			{
+				upgrade_count[5]++;
+				upgrade->setSS(upgrade_count[5]);
+				upgrade_update("SS");
+				inforBoard->setGold(inforBoard->getGold() - (500 + upgrade_count[2] * 50));
+
+				addlabel("SS", 0, 6);
+			}
+			else addlabel(NULL, 0, 7);
+		}
+		else if (esc_button.containsPoint(touches[0]->getLocation()))
+		{
+			touch_upgrade = false;
+
+			upgrade->setVisible(false);
+		}
+	}
 	
 	touch = false;
 	touch_unit = false;
@@ -896,7 +1011,7 @@ void Game::add_unit_queue(float dt)
 
 void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
-	if (touch_unit == true || touch_soul == true || touch_gamble == true)
+	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true)
 		return;
 
 	Point movePoint = touches[0]->getLocation();
@@ -1126,7 +1241,7 @@ void Game::onMenu(Object* sender)
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_MENU_SOUL:
-		if (touch_gamble == true) break;
+		if (touch_gamble == true || touch_upgrade == true) break;
 
 		touch_soul = true;
 		new_soul_1 = false;
@@ -1135,7 +1250,7 @@ void Game::onMenu(Object* sender)
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL)->setVisible(true);
 		break;
 	case TAG_MENU_GAMBLE:
-		if (touch_soul == true) break;
+		if (touch_soul == true || touch_upgrade == true) break;
 
 		touch_gamble = true;
 
@@ -1156,6 +1271,13 @@ void Game::onMenu(Object* sender)
 			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SKIP)->getChildByTag(TAG_MENU_SKIP_BACK)->setVisible(false);
 		}
 
+		break;
+	case TAG_MENU_UPGRADE:
+		if (touch_soul == true || touch_gamble == true) break;
+
+		touch_upgrade = true;
+
+		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_UPGRADE)->setVisible(true);
 		break;
 	}
 }
@@ -1209,29 +1331,30 @@ void Game::addlabel(char* name, int gold, int choice)
 	{
 	case 0:
 		sprintf(szFile, "%s ¼ÒÈ¯", name);
-		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	case 1:
 		sprintf(szFile, "%d °ñµå È¹µæ", gold);
-		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	case 2:
 		sprintf(szFile, "1 º¸¼® È¹µæ");
-		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	case 3:
 		sprintf(szFile, "½Ã¹Î %d È¹µæ", gold);
-		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	case 4:
 		sprintf(szFile, "°ñµå ºÎÁ·");
-		label = Label::createWithSystemFont(szFile, "Arial", 10);
 		break;
 	case 5:
 		sprintf(szFile, "µµ¹Ú ¼º°ø! %d °ñµå È¹µæ!", gold);
-		label = Label::createWithSystemFont(szFile, "Arial", 10);
+		break;
+	case 6:
+		sprintf(szFile, "%s µî±Þ ¾÷±×·¹ÀÌµå!", name);
+		break;
+	case 7:
+		sprintf(szFile, "¾÷±×·¹ÀÌµå ºñ¿ë ºÎÁ·!");
 		break;
 	}
+	label = Label::createWithSystemFont(szFile, "Arial", 10);
 
 	sprite->setPosition(winSize.width / 2, winSize.height * 0.8 - height);
 	sprite->setOpacity(100);
@@ -1334,25 +1457,61 @@ void Game::server_continue(float dt)
 	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
 
 	char szFile[64] = { 0, };
-	Unit* unit = NULL;
-	Monster* monster = NULL;
 
 	sprintf(szFile, "time/%.2f/%s", inforBoard->getTime(), id);
 	get_db_data(szFile);
-	
-	/*
+}
+
+void Game::upgrade_update(char* up)
+{
+	float rate;
+	float damage;
+	int index;
+
+	Unit* unit = NULL;
+
+	if (!strcmp(up, "D"))
+	{
+		rate = 1.1;
+		damage = 100;
+		index = 0;
+	}
+	else if (!strcmp(up, "C"))
+	{
+		rate = 1.15;
+		damage = 350;
+		index = 1;
+	}
+	else if (!strcmp(up, "B"))
+	{
+		rate = 1.15;
+		damage = 1000;
+		index = 2;
+	}
+	else if (!strcmp(up, "A"))
+	{
+		rate = 1.18;
+		damage = 2500;
+		index = 3;
+	}
+	else if (!strcmp(up, "S"))
+	{
+		rate = 1.2;
+		damage = 7000;
+		index = 4;
+	}
+	else if (!strcmp(up, "SS"))
+	{
+		rate = 1.2;
+		damage = 20000;
+		index = 5;
+	}
+
 	for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
 	{
 		unit = (Unit*)*iterUnit;
 
-		sprintf(szFile, "update_unit/%.2f/%.2f", unit->getBody()->getPositionX(), unit->getBody()->getPositionY());
+		if (!strcmp(unit->getType(), up))
+			unit->setDamage(damage * pow(rate, upgrade_count[index]));
 	}
-
-	for (std::vector<Monster*>::iterator iterMonster = arr_monster.begin(); iterMonster != arr_monster.end(); iterMonster++)
-	{
-		monster = (Monster*)*iterMonster;
-
-		sprintf(szFile, "update_monster/%.2f/%.2f/%g", monster->getBody()->getPositionX(), monster->getBody()->getPositionY(), monster->getEnergy());
-	}
-	*/
 }

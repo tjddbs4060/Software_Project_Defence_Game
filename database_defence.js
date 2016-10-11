@@ -60,9 +60,9 @@ server.on('request', function(req, res){
           });
         }
         else if (data[0] == 'add_monster') {
-          var sql = 'insert into room_monster values (?, ?, ?, ?, ?, ?)';
+          var sql = 'insert into room_monster values (?, ?, ?, ?)';
 
-          connection.query(sql, [data[1], data[2], data[3], data[4], data[5], data[6]], function() {
+          connection.query(sql, [data[1], data[2], data[3], data[4]], function() {
             console.log('success add_monster');
             res.end('');
           });
@@ -76,9 +76,9 @@ server.on('request', function(req, res){
           })
         }
         else if (data[0] == 'add_unit') {
-          var sql = 'insert into room_unit values (?, ?, ?, ?, ?, false, ?)';
+          var sql = 'insert into room_unit values (?, ?, ?, false, ?)';
 
-          connection.query(sql, [data[1], data[2], data[3], data[4], data[5], data[6]], function() {
+          connection.query(sql, [data[1], data[2], data[3], data[4]], function() {
             console.log('success add_unit');
             res.end('');
           });

@@ -60,11 +60,15 @@ SoulBoard* SoulBoard::create()
 		soulBoard->autorelease();
 
 		//¿µ¿õ
-		soulBoard->addNumberSprite(TAG_SOUL_HERO, Point(75, 98), 0.5);
-		soulBoard->addNumberSprite(TAG_SOUL_GOLD, Point(126, 98), 0.5);
-		soulBoard->addNumberSprite(TAG_SOUL_JEWELRY, Point(177, 98), 0.5);
+		soulBoard->addNumberSprite(TAG_SOUL_HERO_1, Point(73, 98), 0.5);
+		soulBoard->addNumberSprite(TAG_SOUL_HERO_2, Point(78, 98), 0.5);
+		soulBoard->addNumberSprite(TAG_SOUL_GOLD_1, Point(124, 98), 0.5);
+		soulBoard->addNumberSprite(TAG_SOUL_GOLD_2, Point(129, 98), 0.5);
+		soulBoard->addNumberSprite(TAG_SOUL_JEWELRY_1, Point(174, 98), 0.5);
+		soulBoard->addNumberSprite(TAG_SOUL_JEWELRY_2, Point(180, 98), 0.5);
 		
-		soulBoard->addNumberSprite(TAG_SOUL_SOUL, Point(126, 165), 1);
+		soulBoard->addNumberSprite(TAG_SOUL_SOUL_1, Point(118, 165), 1);
+		soulBoard->addNumberSprite(TAG_SOUL_SOUL_2, Point(134, 165), 1);
 		
 		return soulBoard;
 	}
@@ -95,8 +99,12 @@ void SoulBoard::changeNumber(int tag, int number)
 
 void SoulBoard::updateNumber(SoulBoard* soulBoard)
 {
-	changeNumber(TAG_SOUL_HERO, soulBoard->getHero());
-	changeNumber(TAG_SOUL_GOLD, soulBoard->getGold());
-	changeNumber(TAG_SOUL_JEWELRY, soulBoard->getJewelry());
-	changeNumber(TAG_SOUL_SOUL, soulBoard->getSoul());
+	changeNumber(TAG_SOUL_HERO_1, (soulBoard->getHero()/10)%10);
+	changeNumber(TAG_SOUL_HERO_2, soulBoard->getHero()%10);
+	changeNumber(TAG_SOUL_GOLD_1, (soulBoard->getGold()/10)%10);
+	changeNumber(TAG_SOUL_GOLD_2, soulBoard->getGold()%10);
+	changeNumber(TAG_SOUL_JEWELRY_1, (soulBoard->getJewelry()/10)%10);
+	changeNumber(TAG_SOUL_JEWELRY_2, soulBoard->getJewelry()%10);
+	changeNumber(TAG_SOUL_SOUL_1, (soulBoard->getSoul()/10)%10);
+	changeNumber(TAG_SOUL_SOUL_2, soulBoard->getSoul()%10);
 }

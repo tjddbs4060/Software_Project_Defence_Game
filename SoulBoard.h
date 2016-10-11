@@ -4,10 +4,14 @@
 #include "cocos2d.h"
 #include "Order.h"
 
-#define TAG_SOUL_HERO 500
-#define TAG_SOUL_GOLD 501
-#define TAG_SOUL_JEWELRY 502
-#define TAG_SOUL_SOUL 503
+#define TAG_SOUL_HERO_1 500
+#define TAG_SOUL_HERO_2 502
+#define TAG_SOUL_GOLD_1 503
+#define TAG_SOUL_GOLD_2 504
+#define TAG_SOUL_JEWELRY_1 505
+#define TAG_SOUL_JEWELRY_2 506
+#define TAG_SOUL_SOUL_1 507
+#define TAG_SOUL_SOUL_2 508
 
 class SoulBoard : public cocos2d::Sprite
 {

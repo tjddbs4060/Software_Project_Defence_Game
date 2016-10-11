@@ -15,12 +15,14 @@ public:
 	void setRange(float ran);
 	void setCurSpeed(float spd);	//현재 공격 쿨타임
 	void setBody(char* name);
+	void setType(char* rank);
 	void setRight(bool tf);
 	
 	float getMaxSpeed();
 	float getCurSpeed();
 	float getDamage();
 	float getRange();
+	char* getType();
 	bool getRight();
 	cocos2d::Sprite* getBody();
 
@@ -33,7 +35,7 @@ private:
 	float cur_speed;	//현재 공격 속도
 	float damage;		//공격력
 	float range;		//사거리
-	int type;			//유닛 타입
+	char type[2];			//유닛 타입
 	bool right;			//유닛 공격 방향
 };
 

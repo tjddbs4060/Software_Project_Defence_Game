@@ -9,8 +9,11 @@
 #include "SoulBoard.h"
 #include "Gamble.h"
 #include "Use_String.h"
+#include "UpgradeBoard.h"
 
 #include <string>
+#include <vector>
+#include <math.h>
 
 #include "network/HttpClient.h"
 #include "network/HttpConnection-winrt.h"
@@ -44,6 +47,7 @@ private:
 	void unit_atk_motion(Unit* unit, bool right);	//유닛 공격 모션
 	void move_unit(Unit* unit, bool right);		//유닛 움직임 모션
 	void addlabel(char* name, int gold, int choice);	//라벨 생성
+	void upgrade_update(char* up);		//업그레이드 된 공격력으로 바꾸기
 	bool rand_cal(float per);		//확률 계산기
 
 	void onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response);	//http 연결
@@ -77,6 +81,7 @@ private:
 	bool touch;		//터치 여부
 	bool touch_soul;	//시민 인터페이스 터치 여부
 	bool touch_gamble;	//도박 인터페이스 터치 여부
+	bool touch_upgrade;		//업그레이드 인터페이스 터치 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
 	bool new_soul_1;		//추가된 시민 확인 여부
@@ -89,6 +94,7 @@ private:
 	float anc_width;	//최대 넓이
 	float monster_hp_def[2];	//현재 몬스터의 hp, def
 	char id[64];
+	int upgrade_count[6];		//등급 업그레이드 정도
 
 	cocos2d::Point touch_point;	//시작 터치지점
 
