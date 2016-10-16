@@ -962,8 +962,37 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 			if (mix_hero->get_result_hero()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 			{
-				sprintf(szFile, "hero/%s/%d", mix_hero->get_result_hero_type(), mix_hero->get_result_hero_count());
-				get_db_data(szFile);
+				int check_count = 0;
+				bool check_unit[3] = { false, false, false };
+
+				Unit* unit = NULL;
+				for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
+				{
+					unit = (Unit*)*iterUnit;
+
+					for (int i = 0; i < mix_hero->get_count(); i++)
+					{
+						if (check_unit[i] == true)
+							break;
+
+						if (!strcmp(unit->getType(), mix_hero->get_mat_hero_type(i)) && unit->getCount() == mix_hero->get_mat_hero_count(i))
+							check_unit[i] = true;
+					}
+				}
+
+				for (int i = 0; i < mix_hero->get_count(); i++)
+				{
+					if (check_unit[i] == true)
+						check_count++;
+				}
+
+				if (mix_hero->get_count() == check_count)
+				{
+					sprintf(szFile, "hero/%s/%d", mix_hero->get_result_hero_type(), mix_hero->get_result_hero_count());
+					get_db_data(szFile);
+				}
+				else
+					addlabel(NULL, 0, 8);
 			}
 		}
 	}
@@ -1401,6 +1430,9 @@ void Game::addlabel(char* name, int gold, int choice)
 	case 7:
 		sprintf(szFile, "업그레이드 비용 부족!");
 		break;
+	case 8:
+		sprintf(szFile, "조합 영웅 부족!");
+		break;
 	}
 	label = Label::createWithSystemFont(szFile, "Arial", 10);
 
@@ -1490,7 +1522,7 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 		mix_hero->set_result_hero("unit_left_0.png");
 		mix_hero->set_result_hero_type(type);
 		mix_hero->set_result_hero_count(atoi(count));
-
+		mix_hero->set_count(atoi(list_count));
 		for (int i = 0; i < atoi(list_count); i++)
 		{
 			sprite = strtok(NULL, "/");

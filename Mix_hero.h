@@ -18,6 +18,7 @@ public:
 	void set_mat_hero_count(int count, int index);
 	void set_mat_hero_type(char* type, int index);
 	void set_mat_hero_name(char* name, int index);
+	void set_count(int count);
 
 	cocos2d::Sprite* get_result_hero();
 	cocos2d::Sprite* get_mat_hero(int index);
@@ -27,6 +28,7 @@ public:
 	int get_mat_hero_count(int index);
 	char* get_mat_hero_type(int index);
 	char* get_mat_hero_name(int index);
+	int get_count();
 
 private:
 	cocos2d::Sprite* result_hero;	//Á¶ÇÕµÈ ¿µ¿õ
@@ -35,9 +37,10 @@ private:
 	int result_hero_count;
 	char result_hero_type[64];
 	char result_hero_name[64];
-	int mat_hero_count[5];
-	char mat_hero_type[2][5];
-	char mat_hero_name[64][5];
+	int mat_hero_count[3];
+	char mat_hero_type[2][3];
+	char mat_hero_name[64][3];
+	int mix_count;
 };
 
 #endif

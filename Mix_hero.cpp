@@ -97,3 +97,13 @@ char* Mix_hero::get_mat_hero_name(int index)
 {
 	return mat_hero_name[index];
 }
+
+void Mix_hero::set_count(int count)
+{
+	mix_count = count;
+}
+
+int Mix_hero::get_count()
+{
+	return mix_count;
+}
