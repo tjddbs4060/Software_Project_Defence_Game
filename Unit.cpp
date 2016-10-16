@@ -41,6 +41,11 @@ void Unit::setType(char* rank)
 	strcpy(type, rank);
 }
 
+void Unit::setCount(int num)
+{
+	count = num;
+}
+
 float Unit::getMaxSpeed()
 {
 	return max_speed;
@@ -74,6 +79,11 @@ char* Unit::getType()
 void Unit::setBody(char* name)
 {
 	body = cocos2d::Sprite::createWithSpriteFrameName(name);
+}
+
+int Unit::getCount()
+{
+	return count;
 }
 
 cocos2d::Sprite* Unit::getBody()

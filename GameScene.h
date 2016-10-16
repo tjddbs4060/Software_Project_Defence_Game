@@ -10,6 +10,7 @@
 #include "Gamble.h"
 #include "Use_String.h"
 #include "UpgradeBoard.h"
+#include "Mix_hero.h"
 
 #include <string>
 #include <vector>
@@ -49,6 +50,7 @@ private:
 	void addlabel(char* name, int gold, int choice);	//라벨 생성
 	void upgrade_update(char* up);		//업그레이드 된 공격력으로 바꾸기
 	bool rand_cal(float per);		//확률 계산기
+	void mix_hero_init();	//조합표 초기화	/////////////
 
 	void onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response);	//http 연결
 	void get_db_data(char * data);		//http에 data 전송
@@ -77,16 +79,19 @@ private:
 	std::vector<Use_String*> arr_unit_queue;	//데이터를 가져온 유닛 큐
 	std::vector<cocos2d::Sprite*> arr_location;	//몬스터 생성 위치
 	std::vector<cocos2d::Sprite*> arr_label;	//생성된 라벨 배열
+	std::vector<Mix_hero*> arr_mix_hero;	//조합표 큐	///////////////
 
 	bool touch;		//터치 여부
 	bool touch_soul;	//시민 인터페이스 터치 여부
 	bool touch_gamble;	//도박 인터페이스 터치 여부
 	bool touch_upgrade;		//업그레이드 인터페이스 터치 여부
+	bool touch_mix;			//조합 터치 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
 	bool new_soul_1;		//추가된 시민 확인 여부
 	bool new_soul_2;		//추가된 시민 확인 여부
 	bool skip;			//skip 여부
+	int mix_list;	//조합표의 목록 수
 	int summon_monster;	//몬스터 소환 마리수
 	int stage;		//현재 스테이지
 	int monster_index;	//몬스터 index

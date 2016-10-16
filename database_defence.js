@@ -91,6 +91,42 @@ server.on('request', function(req, res){
             res.end('');
           });
         }
+        else if (data[0] == 'mix_hero') {
+          var temp = "mix_hero/";
+          var sql = 'select count(*) as c from mix_hero_result where num = ?';
+
+          connection.query(sql, [data[1]], function(err1, row1, fields1) {
+            if (row1[0].c > 0) {
+              sql = 'select * from mix_hero_result where num = ?';
+
+              connection.query(sql, [data[1]], function(err2, row2, fields2) {
+                temp += row2[0].result_hero_sprite+'/'+row2[0].result_hero_type+'/'+row2[0].result_hero_count+'/';
+              });
+
+              sql = 'select count(*) as c from mix_hero_result as r, mix_hero_material as m where r.num = ? and r.num = m.num';
+
+              var count = 0;
+              connection.query(sql, [data[1]], function(err2, row2, fields2) {
+                count = row2[0].c;
+              });
+
+              sql = 'select m.* from mix_hero_result as r, mix_hero_material as m where r.num = ? and r.num = m.num';
+
+              connection.query(sql, [data[1]], function(err2, row2, fields2) {
+                var i = 0;
+
+                temp += count+'/';
+
+                for (i = 0; i < count; i++) {
+                  temp += row2[i].mat_hero_sprite+'/'+row2[i].mat_hero_type+'/'+row2[i].mat_hero_count+'/';
+                }
+
+                console.log('success mix_hero : '+temp);
+                res.end(temp);
+              });
+            }
+          });
+        }
         else if (data[0] == 'start') {
           var sql = 'update room_list set start = true where id = ?';
 

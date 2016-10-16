@@ -17,6 +17,7 @@ public:
 	void setBody(char* name);
 	void setType(char* rank);
 	void setRight(bool tf);
+	void setCount(int num);
 	
 	float getMaxSpeed();
 	float getCurSpeed();
@@ -24,6 +25,7 @@ public:
 	float getRange();
 	char* getType();
 	bool getRight();
+	int getCount();
 	cocos2d::Sprite* getBody();
 
 	void release();
@@ -36,6 +38,7 @@ private:
 	float damage;		//공격력
 	float range;		//사거리
 	char type[2];			//유닛 타입
+	int count;			//유닛 번호
 	bool right;			//유닛 공격 방향
 };
 

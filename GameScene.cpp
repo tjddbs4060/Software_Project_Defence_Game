@@ -4,8 +4,8 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
-skip(false), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
+skip(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
@@ -31,6 +31,7 @@ bool Game::init()
 		return false;
 	}
 	srand((unsigned int)time(NULL));
+	mix_hero_init();
 
 	Size winSize = Director::getInstance()->getWinSize();
 
@@ -69,7 +70,12 @@ bool Game::init()
 	menuUpgrade->setTag(TAG_MENU_UPGRADE);
 	menuUpgrade->setPosition(Point(-(winSize.width / 2) + 30, -70));
 
-	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, NULL);
+	menuNormal = Sprite::createWithSpriteFrameName("mix.png");
+	MenuItemSprite* menuMix = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
+	menuMix->setTag(TAG_MENU_MIX);
+	menuMix->setPosition(Point((winSize.width/2) - 30, 20));
+
+	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, menuMix, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	for (int i = 1; i <= 10; i++)
@@ -108,6 +114,12 @@ bool Game::init()
 	gamble->setPosition(Point(winSize.width / 2, winSize.height / 2));
 	gamble->setVisible(false);
 	spriteBatchNodeSurface->addChild(gamble);
+
+	Sprite* mix_menu = Sprite::createWithSpriteFrameName("mix_menu.png");
+	mix_menu->setPosition(Point(winSize.width/2, winSize.height/2));
+	mix_menu->setVisible(false);
+	mix_menu->setTag(TAG_MENU_MIX_LIST);
+	spriteBatchNodeSurface->addChild(mix_menu);
 
 	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
 	sprite_background->setAnchorPoint(Point(0, 0));
@@ -346,6 +358,7 @@ void Game::addunit(char* name, char* type, int number, float speed, float range,
 	unit->setDamage(damage);
 	unit->setRange(range);
 	unit->setSpeed(speed);
+	unit->setCount(number);
 	unit->setType(type);
 	unit->getBody()->setPosition(Point(xpos, ypos));
 
@@ -526,7 +539,7 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 	touch = true;
 	touch_point = touches[0]->getLocation();
 
-	if (touch_soul == true || touch_gamble == true || touch_upgrade == true)
+	if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_mix == true)
 		return;
 
 	touch_unit_check();
@@ -925,6 +938,35 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			upgrade->setVisible(false);
 		}
 	}
+
+	if (touch_mix == true)
+	{
+		Mix_hero* mix_hero = NULL;
+
+		if (!getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		{
+			touch_mix = false;
+
+			getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->setVisible(false);
+		}
+		
+		for (std::vector<Mix_hero*>::iterator iterMix = arr_mix_hero.begin(); iterMix != arr_mix_hero.end(); iterMix++)
+		{
+			mix_hero = (Mix_hero*)*iterMix;
+
+			char szFile[64] = { 0, };
+			float x = getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->getPosition().x;
+			float y = getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->getPosition().y;
+			Point pt = Point(140, 35);
+			Point tp = touches[0]->getLocation();
+
+			if (mix_hero->get_result_hero()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
+			{
+				sprintf(szFile, "hero/%s/%d", mix_hero->get_result_hero_type(), mix_hero->get_result_hero_count());
+				get_db_data(szFile);
+			}
+		}
+	}
 	
 	touch = false;
 	touch_unit = false;
@@ -1011,7 +1053,7 @@ void Game::add_unit_queue(float dt)
 
 void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
-	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true)
+	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_mix == true)
 		return;
 
 	Point movePoint = touches[0]->getLocation();
@@ -1241,7 +1283,7 @@ void Game::onMenu(Object* sender)
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_MENU_SOUL:
-		if (touch_gamble == true || touch_upgrade == true) break;
+		if (touch_gamble == true || touch_upgrade == true || touch_mix == true) break;
 
 		touch_soul = true;
 		new_soul_1 = false;
@@ -1250,7 +1292,7 @@ void Game::onMenu(Object* sender)
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL)->setVisible(true);
 		break;
 	case TAG_MENU_GAMBLE:
-		if (touch_soul == true || touch_upgrade == true) break;
+		if (touch_soul == true || touch_upgrade == true || touch_mix == true) break;
 
 		touch_gamble = true;
 
@@ -1273,11 +1315,17 @@ void Game::onMenu(Object* sender)
 
 		break;
 	case TAG_MENU_UPGRADE:
-		if (touch_soul == true || touch_gamble == true) break;
+		if (touch_soul == true || touch_gamble == true || touch_mix == true) break;
 
 		touch_upgrade = true;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_UPGRADE)->setVisible(true);
+		break;
+	case TAG_MENU_MIX:
+		if (touch_soul == true || touch_gamble == true || touch_upgrade == true) break;
+
+		touch_mix = true;
+		getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->setVisible(true);
 		break;
 	}
 }
@@ -1428,6 +1476,43 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 		monster_hp_def[0] = atof(hp);
 		monster_hp_def[1] = atof(def);
 	}
+	else if (!strcmp(compare, "mix_hero"))
+	{
+		strtok(szFile, "/");
+		//mix_hero/result_sprite/result_type/result_count/list_count/mat_sprite/mat_type/mat_count ...
+		Mix_hero * mix_hero = new Mix_hero;
+
+		char * sprite = strtok(NULL, "/");
+		char * type = strtok(NULL, "/");
+		char * count = strtok(NULL, "/");
+		char * list_count = strtok(NULL, "/");
+
+		mix_hero->set_result_hero("unit_left_0.png");
+		mix_hero->set_result_hero_type(type);
+		mix_hero->set_result_hero_count(atoi(count));
+
+		for (int i = 0; i < atoi(list_count); i++)
+		{
+			sprite = strtok(NULL, "/");
+			type = strtok(NULL, "/");
+			count = strtok(NULL, "/");
+
+			mix_hero->set_mat_hero("unit_left_0.png", i);
+			mix_hero->set_mat_hero_type(type, i);
+			mix_hero->set_mat_hero_count(atoi(count), i);
+		}
+
+		mix_hero->get_result_hero()->setPosition(Point(30, 215 - (arr_mix_hero.size() * 50)));
+		getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_result_hero());
+		
+		for (int i = 0; i < atoi(list_count); i++)
+		{
+			mix_hero->get_mat_hero(i)->setPosition(Point(85 + (i * 40), 215 - (arr_mix_hero.size() * 50)));
+			getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_mat_hero(i));
+		}
+
+		arr_mix_hero.push_back(mix_hero);
+	}
 
 	/*
 	printf("Response Code : %li \n", response->getResponseCode());
@@ -1513,5 +1598,17 @@ void Game::upgrade_update(char* up)
 
 		if (!strcmp(unit->getType(), up))
 			unit->setDamage(damage * pow(rate, upgrade_count[index]));
+	}
+}
+
+void Game::mix_hero_init()
+{
+	char szFile[64] = { 0, };
+	int index = 1;
+
+	while (mix_list-- > 0)
+	{
+		sprintf(szFile, "mix_hero/%d", index++);
+		get_db_data(szFile);
 	}
 }
