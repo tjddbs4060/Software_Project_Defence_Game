@@ -33,7 +33,7 @@ server.on('request', function(req, res){
           var sql = 'select * from hero where type = ? and count = ?';
 
           connection.query(sql, [data[1], data[2]], function(err, row, fields) {
-            res.end('hero/'+row[0].name+'/'+row[0].type+'/'+row[0].count+'/'+row[0].speed+'/'+row[0].atk_range+'/'+row[0].damage);
+            res.end('hero/'+'/'+row[0].sprite+'/'+row[0].name+'/'+row[0].type+'/'+row[0].count+'/'+row[0].speed+'/'+row[0].atk_range+'/'+row[0].damage);
           });
         }
         else if(data[0] == 'monster') {
@@ -100,7 +100,7 @@ server.on('request', function(req, res){
               sql = 'select * from mix_hero_result where num = ?';
 
               connection.query(sql, [data[1]], function(err2, row2, fields2) {
-                temp += row2[0].result_hero_sprite+'/'+row2[0].result_hero_type+'/'+row2[0].result_hero_count+'/';
+                temp += row2[0].result_hero_sprite+'/'+row2[0].result_hero_type+'/'+row2[0].result_hero_count+'/'+row2[0].result_hero_name+'/';
               });
 
               sql = 'select count(*) as c from mix_hero_result as r, mix_hero_material as m where r.num = ? and r.num = m.num';
@@ -118,7 +118,7 @@ server.on('request', function(req, res){
                 temp += count+'/';
 
                 for (i = 0; i < count; i++) {
-                  temp += row2[i].mat_hero_sprite+'/'+row2[i].mat_hero_type+'/'+row2[i].mat_hero_count+'/';
+                  temp += row2[i].mat_hero_sprite+'/'+row2[i].mat_hero_type+'/'+row2[i].mat_hero_count+'/'+row2[i].mat_hero_name+'/';
                 }
 
                 console.log('success mix_hero : '+temp);

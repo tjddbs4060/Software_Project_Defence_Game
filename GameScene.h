@@ -39,7 +39,7 @@ public:
 private:
 	void addmonster(float dt);	//몬스터 추가
 	void addmonster_death(cocos2d::Point pt);	//몬스터가 죽으면 폭발 애니메이션
-	void addunit(char* name, char* type, int number, float speed, float range, float damage);		//유닛 추가
+	void addunit(char* sprite_name, char* name, char* type, int number, float speed, float range, float damage);		//유닛 추가
 	void addunit_mix(cocos2d::Point pt);	//조합하여 유닛 삭제
 	void addunit_sell(cocos2d::Point pt);	//팔아서 유닛 삭제
 	void addattack(Monster* monster);	//공격 모션

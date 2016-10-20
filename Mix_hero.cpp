@@ -9,6 +9,7 @@ Mix_hero::Mix_hero():result_hero(NULL), result_hero_count(0)
 		mat_hero[i] = NULL;
 		mat_hero_count[i] = 0;
 		mat_hero_type[0][i] = NULL;
+		mat_hero_name[0][i] = NULL;
 	}
 	result_hero_type[0] = 0;
 	result_hero_type[1] = 0;

@@ -35,7 +35,7 @@ private:
 	cocos2d::Sprite* mat_hero[5];	//조합 재료
 
 	int result_hero_count;
-	char result_hero_type[64];
+	char result_hero_type[2];
 	char result_hero_name[64];
 	int mat_hero_count[3];
 	char mat_hero_type[2][3];

@@ -14,7 +14,7 @@ public:
 	void setDamage(float dmg);
 	void setRange(float ran);
 	void setCurSpeed(float spd);	//현재 공격 쿨타임
-	void setBody(char* name);
+	void setBody(char* body_name);
 	void setType(char* rank);
 	void setRight(bool tf);
 	void setCount(int num);
@@ -24,6 +24,7 @@ public:
 	float getDamage();
 	float getRange();
 	char* getType();
+	char* getName();
 	bool getRight();
 	int getCount();
 	cocos2d::Sprite* getBody();
@@ -38,6 +39,7 @@ private:
 	float damage;		//공격력
 	float range;		//사거리
 	char type[2];			//유닛 타입
+	char name[64];		//유닛 이름
 	int count;			//유닛 번호
 	bool right;			//유닛 공격 방향
 };

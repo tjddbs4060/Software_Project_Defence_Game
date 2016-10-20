@@ -76,9 +76,13 @@ char* Unit::getType()
 	return type;
 }
 
-void Unit::setBody(char* name)
+void Unit::setBody(char* body_name)
 {
-	body = cocos2d::Sprite::createWithSpriteFrameName(name);
+	char szFile[64] = { 0, };
+
+	strcpy(name, body_name);
+	sprintf(szFile, "%s.png", name);
+	body = cocos2d::Sprite::createWithSpriteFrameName(szFile);
 }
 
 int Unit::getCount()
@@ -98,4 +102,9 @@ void Unit::release()
 		body->removeFromParentAndCleanup(true);
 		body = NULL;
 	}
+}
+
+char* Unit::getName()
+{
+	return name;
 }

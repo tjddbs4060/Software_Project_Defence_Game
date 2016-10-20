@@ -5,7 +5,7 @@
 USING_NS_CC;
 
 Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
-skip(false), mix_list(15), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
+skip(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
@@ -34,10 +34,14 @@ bool Game::init()
 	mix_hero_init();
 
 	Size winSize = Director::getInstance()->getWinSize();
-
-	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Plist.plist");
-	SpriteBatchNode* spriteBatchNodeSurface = SpriteBatchNode::create("Plist.png");
+	
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Thing.plist");
+	SpriteBatchNode* spriteBatchNodeSurface = SpriteBatchNode::create("Thing.png");
 	addChild(spriteBatchNodeSurface, ZORDER_UNIT, TAG_UNIT);
+	
+	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Hero.plist");
+	SpriteBatchNode* spriteBatchNodeHero = SpriteBatchNode::create("Hero.png");
+	addChild(spriteBatchNodeHero, ZORDER_HERO, TAG_HERO);
 
 	Sprite* menuNormal = Sprite::createWithSpriteFrameName("Soul.png");
 	MenuItemSprite* menuSoul = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
@@ -116,11 +120,10 @@ bool Game::init()
 	spriteBatchNodeSurface->addChild(gamble);
 
 	Sprite* mix_menu = Sprite::createWithSpriteFrameName("mix_menu.png");
-	mix_menu->setPosition(Point(winSize.width/2, winSize.height/2));
+	mix_menu->setPosition(Point(winSize.width / 2, winSize.height / 2));
 	mix_menu->setVisible(false);
-	mix_menu->setTag(TAG_MENU_MIX_LIST);
-	spriteBatchNodeSurface->addChild(mix_menu);
-	
+	addChild(mix_menu, ZORDER_INTERFACE, TAG_MENU_MIX_LIST);
+
 	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
 	sprite_background->setAnchorPoint(Point(0, 0));
 	addChild(sprite_background, ZORDER_BACKGROUND, TAG_BACKGROUND);
@@ -339,7 +342,7 @@ void Game::unitRemover(Node* sender)
 	}
 }
 
-void Game::addunit(char* name, char* type, int number, float speed, float range, float damage)
+void Game::addunit(char* sprite_name, char* name, char* type, int number, float speed, float range, float damage)
 {
 	Size winSize = Director::getInstance()->getWinSize();
 	char szFile[64] = { 0, };
@@ -352,7 +355,7 @@ void Game::addunit(char* name, char* type, int number, float speed, float range,
 	Unit* unit = new Unit();
 
 	//name을 이용한 이미지
-	unit->setBody("unit_left_atk_1.png");
+	unit->setBody(sprite_name);
 	unit->setDamage(damage);
 	unit->setRange(range);
 	unit->setSpeed(speed);
@@ -501,19 +504,21 @@ void Game::unit_atk_motion(Unit* unit, bool right)
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			sprintf(szFile, "unit_right_atk_%d.png", i);
+			sprintf(szFile, "%s_right_atk_%d.png", unit->getName(), i);
 			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 		}
-		animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_right_atk_1.png"));
+		sprintf(szFile, "%s.png", unit->getName());
+		animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 	}
 	else
 	{
 		for (int i = 0; i < 4; i++)
 		{
-			sprintf(szFile, "unit_left_atk_%d.png", i);
+			sprintf(szFile, "%s_left_atk_%d.png", unit->getName(), i);
 			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 		}
-		animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_left_atk_1.png"));
+		sprintf(szFile, "%s.png", unit->getName());
+		animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 	}
 
 	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.05f);
@@ -596,14 +601,18 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::allstop_motion, this));
 		auto animation = Animation::create();
 
+		char szFile[64];
+
+		sprintf(szFile, "%s.png", now_unit->getName());
+
 		if (now_unit->getBody()->getPositionX() - (touches[0]->getLocation().x - pt.x) > 0)
 		{
-			animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_left_atk_1.png"));
+			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 			now_unit->setRight(false);
 		}
 		else
 		{
-			animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_right_atk_1.png"));
+			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 			now_unit->setRight(true);
 		}
 		animation->setDelayPerUnit(0.0001f);
@@ -941,11 +950,11 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 	{
 		Mix_hero* mix_hero = NULL;
 
-		if (!getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		if (!getChildByTag(TAG_MENU_MIX_LIST)->boundingBox().containsPoint(Point(touches[0]->getLocation())))
 		{
 			touch_mix = false;
 
-			getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->setVisible(false);
+			getChildByTag(TAG_MENU_MIX_LIST)->setVisible(false);
 		}
 		
 		for (std::vector<Mix_hero*>::iterator iterMix = arr_mix_hero.begin(); iterMix != arr_mix_hero.end(); iterMix++)
@@ -971,7 +980,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					for (int i = 0; i < mix_hero->get_count(); i++)
 					{
 						if (check_unit[i] == true)
-							break;
+							continue;
 
 						if (!strcmp(unit->getType(), mix_hero->get_mat_hero_type(i)) && unit->getCount() == mix_hero->get_mat_hero_count(i))
 							check_unit[i] = true;
@@ -986,6 +995,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 				if (mix_hero->get_count() == check_count)
 				{
+					//조합 재료 사라지는 코드 사용
 					sprintf(szFile, "hero/%s/%d", mix_hero->get_result_hero_type(), mix_hero->get_result_hero_count());
 					get_db_data(szFile);
 				}
@@ -1021,6 +1031,7 @@ void Game::add_unit_queue(float dt)
 
 		char * rev = queue->getString();
 		strtok(rev, "/");
+		char * sprite = strtok(NULL, "/");
 		char * name = strtok(NULL, "/");
 		char * type = strtok(NULL, "/");
 		char * count = strtok(NULL, "/");
@@ -1028,7 +1039,7 @@ void Game::add_unit_queue(float dt)
 		char * range = strtok(NULL, "/");
 		char * damage = strtok(NULL, "/");
 
-		addunit(name, type, atoi(count), atof(speed), atof(range), atof(damage));
+		addunit(sprite, name, type, atoi(count), atof(speed), atof(range), atof(damage));
 		
 		delete queue;
 		iterQueue = arr_unit_queue.erase(iterQueue);
@@ -1083,7 +1094,7 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true)
 		return;
 
-	if (touch_mix == true && getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->boundingBox().containsPoint(Point(touch_point)))
+	if (touch_mix == true && getChildByTag(TAG_MENU_MIX_LIST)->boundingBox().containsPoint(Point(touch_point)))
 	{
 		Mix_hero* mix_hero = NULL;
 		Mix_hero* mix_out = (Mix_hero*)*arr_mix_hero.begin();
@@ -1413,7 +1424,7 @@ void Game::onMenu(Object* sender)
 
 		touch_mix = true;
 
-		getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->setVisible(true);
+		getChildByTag(TAG_MENU_MIX_LIST)->setVisible(true);
 		break;
 	}
 }
@@ -1428,24 +1439,26 @@ void Game::move_unit(Unit* unit, bool right)
 
 	if (right == true)
 	{
-		for (int i = 1; i < 10; i++)
+		for (int i = 0; i < 4; i++)
 		{
-			sprintf(szFile, "unit_right_%d.png", i);
+			sprintf(szFile, "%s_right_%d.png", unit->getName(), i);
 			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 		}
-		animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_right_atk_3.png"));
+		//sprintf(szFile, "%s.png", unit->getName());
+		//animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 	}
 	else
 	{
-		for (int i = 1; i < 10; i++)
+		for (int i = 0; i < 4; i++)
 		{
-			sprintf(szFile, "unit_left_%d.png", i);
+			sprintf(szFile, "%s_left_%d.png", unit->getName(), i);
 			animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 		}
-		animation->addSpriteFrame(frameCache->getSpriteFrameByName("unit_left_atk_3.png"));
+		//sprintf(szFile, "%s.png", unit->getName());
+		//animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 	}
 
-	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.02f);
+	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.1f);
 
 	Animate* animate = Animate::create(animation);
 	RepeatForever* repeat = RepeatForever::create(animate);
@@ -1541,8 +1554,8 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 	std::vector<char> * buffer = response->getResponseData();
 
 	Use_String * use_string = new Use_String();
-	char szFile[64] = { 0, };
-	char temp[64] = { 0, };
+	char szFile[128] = { 0, };
+	char temp[128] = { 0, };
 	char * compare;
 	for (unsigned int i = 0; i < buffer->size(); i++)
 		szFile[i] = (*buffer)[i];
@@ -1571,37 +1584,42 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 	{
 		strtok(szFile, "/");
 		//mix_hero/result_sprite/result_type/result_count/list_count/mat_sprite/mat_type/mat_count ...
-		Mix_hero * mix_hero = new Mix_hero;
+		Mix_hero * mix_hero = new Mix_hero();
 		Rect mix_rect = Rect(35, 35, 190, 165);
 		int height = arr_mix_hero.size() * 50;
 
 		char * sprite = strtok(NULL, "/");
 		char * type = strtok(NULL, "/");
 		char * count = strtok(NULL, "/");
+		char * name = strtok(NULL, "/");
 		char * list_count = strtok(NULL, "/");
 
-		mix_hero->set_result_hero("unit_left_0.png");
+		mix_hero->set_result_hero(sprite);
 		mix_hero->set_result_hero_type(type);
 		mix_hero->set_result_hero_count(atoi(count));
+		mix_hero->set_result_hero_name(name);
 		mix_hero->set_count(atoi(list_count));
+
 		for (int i = 0; i < atoi(list_count); i++)
 		{
 			sprite = strtok(NULL, "/");
 			type = strtok(NULL, "/");
 			count = strtok(NULL, "/");
+			name = strtok(NULL, "/");
 
-			mix_hero->set_mat_hero("unit_left_0.png", i);
+			mix_hero->set_mat_hero(sprite, i);
 			mix_hero->set_mat_hero_type(type, i);
 			mix_hero->set_mat_hero_count(atoi(count), i);
+			mix_hero->set_mat_hero_name(name, i);
 		}
 		
 		mix_hero->get_result_hero()->setPosition(Point(30, 215 - (height)));
-		getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_result_hero());
+		getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_result_hero());
 		
 		for (int i = 0; i < atoi(list_count); i++)
 		{
 			mix_hero->get_mat_hero(i)->setPosition(Point(85 + (i * 40), 215 - (height)));
-			getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_mat_hero(i));
+			getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_mat_hero(i));
 		}
 
 		if (!mix_rect.intersectsRect(mix_hero->get_result_hero()->getBoundingBox()))
