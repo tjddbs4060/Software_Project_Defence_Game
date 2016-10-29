@@ -25,6 +25,16 @@ public:
 
 	static UpgradeBoard* create();
 
+	void sprite_init();
+
+	cocos2d::Sprite* get_D_button();
+	cocos2d::Sprite* get_C_button();
+	cocos2d::Sprite* get_B_button();
+	cocos2d::Sprite* get_A_button();
+	cocos2d::Sprite* get_S_button();
+	cocos2d::Sprite* get_SS_button();
+	cocos2d::Sprite* get_esc_button();
+
 	void setD(int d);
 	void setC(int c);
 	void setB(int b);
@@ -50,6 +60,14 @@ private:
 	int A;
 	int S;
 	int SS;
+
+	cocos2d::Sprite* D_button;
+	cocos2d::Sprite* C_button;
+	cocos2d::Sprite* B_button;
+	cocos2d::Sprite* A_button;
+	cocos2d::Sprite* S_button;
+	cocos2d::Sprite* SS_button;
+	cocos2d::Sprite* esc_button;
 };
 
 #endif

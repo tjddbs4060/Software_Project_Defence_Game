@@ -10,6 +10,68 @@ UpgradeBoard::~UpgradeBoard()
 {
 }
 
+void UpgradeBoard::sprite_init()
+{
+	D_button = Sprite::createWithSpriteFrameName("D_button.png");
+	C_button = Sprite::createWithSpriteFrameName("C_button.png");
+	B_button = Sprite::createWithSpriteFrameName("B_button.png");
+	A_button = Sprite::createWithSpriteFrameName("A_button.png");
+	S_button = Sprite::createWithSpriteFrameName("S_button.png");
+	SS_button = Sprite::createWithSpriteFrameName("SS_button.png");
+	esc_button = Sprite::createWithSpriteFrameName("esc_button.png");
+
+	D_button->setPosition(Point(76, 130));
+	C_button->setPosition(Point(126, 130));
+	B_button->setPosition(Point(176, 130));
+	A_button->setPosition(Point(76, 70));
+	S_button->setPosition(Point(126, 70));
+	SS_button->setPosition(Point(176, 70));
+	esc_button->setPosition(Point(235, 189));
+	
+	addChild(D_button);
+	addChild(C_button);
+	addChild(B_button);
+	addChild(A_button);
+	addChild(S_button);
+	addChild(SS_button);
+	addChild(esc_button);
+}
+
+Sprite* UpgradeBoard::get_D_button()
+{
+	return D_button;
+}
+
+Sprite* UpgradeBoard::get_C_button()
+{
+	return C_button;
+}
+
+Sprite* UpgradeBoard::get_B_button()
+{
+	return B_button;
+}
+
+Sprite* UpgradeBoard::get_A_button()
+{
+	return A_button;
+}
+
+Sprite* UpgradeBoard::get_S_button()
+{
+	return S_button;
+}
+
+Sprite* UpgradeBoard::get_SS_button()
+{
+	return SS_button;
+}
+
+Sprite* UpgradeBoard::get_esc_button()
+{
+	return esc_button;
+}
+
 void UpgradeBoard::setD(int d)
 {
 	D = d;
@@ -90,6 +152,8 @@ UpgradeBoard* UpgradeBoard::create()
 	if (upgradeBoard && upgradeBoard->initWithSpriteFrameName("upgrade_select_menu.png"))
 	{
 		upgradeBoard->autorelease();
+
+		upgradeBoard->sprite_init();
 
 		upgradeBoard->addNumberSprite(TAG_BOARD_D_01, Point(71, 102), 0.7);
 		upgradeBoard->addNumberSprite(TAG_BOARD_D_02, Point(80, 102), 0.7);

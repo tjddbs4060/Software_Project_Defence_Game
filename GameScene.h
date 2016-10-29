@@ -11,6 +11,8 @@
 #include "Use_String.h"
 #include "UpgradeBoard.h"
 #include "Mix_hero.h"
+#include "MixBoard.h"
+#include "CapsuleBoard.h"
 
 #include <string>
 #include <vector>
@@ -86,6 +88,7 @@ private:
 	bool touch_gamble;	//도박 인터페이스 터치 여부
 	bool touch_upgrade;		//업그레이드 인터페이스 터치 여부
 	bool touch_mix;			//조합 터치 여부
+	bool touch_capsule;		//뽑기 터치 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
 	bool new_soul_1;		//추가된 시민 확인 여부

@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-InforBoard::InforBoard() : mTime(5), mGold(1000), mJewelry(0), mLevel(0), mMonster(0), mSoul(0)
+InforBoard::InforBoard() : mTime(5), mGold(0), mJewelry(0), mLevel(0), mMonster(0), mSoul(0)
 {
 }
 

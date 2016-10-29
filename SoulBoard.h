@@ -34,12 +34,31 @@ public:
 	void changeNumber(int tag, int number);	//숫자 변경
 
 	void updateNumber(SoulBoard* soulBoard);
+	void sprite_init();
+
+	cocos2d::Sprite* get_esc();
+	cocos2d::Sprite* get_gold_up();
+	cocos2d::Sprite* get_gold_down();
+	cocos2d::Sprite* get_hero_up();
+	cocos2d::Sprite* get_hero_down();
+	cocos2d::Sprite* get_jewelry_up();
+	cocos2d::Sprite* get_jewelry_down();
+	cocos2d::Sprite* get_ok();
 
 private:
 	int mSoul;
 	int mGold;
 	int mHero;
 	int mJewelry;
+
+	cocos2d::Sprite* esc_button;
+	cocos2d::Sprite* gold_up_button;
+	cocos2d::Sprite* gold_down_button;
+	cocos2d::Sprite* hero_up_button;
+	cocos2d::Sprite* hero_down_button;
+	cocos2d::Sprite* jewelry_up_button;
+	cocos2d::Sprite* jewelry_down_button;
+	cocos2d::Sprite* ok_button;
 };
 
 #endif

@@ -4,8 +4,8 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), new_soul_1(false), new_soul_2(false), touch_soul(false),
-skip(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false)
+, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
@@ -79,7 +79,12 @@ bool Game::init()
 	menuMix->setTag(TAG_MENU_MIX);
 	menuMix->setPosition(Point((winSize.width/2) - 30, 20));
 
-	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, menuMix, NULL);
+	menuNormal = Sprite::createWithSpriteFrameName("capsule.png");
+	MenuItemSprite* menuCapsule = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
+	menuCapsule->setTag(TAG_MENU_CAPSULE);
+	menuCapsule->setPosition(Point(-(winSize.width / 2) + 30, -120));
+
+	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, menuMix, menuCapsule, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	for (int i = 1; i <= 10; i++)
@@ -119,10 +124,17 @@ bool Game::init()
 	gamble->setVisible(false);
 	spriteBatchNodeSurface->addChild(gamble);
 
-	Sprite* mix_menu = Sprite::createWithSpriteFrameName("mix_menu.png");
-	mix_menu->setPosition(Point(winSize.width / 2, winSize.height / 2));
-	mix_menu->setVisible(false);
-	addChild(mix_menu, ZORDER_INTERFACE, TAG_MENU_MIX_LIST);
+	CapsuleBoard* capsuleBoard = CapsuleBoard::create();
+	capsuleBoard->setTag(TAG_INTERFACE_CAPSULE);
+	capsuleBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
+	capsuleBoard->setVisible(false);
+	spriteBatchNodeSurface->addChild(capsuleBoard);
+
+	MixBoard* mixBoard = MixBoard::create();
+	mixBoard->setTag(TAG_INTERFACE_MIX);
+	mixBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
+	mixBoard->setVisible(false);
+	spriteBatchNodeHero->addChild(mixBoard);
 
 	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
 	sprite_background->setAnchorPoint(Point(0, 0));
@@ -542,7 +554,7 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 	touch = true;
 	touch_point = touches[0]->getLocation();
 
-	if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_mix == true)
+	if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_mix == true || touch_capsule == true)
 		return;
 
 	touch_unit_check();
@@ -622,7 +634,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 		move_unit(now_unit, now_unit->getRight());
 		now_unit->getBody()->runAction(sequence);
-
+		now_unit->setCurSpeed(now_unit->getMaxSpeed() - (calDistance(now_unit->getBody()->getPosition(), touches[0]->getLocation() - pt) / 150.f));
 		//now_unit->getBody()->getChildByTag(TAG_RANGE)->setVisible(false);
 		//unit_range(now_unit);
 		touch_unit = false;
@@ -636,17 +648,9 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		
 		float x = soulBoard->getPositionX() - (soulBoard->getContentSize().width / 2);
 		float y = soulBoard->getPositionY() - (soulBoard->getContentSize().height / 2);
-
-		Rect hero_down = Rect(x + 57, y + 95, 10, 10);
-		Rect hero_up = Rect(x + 85, y + 95, 10, 10);
-		Rect gold_down = Rect(x + 108, y + 95, 10, 10);
-		Rect gold_up = Rect(x + 136, y + 95, 10, 10);
-		Rect jewelry_down = Rect(x + 158, y + 95, 10, 10);
-		Rect jewelry_up = Rect(x + 186, y + 95, 10, 10);
-		Rect esc_button = Rect(x + 230, y + 184, 10, 10);
-		Rect ok_button = Rect(x + 107, y + 50, 40, 12);
-
-		if (hero_down.containsPoint(touches[0]->getLocation()))
+		Point pt = Point(x, y);
+		
+		if (soulBoard->get_hero_down()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (soulBoard->getHero() > 0)
 			{
@@ -655,7 +659,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setSoul(inforBoard->getSoul() + 1);
 			}
 		}
-		else if (hero_up.containsPoint(touches[0]->getLocation()))
+		else if (soulBoard->get_hero_up()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (soulBoard->getSoul() > 0)
 			{
@@ -664,7 +668,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setSoul(inforBoard->getSoul() - 1);
 			}
 		}
-		else if (gold_down.containsPoint(touches[0]->getLocation()))
+		else if (soulBoard->get_gold_down()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (soulBoard->getGold() > 0)
 			{
@@ -673,7 +677,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setSoul(inforBoard->getSoul() + 1);
 			}
 		}
-		else if (gold_up.containsPoint(touches[0]->getLocation()))
+		else if (soulBoard->get_gold_up()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (soulBoard->getSoul() > 0)
 			{
@@ -682,7 +686,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setSoul(inforBoard->getSoul() - 1);
 			}
 		}
-		else if (jewelry_down.containsPoint(touches[0]->getLocation()))
+		else if (soulBoard->get_jewelry_down()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (soulBoard->getJewelry() > 0)
 			{
@@ -691,7 +695,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setSoul(inforBoard->getSoul() + 1);
 			}
 		}
-		else if (jewelry_up.containsPoint(touches[0]->getLocation()))
+		else if (soulBoard->get_jewelry_up()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (soulBoard->getSoul() > 0)
 			{
@@ -700,7 +704,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setSoul(inforBoard->getSoul() - 1);
 			}
 		}
-		else if (esc_button.containsPoint(touches[0]->getLocation()))
+		else if (soulBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !soulBoard->boundingBox().containsPoint(Point(touches[0]->getLocation())))
 		{
 			touch_soul = false;
 			new_soul_1 = true;
@@ -714,7 +718,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			soulBoard->setJewelry(0);
 			soulBoard->setSoul(inforBoard->getSoul());
 		}
-		else if (ok_button.containsPoint(touches[0]->getLocation()))
+		else if (soulBoard->get_ok()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			touch_soul = false;
 			new_soul_1 = true;
@@ -791,13 +795,9 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		int temp = 0;
 		float x = gamble->getPositionX() - (gamble->getContentSize().width / 2);
 		float y = gamble->getPositionY() - (gamble->getContentSize().height / 2);
+		Point pt = Point(x, y);
 
-		Rect low_button = Rect(x + 56, y + 83, 40, 12);
-		Rect mid_button = Rect(x + 106, y + 83, 40, 12);
-		Rect high_button = Rect(x + 156, y + 83, 40, 12);
-		Rect esc_button = Rect(x + 230, y + 184, 10, 10);
-
-		if (low_button.containsPoint(touches[0]->getLocation()))
+		if (gamble->get_low()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - 10 >= 0)
 			{
@@ -810,7 +810,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, temp, 4);
 		}
-		else if (mid_button.containsPoint(touches[0]->getLocation()))
+		else if (gamble->get_middle()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - 100 >= 0)
 			{
@@ -823,7 +823,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, temp, 4);
 		}
-		else if (high_button.containsPoint(touches[0]->getLocation()))
+		else if (gamble->get_high()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - 500 >= 0)
 			{
@@ -836,7 +836,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, temp, 4);
 		}
-		else if (esc_button.containsPoint(touches[0]->getLocation()))
+		else if (gamble->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !gamble->boundingBox().containsPoint(Point(touches[0]->getLocation())))
 		{
 			touch_gamble = false;
 
@@ -851,16 +851,9 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 		float x = upgrade->getPositionX() - (upgrade->getContentSize().width / 2);
 		float y = upgrade->getPositionY() - (upgrade->getContentSize().height / 2);
+		Point pt = Point(x, y);
 
-		Rect D_button = Rect(x + 56, y + 110, 40, 40);
-		Rect C_button = Rect(x + 106, y + 110, 40, 40);
-		Rect B_button = Rect(x + 156, y + 110, 40, 40);
-		Rect A_button = Rect(x + 56, y + 50, 40, 40);
-		Rect S_button = Rect(x + 106, y + 50, 40, 40);
-		Rect SS_button = Rect(x + 156, y + 50, 40, 40);
-		Rect esc_button = Rect(x + 230, y + 184, 10, 10);
-
-		if (D_button.containsPoint(touches[0]->getLocation()))
+		if (upgrade->get_D_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - (10 + upgrade_count[0]) >= 0)
 			{
@@ -873,7 +866,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, 0, 7);
 		}
-		else if (C_button.containsPoint(touches[0]->getLocation()))
+		else if (upgrade->get_C_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - (20 + upgrade_count[1] * 2) >= 0)
 			{
@@ -886,7 +879,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, 0, 7);
 		}
-		else if (B_button.containsPoint(touches[0]->getLocation()))
+		else if (upgrade->get_B_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - (50 + upgrade_count[2] * 5) >= 0)
 			{
@@ -899,7 +892,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, 0, 7);
 		}
-		else if (A_button.containsPoint(touches[0]->getLocation()))
+		else if (upgrade->get_A_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - (100 + upgrade_count[2] * 10) >= 0)
 			{
@@ -912,7 +905,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, 0, 7);
 		}
-		else if (S_button.containsPoint(touches[0]->getLocation()))
+		else if (upgrade->get_S_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - (300 + upgrade_count[2] * 30) >= 0)
 			{
@@ -925,7 +918,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, 0, 7);
 		}
-		else if (SS_button.containsPoint(touches[0]->getLocation()))
+		else if (upgrade->get_SS_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
 			if (inforBoard->getGold() - (500 + upgrade_count[2] * 50) >= 0)
 			{
@@ -938,7 +931,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, 0, 7);
 		}
-		else if (esc_button.containsPoint(touches[0]->getLocation()))
+		else if (upgrade->get_esc_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !upgrade->boundingBox().containsPoint(Point(touches[0]->getLocation())))
 		{
 			touch_upgrade = false;
 
@@ -948,13 +941,19 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 	if (touch_mix == true)
 	{
+		MixBoard* mixBoard = (MixBoard*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_MIX);
+
+		float x = mixBoard->getPositionX() - (mixBoard->getContentSize().width / 2);
+		float y = mixBoard->getPositionY() - (mixBoard->getContentSize().height / 2);
+		Point pt = Point(x, y);
+
 		Mix_hero* mix_hero = NULL;
 
-		if (!getChildByTag(TAG_MENU_MIX_LIST)->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		if (mixBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !mixBoard->boundingBox().containsPoint(Point(touches[0]->getLocation())))
 		{
 			touch_mix = false;
 
-			getChildByTag(TAG_MENU_MIX_LIST)->setVisible(false);
+			mixBoard->setVisible(false);
 		}
 		
 		for (std::vector<Mix_hero*>::iterator iterMix = arr_mix_hero.begin(); iterMix != arr_mix_hero.end(); iterMix++)
@@ -1002,6 +1001,187 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				else
 					addlabel(NULL, 0, 8);
 			}
+		}
+	}
+
+	if (touch_capsule == true)
+	{
+		InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+		CapsuleBoard* capsule = (CapsuleBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_CAPSULE);
+
+		char szFile[64] = { 0, };
+
+		float x = capsule->getPositionX() - (capsule->getContentSize().width / 2);
+		float y = capsule->getPositionY() - (capsule->getContentSize().height / 2);
+		Point pt = Point(x, y);
+
+		if (capsule->get_D_capsule()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
+		{
+			if (inforBoard->getGold() >= 10)
+			{
+				if (inforBoard->getJewelry() >= 1)
+				{
+					inforBoard->setGold(inforBoard->getGold() - 10);
+					inforBoard->setJewelry(inforBoard->getJewelry() - 1);
+					
+					if (rand_cal(0.8))
+					{
+						addlabel(NULL, 0, 11);
+						sprintf(szFile, "hero/D/%d", capsule->D_gamble());
+						get_db_data(szFile);
+					}
+					else addlabel(NULL, 0, 10);
+				}
+				else addlabel(NULL, 0, 9);
+			}
+			else
+			{
+				addlabel(NULL, 0, 4);
+
+				if (inforBoard->getJewelry() < 1)
+					addlabel(NULL, 0, 9);
+			}
+		}
+		else if (capsule->get_C_capsule()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
+		{
+			if (inforBoard->getGold() >= 50)
+			{
+				if (inforBoard->getJewelry() >= 2)
+				{
+					inforBoard->setGold(inforBoard->getGold() - 50);
+					inforBoard->setJewelry(inforBoard->getJewelry() - 2);
+
+					if (rand_cal(0.6))
+					{
+						addlabel(NULL, 0, 11);
+						sprintf(szFile, "hero/C/%d", capsule->C_gamble());
+						get_db_data(szFile);
+					}
+					else addlabel(NULL, 0, 10);
+				}
+				else addlabel(NULL, 0, 9);
+			}
+			else
+			{
+				addlabel(NULL, 0, 4);
+
+				if (inforBoard->getJewelry() < 2)
+					addlabel(NULL, 0, 9);
+			}
+		}
+		else if (capsule->get_B_capsule()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
+		{
+			if (inforBoard->getGold() >= 150)
+			{
+				if (inforBoard->getJewelry() >= 3)
+				{
+					inforBoard->setGold(inforBoard->getGold() - 150);
+					inforBoard->setJewelry(inforBoard->getJewelry() - 3);
+
+					if (rand_cal(0.4))
+					{
+						addlabel(NULL, 0, 11);
+						sprintf(szFile, "hero/B/%d", capsule->B_gamble());
+						get_db_data(szFile);
+					}
+					else addlabel(NULL, 0, 10);
+				}
+				else addlabel(NULL, 0, 9);
+			}
+			else
+			{
+				addlabel(NULL, 0, 4);
+
+				if (inforBoard->getJewelry() < 3)
+					addlabel(NULL, 0, 9);
+			}
+		}
+		else if (capsule->get_A_capsule()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
+		{
+			if (inforBoard->getGold() >= 500)
+			{
+				if (inforBoard->getJewelry() >= 5)
+				{
+					inforBoard->setGold(inforBoard->getGold() - 500);
+					inforBoard->setJewelry(inforBoard->getJewelry() - 5);
+
+					if (rand_cal(0.2))
+					{
+						addlabel(NULL, 0, 11);
+						sprintf(szFile, "hero/A/%d", capsule->A_gamble());
+						get_db_data(szFile);
+					}
+					else addlabel(NULL, 0, 10);
+				}
+				else addlabel(NULL, 0, 9);
+			}
+			else
+			{
+				addlabel(NULL, 0, 4);
+
+				if (inforBoard->getJewelry() < 5)
+					addlabel(NULL, 0, 9);
+			}
+		}
+		else if (capsule->get_S_capsule()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
+		{
+			if (inforBoard->getGold() >= 1200)
+			{
+				if (inforBoard->getJewelry() >= 10)
+				{
+					inforBoard->setGold(inforBoard->getGold() - 1200);
+					inforBoard->setJewelry(inforBoard->getJewelry() - 10);
+
+					if (rand_cal(0.1))
+					{
+						addlabel(NULL, 0, 11);
+						sprintf(szFile, "hero/S/%d", capsule->S_gamble());
+						get_db_data(szFile);
+					}
+					else addlabel(NULL, 0, 10);
+				}
+				else addlabel(NULL, 0, 9);
+			}
+			else
+			{
+				addlabel(NULL, 0, 4);
+
+				if (inforBoard->getJewelry() < 10)
+					addlabel(NULL, 0, 9);
+			}
+		}
+		else if (capsule->get_SS_capsule()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
+		{
+			if (inforBoard->getGold() >= 2000)
+			{
+				if (inforBoard->getJewelry() >= 15)
+				{
+					inforBoard->setGold(inforBoard->getGold() - 2000);
+					inforBoard->setJewelry(inforBoard->getJewelry() - 15);
+
+					if (rand_cal(0.04))
+					{
+						addlabel(NULL, 0, 11);
+						sprintf(szFile, "hero/SS/%d", capsule->SS_gamble());
+						get_db_data(szFile);
+					}
+					else addlabel(NULL, 0, 10);
+				}
+				else addlabel(NULL, 0, 9);
+			}
+			else
+			{
+				addlabel(NULL, 0, 4);
+
+				if (inforBoard->getJewelry() < 15)
+					addlabel(NULL, 0, 9);
+			}
+		}
+		else if (capsule->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !capsule->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		{
+			touch_capsule = false;
+
+			capsule->setVisible(false);
 		}
 	}
 	
@@ -1091,10 +1271,12 @@ void Game::add_unit_queue(float dt)
 
 void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
+	MixBoard* mixBoard = (MixBoard*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_MIX);
+
 	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true)
 		return;
-
-	if (touch_mix == true && getChildByTag(TAG_MENU_MIX_LIST)->boundingBox().containsPoint(Point(touch_point)))
+	
+	if (touch_mix == true && mixBoard->boundingBox().containsPoint(Point(touch_point)))
 	{
 		Mix_hero* mix_hero = NULL;
 		Mix_hero* mix_out = (Mix_hero*)*arr_mix_hero.begin();
@@ -1381,7 +1563,7 @@ void Game::onMenu(Object* sender)
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_MENU_SOUL:
-		if (touch_gamble == true || touch_upgrade == true || touch_mix == true) break;
+		if (touch_gamble == true || touch_upgrade == true || touch_mix == true || touch_capsule == true) break;
 
 		touch_soul = true;
 		new_soul_1 = false;
@@ -1390,7 +1572,7 @@ void Game::onMenu(Object* sender)
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL)->setVisible(true);
 		break;
 	case TAG_MENU_GAMBLE:
-		if (touch_soul == true || touch_upgrade == true || touch_mix == true) break;
+		if (touch_soul == true || touch_upgrade == true || touch_mix == true || touch_capsule == true) break;
 
 		touch_gamble = true;
 
@@ -1413,18 +1595,25 @@ void Game::onMenu(Object* sender)
 
 		break;
 	case TAG_MENU_UPGRADE:
-		if (touch_soul == true || touch_gamble == true || touch_mix == true) break;
+		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_capsule == true) break;
 
 		touch_upgrade = true;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_UPGRADE)->setVisible(true);
 		break;
 	case TAG_MENU_MIX:
-		if (touch_soul == true || touch_gamble == true || touch_upgrade == true) break;
+		if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_capsule == true) break;
 
 		touch_mix = true;
 
-		getChildByTag(TAG_MENU_MIX_LIST)->setVisible(true);
+		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_MIX)->setVisible(true);
+		break;
+	case TAG_MENU_CAPSULE:
+		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true) break;
+
+		touch_capsule = true;
+
+		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_CAPSULE)->setVisible(true);
 		break;
 	}
 }
@@ -1458,7 +1647,7 @@ void Game::move_unit(Unit* unit, bool right)
 		//animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 	}
 
-	animation->setDelayPerUnit(unit->getMaxSpeed() * 0.1f);
+	animation->setDelayPerUnit(0.1f);
 
 	Animate* animate = Animate::create(animation);
 	RepeatForever* repeat = RepeatForever::create(animate);
@@ -1479,19 +1668,19 @@ void Game::addlabel(char* name, int gold, int choice)
 	switch (choice)
 	{
 	case 0:
-		sprintf(szFile, "%s ¼ÒÈ¯", name);
+		sprintf(szFile, "%s ¼ÒÈ¯!", name);
 		break;
 	case 1:
-		sprintf(szFile, "%d °ñµå È¹µæ", gold);
+		sprintf(szFile, "%d °ñµå È¹µæ!", gold);
 		break;
 	case 2:
-		sprintf(szFile, "1 º¸¼® È¹µæ");
+		sprintf(szFile, "1 º¸¼® È¹µæ!");
 		break;
 	case 3:
-		sprintf(szFile, "½Ã¹Î %d È¹µæ", gold);
+		sprintf(szFile, "½Ã¹Î %d È¹µæ!", gold);
 		break;
 	case 4:
-		sprintf(szFile, "°ñµå ºÎÁ·");
+		sprintf(szFile, "°ñµå ºÎÁ·!");
 		break;
 	case 5:
 		sprintf(szFile, "µµ¹Ú ¼º°ø! %d °ñµå È¹µæ!", gold);
@@ -1504,6 +1693,15 @@ void Game::addlabel(char* name, int gold, int choice)
 		break;
 	case 8:
 		sprintf(szFile, "Á¶ÇÕ ¿µ¿õ ºÎÁ·!");
+		break;
+	case 9:
+		sprintf(szFile, "º¸¼® ºÎÁ·!");
+		break;
+	case 10:
+		sprintf(szFile, "»Ì±â ½ÇÆÐ!");
+		break;
+	case 11:
+		sprintf(szFile, "»Ì±â ¼º°ø!");
 		break;
 	}
 	label = Label::createWithSystemFont(szFile, "Arial", 10);
@@ -1582,6 +1780,8 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 	}
 	else if (!strcmp(compare, "mix_hero"))
 	{
+		MixBoard* mixBoard = (MixBoard*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_MIX);
+
 		strtok(szFile, "/");
 		//mix_hero/result_sprite/result_type/result_count/list_count/mat_sprite/mat_type/mat_count ...
 		Mix_hero * mix_hero = new Mix_hero();
@@ -1614,12 +1814,12 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 		}
 		
 		mix_hero->get_result_hero()->setPosition(Point(30, 215 - (height)));
-		getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_result_hero());
+		mixBoard->addChild(mix_hero->get_result_hero());
 		
 		for (int i = 0; i < atoi(list_count); i++)
 		{
 			mix_hero->get_mat_hero(i)->setPosition(Point(85 + (i * 40), 215 - (height)));
-			getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_mat_hero(i));
+			mixBoard->addChild(mix_hero->get_mat_hero(i));
 		}
 
 		if (!mix_rect.intersectsRect(mix_hero->get_result_hero()->getBoundingBox()))
