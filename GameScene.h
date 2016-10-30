@@ -53,6 +53,7 @@ private:
 	void upgrade_update(char* up);		//업그레이드 된 공격력으로 바꾸기
 	bool rand_cal(float per);		//확률 계산기
 	void mix_hero_init();	//조합표 초기화	/////////////
+	void GameOver();	//게임 오버 시 실행
 
 	void onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response);	//http 연결
 	void get_db_data(char * data);		//http에 data 전송

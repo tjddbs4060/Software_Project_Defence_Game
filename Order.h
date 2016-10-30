@@ -1,6 +1,7 @@
 #ifndef __ORDER_H__
 #define __ORDER_H__
 
+//GameScene
 #define MAX_MONSTER 50
 
 #define ZORDER_BACKGROUND 0
@@ -44,5 +45,13 @@
 #define TAG_MENU_CAPSULE 3008
 
 #define TAG_SOUL_NUMBER 900
+
+
+//Title Scene
+#define TAG_TITLE_MENU 4000
+#define TAG_TITLE_MENU_SINGLE 4001
+#define TAG_TITLE_MENU_MULTI 4002
+#define TAG_TITLE_MENU_OPTION 4003
+#define TAG_TITLE_MENU_EXIT 4004
 
 #endif

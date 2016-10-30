@@ -169,6 +169,13 @@ bool Game::init()
 
 void Game::addmonster(float dt)
 {
+	if (arr_monster.size() >= 50)
+	{
+		GameOver();
+
+		return;
+	}
+
 	int i = 0;
 	Point move[4];
 	Sprite* location = new Sprite();
@@ -1606,7 +1613,7 @@ void Game::onMenu(Object* sender)
 
 		touch_mix = true;
 
-		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_MIX)->setVisible(true);
+		getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_MIX)->setVisible(true);
 		break;
 	case TAG_MENU_CAPSULE:
 		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true) break;
@@ -1932,4 +1939,72 @@ void Game::mix_hero_init()
 		sprintf(szFile, "mix_hero/%d", index++);
 		get_db_data(szFile);
 	}
+}
+
+void Game::GameOver()
+{
+	unschedule(schedule_selector(Game::zorder_assort));
+	unschedule(schedule_selector(Game::unit_atk_cooltime));
+	unschedule(schedule_selector(Game::unit_atk_monster));
+	unschedule(schedule_selector(Game::add_unit_queue));
+	unschedule(schedule_selector(Game::server_continue));
+
+	Monster* monster;
+	
+	for (std::vector<Monster*>::iterator iter = arr_monster.begin(); iter != arr_monster.end(); iter++)
+	{
+		monster = (Monster*)*iter;
+		monster->release();
+		delete monster;
+	}
+	arr_monster.clear();
+
+	Unit* unit;
+
+	for (std::vector<Unit*>::iterator iter = arr_unit.begin(); iter != arr_unit.end(); iter++)
+	{
+		unit = (Unit*)*iter;
+		unit->release();
+		delete unit;
+	}
+	arr_unit.clear();
+
+	Use_String* use_string;
+
+	for (std::vector<Use_String*>::iterator iter = arr_unit_queue.begin(); iter != arr_unit_queue.end(); iter++)
+	{
+		use_string = (Use_String*)*iter;
+		delete use_string;
+	}
+	arr_unit_queue.clear();
+
+	Sprite* arr;
+
+	for (std::vector<Sprite*>::iterator iter = arr_location.begin(); iter != arr_location.end(); iter++)
+	{
+		arr = (Sprite*)*iter;
+		arr->release();
+		delete arr;
+	}
+	arr_location.clear();
+
+	for (std::vector<Sprite*>::iterator iter = arr_label.begin(); iter != arr_label.end(); iter++)
+	{
+		arr = (Sprite*)*iter;
+		arr->release();
+		delete arr;
+	}
+	arr_label.clear();
+
+	Mix_hero* mix;
+
+	for (std::vector<Mix_hero*>::iterator iter = arr_mix_hero.begin(); iter != arr_mix_hero.end(); iter++)
+	{
+		mix = (Mix_hero*)*iter;
+		mix->release();
+		delete mix;
+	}
+	arr_mix_hero.clear();
+
+	//게임오버 연출
 }
