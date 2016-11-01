@@ -4,8 +4,8 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false)
-, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), stage(0), monster_index(0)
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false), touch_hero(false)
+, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), alive_boss(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), boss_stage(0), monster_index(0)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
@@ -84,7 +84,12 @@ bool Game::init()
 	menuCapsule->setTag(TAG_MENU_CAPSULE);
 	menuCapsule->setPosition(Point(-(winSize.width / 2) + 30, -120));
 
-	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, menuMix, menuCapsule, NULL);
+	menuNormal = Sprite::createWithSpriteFrameName("hero.png");
+	MenuItemSprite* menuHero = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
+	menuHero->setTag(TAG_MENU_HERO);
+	menuHero->setPosition(Point((winSize.width / 2) - 30, -30));
+
+	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, menuMix, menuCapsule, menuHero, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	for (int i = 1; i <= 10; i++)
@@ -135,6 +140,12 @@ bool Game::init()
 	mixBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
 	mixBoard->setVisible(false);
 	spriteBatchNodeHero->addChild(mixBoard);
+
+	HeroBoard* heroBoard = HeroBoard::create();
+	heroBoard->setTag(TAG_INTERFACE_HERO);
+	heroBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
+	heroBoard->setVisible(false);
+	spriteBatchNodeHero->addChild(heroBoard);
 
 	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
 	sprite_background->setAnchorPoint(Point(0, 0));
@@ -273,7 +284,7 @@ void Game::addmonster(float dt)
 	inforBoard->setMonster(inforBoard->getMonster() + 1);
 
 	sprintf(szFile, "add_monster/%s/%g/%g/%d", id, monster->getEnergy(), monster->getDefence(), monster->getNum());
-	get_db_data(szFile);
+	get_db_data(szFile, DEFENCEJS);
 }
 
 void Game::selfRemover(Node* sender)
@@ -395,9 +406,10 @@ void Game::addunit(char* sprite_name, char* name, char* type, int number, float 
 	arr_unit.push_back(unit);
 
 	upgrade_update(type);
+	update_hero_list();
 
 	sprintf(szFile, "add_unit/%s/%g/%g/%s", id, unit->getDamage(), unit->getRange(), id);
-	get_db_data(szFile);
+	get_db_data(szFile, DEFENCEJS);
 }
 
 void Game::addunit_mix(Point pt)
@@ -477,7 +489,7 @@ void Game::unit_atk_monster(float dt)
 						char szFile[64] = { 0, };
 
 						sprintf(szFile, "delete_monster/%d", monster->getNum());
-						get_db_data(szFile);
+						get_db_data(szFile, DEFENCEJS);
 
 						addmonster_death(monster->getBody()->getPosition());
 						monster->release();
@@ -561,7 +573,7 @@ void Game::onTouchesBegan(const std::vector<Touch*>& touches, Event *event)
 	touch = true;
 	touch_point = touches[0]->getLocation();
 
-	if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_mix == true || touch_capsule == true)
+	if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_mix == true || touch_capsule == true || touch_hero == true)
 		return;
 
 	touch_unit_check();
@@ -711,7 +723,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setSoul(inforBoard->getSoul() - 1);
 			}
 		}
-		else if (soulBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !soulBoard->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		else if (soulBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !soulBoard->boundingBox().containsPoint(touches[0]->getLocation()))
 		{
 			touch_soul = false;
 			new_soul_1 = true;
@@ -741,7 +753,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				int type_rand;
 				int count;
 
-				if (stage < 15)
+				if (inforBoard->getStage() < 15)
 					type_rand = 0;
 				else {
 					type_rand = rand() % 5;
@@ -762,7 +774,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				}
 
 				sprintf(send_data, "hero/%s/%d", type, count);
-				get_db_data(send_data);
+				get_db_data(send_data, DEFENCEJS);
 			}
 
 			for (int i = 0; i < soulBoard->getGold(); i++)
@@ -843,7 +855,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, temp, 4);
 		}
-		else if (gamble->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !gamble->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		else if (gamble->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !gamble->boundingBox().containsPoint(touches[0]->getLocation()))
 		{
 			touch_gamble = false;
 
@@ -938,7 +950,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else addlabel(NULL, 0, 7);
 		}
-		else if (upgrade->get_esc_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !upgrade->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		else if (upgrade->get_esc_button()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !upgrade->boundingBox().containsPoint(touches[0]->getLocation()))
 		{
 			touch_upgrade = false;
 
@@ -956,7 +968,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 		Mix_hero* mix_hero = NULL;
 
-		if (mixBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !mixBoard->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		if (mixBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !mixBoard->boundingBox().containsPoint(touches[0]->getLocation()))
 		{
 			touch_mix = false;
 
@@ -1001,9 +1013,32 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 				if (mix_hero->get_count() == check_count)
 				{
-					//조합 재료 사라지는 코드 사용
+					for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
+					{
+						unit = (Unit*)*iterUnit;
+
+						for (int i = 0; i < 3; i++)
+							check_unit[i] = false;
+
+						for (int i = 0; i < mix_hero->get_count(); i++)
+						{
+							if (check_unit[i] == true)
+								continue;
+
+							if (!strcmp(unit->getType(), mix_hero->get_mat_hero_type(i)) && unit->getCount() == mix_hero->get_mat_hero_count(i))
+							{
+								check_unit[i] = true;
+
+								unit->release();
+								delete unit;
+								iterUnit = arr_unit.erase(iterUnit);
+							}
+						}
+					}
+					update_hero_list();
+
 					sprintf(szFile, "hero/%s/%d", mix_hero->get_result_hero_type(), mix_hero->get_result_hero_count());
-					get_db_data(szFile);
+					get_db_data(szFile, DEFENCEJS);
 				}
 				else
 					addlabel(NULL, 0, 8);
@@ -1035,7 +1070,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					{
 						addlabel(NULL, 0, 11);
 						sprintf(szFile, "hero/D/%d", capsule->D_gamble());
-						get_db_data(szFile);
+						get_db_data(szFile, DEFENCEJS);
 					}
 					else addlabel(NULL, 0, 10);
 				}
@@ -1062,7 +1097,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					{
 						addlabel(NULL, 0, 11);
 						sprintf(szFile, "hero/C/%d", capsule->C_gamble());
-						get_db_data(szFile);
+						get_db_data(szFile, DEFENCEJS);
 					}
 					else addlabel(NULL, 0, 10);
 				}
@@ -1089,7 +1124,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					{
 						addlabel(NULL, 0, 11);
 						sprintf(szFile, "hero/B/%d", capsule->B_gamble());
-						get_db_data(szFile);
+						get_db_data(szFile, DEFENCEJS);
 					}
 					else addlabel(NULL, 0, 10);
 				}
@@ -1116,7 +1151,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					{
 						addlabel(NULL, 0, 11);
 						sprintf(szFile, "hero/A/%d", capsule->A_gamble());
-						get_db_data(szFile);
+						get_db_data(szFile, DEFENCEJS);
 					}
 					else addlabel(NULL, 0, 10);
 				}
@@ -1143,7 +1178,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					{
 						addlabel(NULL, 0, 11);
 						sprintf(szFile, "hero/S/%d", capsule->S_gamble());
-						get_db_data(szFile);
+						get_db_data(szFile, DEFENCEJS);
 					}
 					else addlabel(NULL, 0, 10);
 				}
@@ -1170,7 +1205,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					{
 						addlabel(NULL, 0, 11);
 						sprintf(szFile, "hero/SS/%d", capsule->SS_gamble());
-						get_db_data(szFile);
+						get_db_data(szFile, DEFENCEJS);
 					}
 					else addlabel(NULL, 0, 10);
 				}
@@ -1184,11 +1219,29 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					addlabel(NULL, 0, 9);
 			}
 		}
-		else if (capsule->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !capsule->boundingBox().containsPoint(Point(touches[0]->getLocation())))
+		else if (capsule->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !capsule->boundingBox().containsPoint(touches[0]->getLocation()))
 		{
 			touch_capsule = false;
 
 			capsule->setVisible(false);
+		}
+	}
+	
+	if (touch_hero == true)
+	{
+		HeroBoard* heroBoard = (HeroBoard*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_HERO);
+		
+		float x = heroBoard->getPositionX() - (heroBoard->getContentSize().width / 2);
+		float y = heroBoard->getPositionY() - (heroBoard->getContentSize().height / 2);
+		Point pt = Point(x, y);
+
+		if (heroBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !heroBoard->boundingBox().containsPoint(touches[0]->getLocation()))
+		{
+			touch_hero = false;
+
+			heroBoard->setVisible(false);
+
+			//Rect(10, 10, 130, 165)
 		}
 	}
 	
@@ -1280,7 +1333,7 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
 	MixBoard* mixBoard = (MixBoard*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_MIX);
 
-	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true)
+	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_hero == true)
 		return;
 	
 	if (touch_mix == true && mixBoard->boundingBox().containsPoint(Point(touch_point)))
@@ -1291,12 +1344,12 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 		for (std::vector<Mix_hero*>::iterator iterMix = arr_mix_hero.begin(); iterMix != arr_mix_hero.end(); iterMix++)
 		{
 			mix_hero = (Mix_hero*)*iterMix;
-			Rect mix_rect = Rect(35, 35, 190, 165);
+			Rect mix_rect = Rect(35, 35, 190, 150);
 			float cur_y = touches[0]->getLocation().y;
 			float dis_y = touch_point.y - cur_y;
 			float use_x = mix_hero->get_result_hero()->getPositionX();
 
-			if (mix_out->get_result_hero()->getPositionY() < 200)
+			if (mix_out->get_result_hero()->getPositionY() < 195)
 				dis_y = -1;
 
 			float des_y = mix_hero->get_result_hero()->getPositionY() - dis_y;
@@ -1304,6 +1357,10 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 			MoveTo* moveto = MoveTo::create(0.f, Point(use_x, des_y));
 
 			mix_hero->get_result_hero()->runAction(moveto);
+
+			use_x = mix_hero->get_hero_type()->getPositionX();
+			moveto = MoveTo::create(0.f, Point(use_x, des_y));
+			mix_hero->get_hero_type()->runAction(moveto);
 
 			for (int i = 0; i < mix_hero->get_count(); i++)
 			{
@@ -1317,6 +1374,7 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 			if (!mix_rect.intersectsRect(mix_hero->get_result_hero()->getBoundingBox()))
 			{
 				mix_hero->get_result_hero()->setVisible(false);
+				mix_hero->get_hero_type()->setVisible(false);
 				//getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->removeChild(mix_hero->get_result_hero());
 				
 				for (int i = 0; i < mix_hero->get_count(); i++)
@@ -1328,6 +1386,7 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 			else
 			{
 				mix_hero->get_result_hero()->setVisible(true);
+				mix_hero->get_hero_type()->setVisible(true);
 				//getChildByTag(TAG_UNIT)->getChildByTag(TAG_MENU_MIX_LIST)->addChild(mix_hero->get_result_hero());
 
 				for (int i = 0; i < mix_hero->get_count(); i++)
@@ -1482,9 +1541,33 @@ void Game::zorder_assort(float dt)
 		{
 			char szFile[64];
 
-			stage++;
-			sprintf(szFile, "monster/%d", stage);
-			get_db_data(szFile);
+			inforBoard->setStage(inforBoard->getStage() + 1);
+			sprintf(szFile, "monster/%d", inforBoard->getStage());
+			get_db_data(szFile, DEFENCEJS);
+
+			/////////// 보스 관련 수정중 -> 보스 생성 및 처치 실패
+			/*
+			if (inforBoard->getStage() % 10 == 5 && alive_boss == true)
+			{
+					sprintf(szFile, "alive_boss/%d", id);
+					get_db_data(szFile, DEFENCEJS);
+					GameOver();
+			}
+
+			if (inforBoard->getStage() % 10 == 0)
+			{
+				boss_stage++;
+				alive_boss = true;
+
+				sprintf(szFile, "create_boss/%d", boss_stage);
+
+				get_db_data(szFile, DEFENCEJS);
+
+				addlabel(NULL, 0, 12);
+				//보스 생성
+			}
+			*/
+
 			summon_monster = 10;
 			inforBoard->setSoul(inforBoard->getSoul() + 3);
 			soulBoard->setSoul(inforBoard->getSoul());
@@ -1570,7 +1653,7 @@ void Game::onMenu(Object* sender)
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_MENU_SOUL:
-		if (touch_gamble == true || touch_upgrade == true || touch_mix == true || touch_capsule == true) break;
+		if (touch_gamble == true || touch_upgrade == true || touch_mix == true || touch_capsule == true || touch_hero == true) break;
 
 		touch_soul = true;
 		new_soul_1 = false;
@@ -1579,7 +1662,7 @@ void Game::onMenu(Object* sender)
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL)->setVisible(true);
 		break;
 	case TAG_MENU_GAMBLE:
-		if (touch_soul == true || touch_upgrade == true || touch_mix == true || touch_capsule == true) break;
+		if (touch_soul == true || touch_upgrade == true || touch_mix == true || touch_capsule == true || touch_hero == true) break;
 
 		touch_gamble = true;
 
@@ -1602,26 +1685,32 @@ void Game::onMenu(Object* sender)
 
 		break;
 	case TAG_MENU_UPGRADE:
-		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_capsule == true) break;
+		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_capsule == true || touch_hero == true) break;
 
 		touch_upgrade = true;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_UPGRADE)->setVisible(true);
 		break;
 	case TAG_MENU_MIX:
-		if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_capsule == true) break;
+		if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_capsule == true || touch_hero == true) break;
 
 		touch_mix = true;
 
 		getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_MIX)->setVisible(true);
 		break;
 	case TAG_MENU_CAPSULE:
-		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true) break;
+		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true || touch_hero == true) break;
 
 		touch_capsule = true;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_CAPSULE)->setVisible(true);
 		break;
+	case TAG_MENU_HERO:
+		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true || touch_capsule == true) break;
+
+		touch_hero = true;
+
+		getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_HERO)->setVisible(true);
 	}
 }
 
@@ -1709,6 +1798,9 @@ void Game::addlabel(char* name, int gold, int choice)
 		break;
 	case 11:
 		sprintf(szFile, "뽑기 성공!");
+		break;
+	case 12:
+		sprintf(szFile, "보스 생성!");
 		break;
 	}
 	label = Label::createWithSystemFont(szFile, "Arial", 10);
@@ -1807,6 +1899,8 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 		mix_hero->set_result_hero_name(name);
 		mix_hero->set_count(atoi(list_count));
 
+		mix_hero->set_hero_type(type);
+
 		for (int i = 0; i < atoi(list_count); i++)
 		{
 			sprite = strtok(NULL, "/");
@@ -1820,9 +1914,12 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 			mix_hero->set_mat_hero_name(name, i);
 		}
 		
-		mix_hero->get_result_hero()->setPosition(Point(30, 215 - (height)));
+		mix_hero->get_result_hero()->setPosition(Point(40, 215 - (height)));
 		mixBoard->addChild(mix_hero->get_result_hero());
 		
+		mix_hero->get_hero_type()->setPosition(Point(18, 215 - (height)));
+		mixBoard->addChild(mix_hero->get_hero_type());
+
 		for (int i = 0; i < atoi(list_count); i++)
 		{
 			mix_hero->get_mat_hero(i)->setPosition(Point(85 + (i * 40), 215 - (height)));
@@ -1832,6 +1929,7 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 		if (!mix_rect.intersectsRect(mix_hero->get_result_hero()->getBoundingBox()))
 		{
 			mix_hero->get_result_hero()->setVisible(false);
+			mix_hero->get_hero_type()->setVisible(false);
 
 			for (int i = 0; i < atoi(list_count); i++)
 			{
@@ -1852,12 +1950,15 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 	*/
 }
 
-void Game::get_db_data(char * data)
+void Game::get_db_data(char * data, int port)
 {
 	__String * dataToSend = __String::create(data);
+	char szFile[32] = { 0, };
+
+	sprintf(szFile, "localhost:%d", port);
 
 	cocos2d::network::HttpRequest * request = new cocos2d::network::HttpRequest();
-	request->setUrl("localhost:3000");
+	request->setUrl(szFile);
 	request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
 	request->setRequestData(dataToSend->getCString(), dataToSend->length());
 	request->setResponseCallback(CC_CALLBACK_2(Game::onHttpRequestCompleted, this));
@@ -1872,7 +1973,7 @@ void Game::server_continue(float dt)
 	char szFile[64] = { 0, };
 
 	sprintf(szFile, "time/%.2f/%s", inforBoard->getTime(), id);
-	get_db_data(szFile);
+	get_db_data(szFile, DEFENCEJS);
 }
 
 void Game::upgrade_update(char* up)
@@ -1937,19 +2038,21 @@ void Game::mix_hero_init()
 	while (mix_list-- > 0)
 	{
 		sprintf(szFile, "mix_hero/%d", index++);
-		get_db_data(szFile);
+		get_db_data(szFile, DEFENCEJS);
 	}
 }
 
 void Game::GameOver()
 {
+	char szFile[64] = { 0, };
+
 	unschedule(schedule_selector(Game::zorder_assort));
 	unschedule(schedule_selector(Game::unit_atk_cooltime));
 	unschedule(schedule_selector(Game::unit_atk_monster));
 	unschedule(schedule_selector(Game::add_unit_queue));
 	unschedule(schedule_selector(Game::server_continue));
 
-	Monster* monster;
+	Monster* monster = NULL;
 	
 	for (std::vector<Monster*>::iterator iter = arr_monster.begin(); iter != arr_monster.end(); iter++)
 	{
@@ -1959,7 +2062,7 @@ void Game::GameOver()
 	}
 	arr_monster.clear();
 
-	Unit* unit;
+	Unit* unit = NULL;
 
 	for (std::vector<Unit*>::iterator iter = arr_unit.begin(); iter != arr_unit.end(); iter++)
 	{
@@ -1968,8 +2071,32 @@ void Game::GameOver()
 		delete unit;
 	}
 	arr_unit.clear();
+	
+	for (std::vector<Unit*>::iterator iter = arr_boss_room_unit.begin(); iter != arr_boss_room_unit.end(); iter++)
+	{
+		unit = (Unit*)*iter;
+		unit->release();
+		delete unit;
+	}
+	arr_unit.clear();
 
-	Use_String* use_string;
+	for (std::vector<Unit*>::iterator iter = arr_help_send_unit.begin(); iter != arr_help_send_unit.end(); iter++)
+	{
+		unit = (Unit*)*iter;
+		unit->release();
+		delete unit;
+	}
+	arr_unit.clear();
+
+	for (std::vector<Unit*>::iterator iter = arr_help_recv_unit.begin(); iter != arr_help_recv_unit.end(); iter++)
+	{
+		unit = (Unit*)*iter;
+		unit->release();
+		delete unit;
+	}
+	arr_unit.clear();
+
+	Use_String* use_string = NULL;
 
 	for (std::vector<Use_String*>::iterator iter = arr_unit_queue.begin(); iter != arr_unit_queue.end(); iter++)
 	{
@@ -1978,7 +2105,7 @@ void Game::GameOver()
 	}
 	arr_unit_queue.clear();
 
-	Sprite* arr;
+	Sprite* arr = NULL;
 
 	for (std::vector<Sprite*>::iterator iter = arr_location.begin(); iter != arr_location.end(); iter++)
 	{
@@ -1996,7 +2123,7 @@ void Game::GameOver()
 	}
 	arr_label.clear();
 
-	Mix_hero* mix;
+	Mix_hero* mix = NULL;
 
 	for (std::vector<Mix_hero*>::iterator iter = arr_mix_hero.begin(); iter != arr_mix_hero.end(); iter++)
 	{
@@ -2006,5 +2133,32 @@ void Game::GameOver()
 	}
 	arr_mix_hero.clear();
 
+	sprintf(szFile, "gameover/%s", id);
+
+	get_db_data(szFile, DEFENCEJS);
 	//게임오버 연출
+}
+
+void Game::update_hero_list()
+{
+	HeroBoard* heroBoard = (HeroBoard*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_HERO);
+
+	Unit* unit = NULL;
+
+	for (std::vector<Unit*>::iterator iter = arr_unit.begin(); iter != arr_unit.end(); iter++)
+	{
+		unit = (Unit*)*iter;
+	}
+	
+	for (std::vector<Unit*>::iterator iter = arr_boss_room_unit.begin(); iter != arr_boss_room_unit.end(); iter++)
+	{
+		unit = (Unit*)*iter;
+	}
+
+	for (std::vector<Unit*>::iterator iter = arr_help_send_unit.begin(); iter != arr_help_send_unit.end(); iter++)
+	{
+		unit = (Unit*)*iter;
+	}
+
+	//새로운 클래스 생성(영웅 목록 저장할) 후 Mix_hero와 같이 추가
 }

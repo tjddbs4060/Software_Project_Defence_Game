@@ -129,3 +129,17 @@ void Mix_hero::release()
 		}
 	}
 }
+
+void Mix_hero::set_hero_type(char* type)
+{
+	char name[32] = { 0, };
+
+	sprintf(name, "mix_%s.png", type);
+
+	hero_type = Sprite::createWithSpriteFrameName(name);
+}
+
+Sprite* Mix_hero::get_hero_type()
+{
+	return hero_type;
+}

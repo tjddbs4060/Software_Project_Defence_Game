@@ -10,6 +10,7 @@
 #define TAG_BOARD_JEWELRY 200
 #define TAG_BOARD_LEVEL 300
 #define TAG_BOARD_MONSTER 400
+#define TAG_BOARD_STAGE 500
 
 class InforBoard : public cocos2d::Sprite
 {
@@ -25,12 +26,14 @@ public:
 	void setLevel(int level);
 	void setMonster(int monster);
 	void setSoul(int soul);
+	void setStage(int stage);
 	float getTime();
 	int getGold();
 	int getJewelry();
 	int getLevel();
 	int getMonster();
 	int getSoul();
+	int getStage();
 
 	void addNumberSprite(int tag, cocos2d::Point position, float scale);	//숫자 추가
 	void changeNumber(int tag, int number);	//숫자 변경
@@ -38,6 +41,7 @@ public:
 	void update_time();
 	void update_G_J(int tag, int number);
 	void update_monster();
+	void update_stage();
 
 private:	
 	float mTime;
@@ -46,6 +50,7 @@ private:
 	int mLevel;
 	int mMonster;
 	int mSoul;
+	int mStage;
 };
 
 #endif

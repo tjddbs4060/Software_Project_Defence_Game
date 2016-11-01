@@ -18,10 +18,12 @@ public:
 	void set_mat_hero_count(int count, int index);
 	void set_mat_hero_type(char* type, int index);
 	void set_mat_hero_name(char* name, int index);
+	void set_hero_type(char* type);
 	void set_count(int count);
 
 	cocos2d::Sprite* get_result_hero();
 	cocos2d::Sprite* get_mat_hero(int index);
+	cocos2d::Sprite* get_hero_type();
 	int get_result_hero_count();
 	char* get_result_hero_type();
 	char* get_result_hero_name();
@@ -34,6 +36,7 @@ public:
 private:
 	cocos2d::Sprite* result_hero;	//조합된 영웅
 	cocos2d::Sprite* mat_hero[3];	//조합 재료
+	cocos2d::Sprite* hero_type;		//조합된 영웅 등급
 
 	int result_hero_count;
 	char result_hero_type[2];

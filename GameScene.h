@@ -13,6 +13,7 @@
 #include "Mix_hero.h"
 #include "MixBoard.h"
 #include "CapsuleBoard.h"
+#include "HeroBoard.h"
 
 #include <string>
 #include <vector>
@@ -23,6 +24,8 @@
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
 #include "network/SocketIO.h"
+
+#define DEFENCEJS 3000
 
 class Game : public cocos2d::Layer
 {
@@ -54,9 +57,10 @@ private:
 	bool rand_cal(float per);		//확률 계산기
 	void mix_hero_init();	//조합표 초기화	/////////////
 	void GameOver();	//게임 오버 시 실행
+	void update_hero_list();	//영웅 목록 업데이트
 
 	void onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response);	//http 연결
-	void get_db_data(char * data);		//http에 data 전송
+	void get_db_data(char * data, int port);		//http에 data 전송
 
 	void onMenu(cocos2d::Object* sender);	//인터페이스 메뉴
 
@@ -79,6 +83,9 @@ private:
 	
 	std::vector<Monster*> arr_monster;	//몬스터 배열
 	std::vector<Unit*> arr_unit;	//유닛 배열
+	std::vector<Unit*> arr_boss_room_unit;	//보스 방 유닛 배열	/////////////
+	std::vector<Unit*> arr_help_send_unit;	//도움 보낸 유닛 배열	/////////////
+	std::vector<Unit*> arr_help_recv_unit;		//도움 받은 유닛 배열	/////////////
 	std::vector<Use_String*> arr_unit_queue;	//데이터를 가져온 유닛 큐
 	std::vector<cocos2d::Sprite*> arr_location;	//몬스터 생성 위치
 	std::vector<cocos2d::Sprite*> arr_label;	//생성된 라벨 배열
@@ -90,14 +97,16 @@ private:
 	bool touch_upgrade;		//업그레이드 인터페이스 터치 여부
 	bool touch_mix;			//조합 터치 여부
 	bool touch_capsule;		//뽑기 터치 여부
+	bool touch_hero;		//히어로 메뉴 터치 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
 	bool new_soul_1;		//추가된 시민 확인 여부
 	bool new_soul_2;		//추가된 시민 확인 여부
 	bool skip;			//skip 여부
+	bool alive_boss;	//보스 생사 여부
 	int mix_list;	//조합표의 목록 수
+	int boss_stage;		//보스 스테이지
 	int summon_monster;	//몬스터 소환 마리수
-	int stage;		//현재 스테이지
 	int monster_index;	//몬스터 index
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이

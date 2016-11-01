@@ -127,6 +127,59 @@ server.on('request', function(req, res){
             }
           });
         }
+        else if (data[0] == 'gameover') {
+          var sql = 'delte from room_monster where id = ?';
+          connection.query(sql, [data[1]], function(){});
+
+          sql = 'delete from room_unit where origin = ?';
+          connection.query(sql, [data[1]], function(){});
+
+          sql = 'delete from boss_room where id = ?';
+          connection.query(sql, [data[1]], function(){});
+
+          sql = 'delete from room_info where id = ?';
+          connection.query(sql, [data[1]], function(){});
+
+          sql = 'select * from room_info where id = ?';
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            if (row[0].person_num == 1) {
+              sql = 'delete from room_list where id = ?';
+              connection.query(sql, [data[1]], function(){});
+            }
+          });
+
+          console.log('success delete ' + data[1]);
+          res.end('');
+        }
+        else if (data[0] == 'alive_boss') {
+          var sql = 'select * from room_info where id = ?';
+
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            var num = row[0].num;
+
+            sql = 'delete from boss_room where num = ?';
+            connection.query(sql, [num], function(){});
+
+            sql = 'delete from room_info where num = ?';
+            connection.query(sql, [num], function(){});
+
+            sql = 'delete from room_list where num = ?';
+            connection.query(sql, [num], function(){});
+
+            sql = 'delete from room_monster where num = ?';
+            connection.query(sql, [num], function(){});
+
+            sql = 'delete from room_unit where num = ?';
+            connection.query(sql, [num], function(){});
+
+            console.log('success delete boss');
+            res.end('');
+          });
+        }
+        else if (data[0] == 'create_boss') {
+          //보스 관련 테이블 생성 후 보스 정보로 생성 / 보스 정보 전달
+          res.end('');
+        }
         else if (data[0] == 'start') {
           var sql = 'update room_list set start = true where id = ?';
 

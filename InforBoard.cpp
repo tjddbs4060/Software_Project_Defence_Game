@@ -2,7 +2,7 @@
 
 USING_NS_CC;
 
-InforBoard::InforBoard() : mTime(5), mGold(0), mJewelry(0), mLevel(0), mMonster(0), mSoul(0)
+InforBoard::InforBoard() : mTime(5), mGold(0), mJewelry(0), mLevel(0), mMonster(0), mSoul(0), mStage(0)
 {
 }
 
@@ -43,6 +43,13 @@ void InforBoard::setMonster(int monster)
 	update_monster();
 }
 
+void InforBoard::setStage(int stage)
+{
+	mStage = stage;
+
+	update_stage();
+}
+
 float InforBoard::getTime()
 {
 	return mTime;
@@ -68,6 +75,11 @@ int InforBoard::getMonster()
 	return mMonster;
 }
 
+int InforBoard::getStage()
+{
+	return mStage;
+}
+
 InforBoard* InforBoard::create()
 {
 	InforBoard* inforBoard = new InforBoard();
@@ -76,12 +88,22 @@ InforBoard* InforBoard::create()
 	if (inforBoard && inforBoard->initWithSpriteFrameName("infor_board.png"))
 	{
 		inforBoard->autorelease();
+		
+		float xPos = 80;
+
+		//스테이지
+		for (int i = 0; i < 3; i++)
+		{
+			inforBoard->addNumberSprite(TAG_BOARD_STAGE + i, Point(xPos, 48), 1.4);
+
+			xPos -= 20;
+		}
 
 		//몬스터
-		float xPos = 140;
-
 		inforBoard->addNumberSprite(TAG_BOARD_MONSTER + 10, Point(170, 52), 0.7);
 		inforBoard->addNumberSprite(TAG_BOARD_MONSTER + 11, Point(160, 52), 0.7);
+
+		xPos = 140;
 
 		for (int i = 0; i < 2; i++)
 		{
@@ -179,6 +201,19 @@ void InforBoard::update_monster()
 	}
 	changeNumber(TAG_BOARD_MONSTER + 10, 0);
 	changeNumber(TAG_BOARD_MONSTER + 11, 5);
+}
+
+void InforBoard::update_stage()
+{
+	int temp = mStage;
+	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
+	char szFile[32] = { 0, };
+
+	for (int i = 0; i < 3; i++)
+	{
+		changeNumber(TAG_BOARD_STAGE + i, temp);
+		temp /= 10;
+	}
 }
 
 void InforBoard::setSoul(int soul)
