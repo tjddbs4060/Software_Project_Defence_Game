@@ -2059,6 +2059,10 @@ void Game::GameOver()
 		monster = (Monster*)*iter;
 		monster->release();
 		delete monster;
+		iter = arr_monster.erase(iter);
+
+		if (iter == arr_monster.end())
+			break;
 	}
 	arr_monster.clear();
 
@@ -2069,6 +2073,10 @@ void Game::GameOver()
 		unit = (Unit*)*iter;
 		unit->release();
 		delete unit;
+		iter = arr_unit.erase(iter);
+
+		if (iter == arr_unit.end())
+			break;
 	}
 	arr_unit.clear();
 	
@@ -2077,6 +2085,10 @@ void Game::GameOver()
 		unit = (Unit*)*iter;
 		unit->release();
 		delete unit;
+		iter = arr_boss_room_unit.erase(iter);
+
+		if (iter == arr_boss_room_unit.end())
+			break;
 	}
 	arr_unit.clear();
 
@@ -2085,6 +2097,10 @@ void Game::GameOver()
 		unit = (Unit*)*iter;
 		unit->release();
 		delete unit;
+		iter = arr_help_send_unit.erase(iter);
+
+		if (iter == arr_help_send_unit.end())
+			break;
 	}
 	arr_unit.clear();
 
@@ -2093,6 +2109,10 @@ void Game::GameOver()
 		unit = (Unit*)*iter;
 		unit->release();
 		delete unit;
+		iter = arr_help_recv_unit.erase(iter);
+
+		if (iter == arr_help_recv_unit.end())
+			break;
 	}
 	arr_unit.clear();
 
@@ -2102,6 +2122,10 @@ void Game::GameOver()
 	{
 		use_string = (Use_String*)*iter;
 		delete use_string;
+		iter = arr_unit_queue.erase(iter);
+
+		if (iter == arr_unit_queue.end())
+			break;
 	}
 	arr_unit_queue.clear();
 
@@ -2112,6 +2136,10 @@ void Game::GameOver()
 		arr = (Sprite*)*iter;
 		arr->release();
 		delete arr;
+		iter = arr_location.erase(iter);
+
+		if (iter == arr_location.end())
+			break;
 	}
 	arr_location.clear();
 
@@ -2120,6 +2148,10 @@ void Game::GameOver()
 		arr = (Sprite*)*iter;
 		arr->release();
 		delete arr;
+		iter = arr_label.erase(iter);
+
+		if (iter == arr_label.end())
+			break;
 	}
 	arr_label.clear();
 
@@ -2130,8 +2162,26 @@ void Game::GameOver()
 		mix = (Mix_hero*)*iter;
 		mix->release();
 		delete mix;
+		iter = arr_mix_hero.erase(iter);
+
+		if (iter == arr_mix_hero.end())
+			break;
 	}
 	arr_mix_hero.clear();
+
+	HeroList* heroList = NULL;
+
+	for (std::vector<HeroList*>::iterator iter = arr_hero_list.begin(); iter != arr_hero_list.end(); iter++)
+	{
+		heroList = (HeroList*)*iter;
+		heroList->release();
+		delete heroList;
+		iter = arr_hero_list.erase(iter);
+
+		if (iter == arr_hero_list.end())
+			break;
+	}
+	arr_hero_list.clear();
 
 	sprintf(szFile, "gameover/%s", id);
 
@@ -2144,20 +2194,78 @@ void Game::update_hero_list()
 	HeroBoard* heroBoard = (HeroBoard*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_HERO);
 
 	Unit* unit = NULL;
+	HeroList* heroList = NULL;
+
+	for (std::vector<HeroList*>::iterator iter = arr_hero_list.begin(); iter != arr_hero_list.end(); iter++)
+	{
+		heroList = (HeroList*)*iter;
+
+		heroList->release();
+		delete heroList;
+		iter = arr_hero_list.erase(iter);
+
+		if (iter == arr_hero_list.end())
+			break;
+	}
+	arr_hero_list.clear();
 
 	for (std::vector<Unit*>::iterator iter = arr_unit.begin(); iter != arr_unit.end(); iter++)
 	{
 		unit = (Unit*)*iter;
+
+		heroList = new HeroList();
+
+		heroList->setHero(unit->getBody());
+		heroList->setMap("in.png");
+		heroList->setBoss("null.png");
+		heroList->setHelp("null.png");
+		heroList->setType(unit->getType());
+		heroList->setAtk(unit->getDamage());
+		heroList->init(arr_hero_list.size());
+
+		//atk랑 type 둘다 시발 이미지로하자
+
+		heroBoard->addChild(heroList->getHero());
+
+		arr_hero_list.push_back(heroList);
 	}
 	
 	for (std::vector<Unit*>::iterator iter = arr_boss_room_unit.begin(); iter != arr_boss_room_unit.end(); iter++)
 	{
 		unit = (Unit*)*iter;
+
+		heroList = new HeroList();
+
+		heroList->setHero(unit->getBody());
+		heroList->setMap("null.png");
+		heroList->setBoss("in.png");
+		heroList->setHelp("null.png");
+		heroList->setType(unit->getType());
+		heroList->setAtk(unit->getDamage());
+		heroList->init(arr_hero_list.size());
+
+		heroBoard->addChild(heroList->getHero());
+
+		arr_hero_list.push_back(heroList);
 	}
 
 	for (std::vector<Unit*>::iterator iter = arr_help_send_unit.begin(); iter != arr_help_send_unit.end(); iter++)
 	{
 		unit = (Unit*)*iter;
+
+		heroList = new HeroList();
+
+		heroList->setHero(unit->getBody());
+		heroList->setMap("null.png");
+		heroList->setBoss("null.png");
+		heroList->setHelp("in.png");
+		heroList->setType(unit->getType());
+		heroList->setAtk(unit->getDamage());
+		heroList->init(arr_hero_list.size());
+
+		heroBoard->addChild(heroList->getHero());
+
+		arr_hero_list.push_back(heroList);
 	}
 
 	//새로운 클래스 생성(영웅 목록 저장할) 후 Mix_hero와 같이 추가

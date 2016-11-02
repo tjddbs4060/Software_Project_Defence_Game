@@ -14,6 +14,7 @@
 #include "MixBoard.h"
 #include "CapsuleBoard.h"
 #include "HeroBoard.h"
+#include "HeroList.h"
 
 #include <string>
 #include <vector>
@@ -82,10 +83,11 @@ private:
 	float calDistance(cocos2d::Point from, cocos2d::Point to);	//두 점 사이의 거리 계산
 	
 	std::vector<Monster*> arr_monster;	//몬스터 배열
-	std::vector<Unit*> arr_unit;	//유닛 배열
+	std::vector<Unit*> arr_unit;		//나의 맵 유닛 배열
 	std::vector<Unit*> arr_boss_room_unit;	//보스 방 유닛 배열	/////////////
 	std::vector<Unit*> arr_help_send_unit;	//도움 보낸 유닛 배열	/////////////
 	std::vector<Unit*> arr_help_recv_unit;		//도움 받은 유닛 배열	/////////////
+	std::vector<HeroList*> arr_hero_list;		//유닛 목록	/////////////
 	std::vector<Use_String*> arr_unit_queue;	//데이터를 가져온 유닛 큐
 	std::vector<cocos2d::Sprite*> arr_location;	//몬스터 생성 위치
 	std::vector<cocos2d::Sprite*> arr_label;	//생성된 라벨 배열

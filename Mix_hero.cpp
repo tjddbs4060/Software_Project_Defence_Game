@@ -111,9 +111,6 @@ int Mix_hero::get_count()
 
 void Mix_hero::release()
 {
-	cocos2d::Sprite* result_hero;	//조합된 영웅
-	cocos2d::Sprite* mat_hero[5];	//조합 재료
-
 	if (NULL != result_hero)
 	{
 		result_hero->removeFromParentAndCleanup(true);
