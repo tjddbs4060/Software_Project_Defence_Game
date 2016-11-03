@@ -110,7 +110,6 @@ void HeroList::init(int size)
 	Sprite* hero_type = Sprite::createWithSpriteFrameName(szFile);
 	hero_type->setPosition(Point(37, 0) + pt/2);
 	
-	count = 6;
 	while (count < 6)
 	{
 		int temp = atk;

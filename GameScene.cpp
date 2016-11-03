@@ -111,6 +111,11 @@ bool Game::init()
 	inforBoard->setScale(winSize.width / inforBoard->getContentSize().width);
 	spriteBatchNodeSurface->addChild(inforBoard);
 
+	inforBoard->setGold(0);
+	inforBoard->setJewelry(0);
+	inforBoard->setMonster(0);
+	inforBoard->setStage(0);
+
 	SoulBoard* soulBoard = SoulBoard::create();
 	soulBoard->setTag(TAG_INTERFACE_SOUL);
 	soulBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
@@ -146,7 +151,7 @@ bool Game::init()
 	heroBoard->setPosition(Point(winSize.width / 2, winSize.height / 2));
 	heroBoard->setVisible(false);
 	spriteBatchNodeHero->addChild(heroBoard);
-
+	
 	Sprite* sprite_background = Sprite::createWithSpriteFrameName("background.png");
 	sprite_background->setAnchorPoint(Point(0, 0));
 	addChild(sprite_background, ZORDER_BACKGROUND, TAG_BACKGROUND);
@@ -1013,12 +1018,29 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 				if (mix_hero->get_count() == check_count)
 				{
+					if (mix_hero->get_count() == arr_unit.size())
+					{
+						for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
+						{
+							unit = (Unit*)*iterUnit;
+
+							unit->release();
+							delete unit;
+						}
+						arr_unit.clear();
+					}
+
+					for (int i = 0; i < 3; i++)
+						check_unit[i] = false;
+
+					bool flag = false;
+
 					for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
 					{
-						unit = (Unit*)*iterUnit;
+						if (flag == true) iterUnit--;
+						flag = false;
 
-						for (int i = 0; i < 3; i++)
-							check_unit[i] = false;
+						unit = (Unit*)*iterUnit;
 
 						for (int i = 0; i < mix_hero->get_count(); i++)
 						{
@@ -1032,8 +1054,11 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 								unit->release();
 								delete unit;
 								iterUnit = arr_unit.erase(iterUnit);
+								flag = true;
 							}
 						}
+						if (iterUnit == arr_unit.end())
+							break;
 					}
 					update_hero_list();
 
@@ -1235,13 +1260,12 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		float y = heroBoard->getPositionY() - (heroBoard->getContentSize().height / 2);
 		Point pt = Point(x, y);
 
+		//보내기 클릭하면 다른 위치로 보내기
 		if (heroBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !heroBoard->boundingBox().containsPoint(touches[0]->getLocation()))
 		{
 			touch_hero = false;
 
 			heroBoard->setVisible(false);
-
-			//Rect(10, 10, 130, 165)
 		}
 	}
 	
@@ -1332,8 +1356,9 @@ void Game::add_unit_queue(float dt)
 void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 {
 	MixBoard* mixBoard = (MixBoard*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_MIX);
+	HeroList* heroList = (HeroList*)getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_HERO);
 
-	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_hero == true)
+	if (touch_unit == true || touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_capsule == true)
 		return;
 	
 	if (touch_mix == true && mixBoard->boundingBox().containsPoint(Point(touch_point)))
@@ -1399,7 +1424,36 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 		touch_point = touches[0]->getLocation();
 	}
 
-	if (touch_mix == true)
+	if (touch_hero == true && heroList->boundingBox().containsPoint(Point(touch_point)))
+	{
+		HeroList* heroList = NULL;
+		HeroList* hero_out = (HeroList*)*arr_hero_list.begin();
+		
+		for (std::vector<HeroList*>::iterator iterHero = arr_hero_list.begin(); iterHero != arr_hero_list.end(); iterHero++)
+		{
+			heroList = (HeroList*)*iterHero;
+			Rect hero_rect = Rect(0, 35, 480, 100);
+			float cur_y = touches[0]->getLocation().y;
+			float dis_y = touch_point.y - cur_y;
+			float use_x = heroList->getHero()->getPositionX();
+
+			if (hero_out->getHero()->getPositionY() < 135)
+				dis_y = -1;
+
+			float des_y = heroList->getHero()->getPositionY() - dis_y;
+
+			MoveTo* moveto = MoveTo::create(0.f, Point(use_x, des_y));
+
+			heroList->getHero()->runAction(moveto);
+
+			if (!hero_rect.intersectsRect(heroList->getHero()->boundingBox()))
+				heroList->getHero()->setVisible(false);
+			else heroList->getHero()->setVisible(true);
+		}
+		touch_point = touches[0]->getLocation();
+	}
+
+	if (touch_mix == true || touch_hero == true)
 		return;
 
 	Point movePoint = touches[0]->getLocation();
@@ -2059,10 +2113,6 @@ void Game::GameOver()
 		monster = (Monster*)*iter;
 		monster->release();
 		delete monster;
-		iter = arr_monster.erase(iter);
-
-		if (iter == arr_monster.end())
-			break;
 	}
 	arr_monster.clear();
 
@@ -2073,10 +2123,6 @@ void Game::GameOver()
 		unit = (Unit*)*iter;
 		unit->release();
 		delete unit;
-		iter = arr_unit.erase(iter);
-
-		if (iter == arr_unit.end())
-			break;
 	}
 	arr_unit.clear();
 	
@@ -2085,10 +2131,6 @@ void Game::GameOver()
 		unit = (Unit*)*iter;
 		unit->release();
 		delete unit;
-		iter = arr_boss_room_unit.erase(iter);
-
-		if (iter == arr_boss_room_unit.end())
-			break;
 	}
 	arr_unit.clear();
 
@@ -2097,10 +2139,6 @@ void Game::GameOver()
 		unit = (Unit*)*iter;
 		unit->release();
 		delete unit;
-		iter = arr_help_send_unit.erase(iter);
-
-		if (iter == arr_help_send_unit.end())
-			break;
 	}
 	arr_unit.clear();
 
@@ -2109,10 +2147,6 @@ void Game::GameOver()
 		unit = (Unit*)*iter;
 		unit->release();
 		delete unit;
-		iter = arr_help_recv_unit.erase(iter);
-
-		if (iter == arr_help_recv_unit.end())
-			break;
 	}
 	arr_unit.clear();
 
@@ -2122,10 +2156,6 @@ void Game::GameOver()
 	{
 		use_string = (Use_String*)*iter;
 		delete use_string;
-		iter = arr_unit_queue.erase(iter);
-
-		if (iter == arr_unit_queue.end())
-			break;
 	}
 	arr_unit_queue.clear();
 
@@ -2136,10 +2166,6 @@ void Game::GameOver()
 		arr = (Sprite*)*iter;
 		arr->release();
 		delete arr;
-		iter = arr_location.erase(iter);
-
-		if (iter == arr_location.end())
-			break;
 	}
 	arr_location.clear();
 
@@ -2148,10 +2174,6 @@ void Game::GameOver()
 		arr = (Sprite*)*iter;
 		arr->release();
 		delete arr;
-		iter = arr_label.erase(iter);
-
-		if (iter == arr_label.end())
-			break;
 	}
 	arr_label.clear();
 
@@ -2162,10 +2184,6 @@ void Game::GameOver()
 		mix = (Mix_hero*)*iter;
 		mix->release();
 		delete mix;
-		iter = arr_mix_hero.erase(iter);
-
-		if (iter == arr_mix_hero.end())
-			break;
 	}
 	arr_mix_hero.clear();
 
@@ -2176,10 +2194,6 @@ void Game::GameOver()
 		heroList = (HeroList*)*iter;
 		heroList->release();
 		delete heroList;
-		iter = arr_hero_list.erase(iter);
-
-		if (iter == arr_hero_list.end())
-			break;
 	}
 	arr_hero_list.clear();
 
@@ -2196,16 +2210,14 @@ void Game::update_hero_list()
 	Unit* unit = NULL;
 	HeroList* heroList = NULL;
 
+	Rect rt = Rect(0, 35, 480, 100);
+	
 	for (std::vector<HeroList*>::iterator iter = arr_hero_list.begin(); iter != arr_hero_list.end(); iter++)
 	{
 		heroList = (HeroList*)*iter;
 
 		heroList->release();
 		delete heroList;
-		iter = arr_hero_list.erase(iter);
-
-		if (iter == arr_hero_list.end())
-			break;
 	}
 	arr_hero_list.clear();
 
@@ -2223,7 +2235,8 @@ void Game::update_hero_list()
 		heroList->setAtk(unit->getDamage());
 		heroList->init(arr_hero_list.size());
 
-		//atk랑 type 둘다 시발 이미지로하자
+		if (!rt.intersectsRect(heroList->getHero()->boundingBox()))
+			heroList->getHero()->setVisible(false);
 
 		heroBoard->addChild(heroList->getHero());
 
@@ -2244,6 +2257,9 @@ void Game::update_hero_list()
 		heroList->setAtk(unit->getDamage());
 		heroList->init(arr_hero_list.size());
 
+		if (!rt.intersectsRect(heroList->getHero()->boundingBox()))
+			heroList->setVisible(false);
+
 		heroBoard->addChild(heroList->getHero());
 
 		arr_hero_list.push_back(heroList);
@@ -2262,6 +2278,9 @@ void Game::update_hero_list()
 		heroList->setType(unit->getType());
 		heroList->setAtk(unit->getDamage());
 		heroList->init(arr_hero_list.size());
+
+		if (!rt.intersectsRect(heroList->getHero()->boundingBox()))
+			heroList->setVisible(false);
 
 		heroBoard->addChild(heroList->getHero());
 
