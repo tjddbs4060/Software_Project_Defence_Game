@@ -150,3 +150,13 @@ void HeroList::init(int size)
 	hero->addChild(boss);
 	hero->addChild(help);
 }
+
+void HeroList::setCount(int num)
+{
+	count = num;
+}
+
+int HeroList::getCount()
+{
+	return count;
+}

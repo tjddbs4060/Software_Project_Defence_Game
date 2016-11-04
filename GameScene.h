@@ -49,8 +49,6 @@ private:
 	void addunit_mix(cocos2d::Point pt);	//조합하여 유닛 삭제
 	void addunit_sell(cocos2d::Point pt);	//팔아서 유닛 삭제
 	void addattack(Monster* monster);	//공격 모션
-	void unit_atk_monster(float dt);	//유닛으로부터 몬스터 공격
-	void unit_atk_cooltime(float dt);	//유닛의 공격 가능 여부
 	void unit_atk_motion(Unit* unit, bool right);	//유닛 공격 모션
 	void move_unit(Unit* unit, bool right);		//유닛 움직임 모션
 	void addlabel(char* name, int gold, int choice);	//라벨 생성
@@ -59,6 +57,7 @@ private:
 	void mix_hero_init();	//조합표 초기화	/////////////
 	void GameOver();	//게임 오버 시 실행
 	void update_hero_list();	//영웅 목록 업데이트
+	void create_boss(char* name, float hp, float def);
 
 	void onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response);	//http 연결
 	void get_db_data(char * data, int port);		//http에 data 전송
@@ -70,6 +69,9 @@ private:
 	void screen_out();		//화면 벗어남 확인
 	void add_unit_queue(float dt);	//유닛 생성 큐(큐에 들어오면 바로 생성)
 	void server_continue(float dt);	//서버와 통신
+	void unit_atk_monster(float dt);	//유닛으로부터 몬스터 공격
+	void unit_atk_cooltime(float dt);	//유닛의 공격 가능 여부
+	void atk_boss(float dt);		//보스 공격
 
 	void selfRemover(Node* sender);	//삭제
 	void monsterRemover(Node* sender);	//몬스터 삭제
@@ -82,6 +84,8 @@ private:
 
 	float calDistance(cocos2d::Point from, cocos2d::Point to);	//두 점 사이의 거리 계산
 	
+	Monster* boss;
+
 	std::vector<Monster*> arr_monster;	//몬스터 배열
 	std::vector<Unit*> arr_unit;		//나의 맵 유닛 배열
 	std::vector<Unit*> arr_boss_room_unit;	//보스 방 유닛 배열	/////////////
@@ -100,6 +104,8 @@ private:
 	bool touch_mix;			//조합 터치 여부
 	bool touch_capsule;		//뽑기 터치 여부
 	bool touch_hero;		//히어로 메뉴 터치 여부
+	bool touch_boss;		//보스 메뉴 터치 여부
+	bool hero_menu_move;	//히어로 메뉴 스크롤 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
 	bool new_soul_1;		//추가된 시민 확인 여부

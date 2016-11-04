@@ -23,12 +23,14 @@ public:
 	void setHelp(char* name);
 	void setType(char* name);
 	void setAtk(int damage);
+	void setCount(int num);
 
 	cocos2d::Sprite* getHero();
 	cocos2d::Sprite* getMap();
 	cocos2d::Sprite* getBoss();
 	cocos2d::Sprite* getHelp();
 	char* getType();
+	int getCount();
 	int getAtk();
 	
 	void init(int size);
@@ -40,6 +42,7 @@ private:
 	cocos2d::Sprite* boss;
 	cocos2d::Sprite* help;
 	char type[2];
+	int count;
 	int atk;
 };
 

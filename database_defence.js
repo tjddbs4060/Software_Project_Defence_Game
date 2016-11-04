@@ -177,8 +177,12 @@ server.on('request', function(req, res){
           });
         }
         else if (data[0] == 'create_boss') {
-          //보스 관련 테이블 생성 후 보스 정보로 생성 / 보스 정보 전달
-          res.end('');
+          var sql = 'select * from boss_info where num = ?';
+
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            console.log('success create boss');
+            res.end('boss/'+row[0].name+'/'+row[0].hp+'/'+row[0].def);
+          });
         }
         else if (data[0] == 'start') {
           var sql = 'update room_list set start = true where id = ?';

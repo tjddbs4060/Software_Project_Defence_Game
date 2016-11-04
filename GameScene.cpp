@@ -4,7 +4,7 @@
 
 USING_NS_CC;
 
-Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false), touch_hero(false)
+Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false), touch_hero(false), touch_boss(false), hero_menu_move(false)
 , new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), alive_boss(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), boss_stage(0), monster_index(0)
 {
 	for (int i = 0; i < 2; i++)
@@ -14,6 +14,8 @@ Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(
 		upgrade_count[i] = 0;
 
 	strcpy(id, "asdf");
+
+	boss = NULL;
 }
 
 Scene* Game::scene()
@@ -77,7 +79,7 @@ bool Game::init()
 	menuNormal = Sprite::createWithSpriteFrameName("mix.png");
 	MenuItemSprite* menuMix = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
 	menuMix->setTag(TAG_MENU_MIX);
-	menuMix->setPosition(Point((winSize.width/2) - 30, 20));
+	menuMix->setPosition(Point((winSize.width/2) - 30, -70));
 
 	menuNormal = Sprite::createWithSpriteFrameName("capsule.png");
 	MenuItemSprite* menuCapsule = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
@@ -87,9 +89,15 @@ bool Game::init()
 	menuNormal = Sprite::createWithSpriteFrameName("hero.png");
 	MenuItemSprite* menuHero = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
 	menuHero->setTag(TAG_MENU_HERO);
-	menuHero->setPosition(Point((winSize.width / 2) - 30, -30));
+	menuHero->setPosition(Point((winSize.width / 2) - 30, -120));
 
-	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, menuMix, menuCapsule, menuHero, NULL);
+	menuNormal = Sprite::createWithSpriteFrameName("boss_open.png");
+	MenuItemSprite* menuBoss = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(Game::onMenu, this));
+	menuBoss->setTag(TAG_MENU_BOSS);
+	menuBoss->setPosition(Point(winSize.width / 2, 30));
+	menuBoss->setAnchorPoint(Point(1, 0));
+
+	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, menuMix, menuCapsule, menuHero, menuBoss, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	for (int i = 1; i <= 10; i++)
@@ -156,6 +164,11 @@ bool Game::init()
 	sprite_background->setAnchorPoint(Point(0, 0));
 	addChild(sprite_background, ZORDER_BACKGROUND, TAG_BACKGROUND);
 	
+	Sprite* sprite_boss_background = Sprite::createWithSpriteFrameName("boss_background.png");
+	sprite_boss_background->setTag(TAG_INTERFACE_BOSS);
+	sprite_boss_background->setPosition(Point(sprite_boss_background->getContentSize().width/2 + getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getContentSize().width, getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getContentSize().height/2));
+	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->addChild(sprite_boss_background);
+
 	int i = sprite_background->getTag();
 
 	monster_location_init(sprite_background);
@@ -171,6 +184,7 @@ bool Game::init()
 	schedule(schedule_selector(Game::unit_atk_monster));
 	schedule(schedule_selector(Game::add_unit_queue));
 	schedule(schedule_selector(Game::server_continue), 0.9f);
+	schedule(schedule_selector(Game::atk_boss));
 
 	auto listener = EventListenerTouchAllAtOnce::create();
 	listener->onTouchesBegan = CC_CALLBACK_2(Game::onTouchesBegan, this);
@@ -196,6 +210,13 @@ void Game::addmonster(float dt)
 	Point move[4];
 	Sprite* location = new Sprite();
 	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+
+	if (inforBoard->getStage() > 100)
+	{
+		//GameClear();
+
+		return;
+	}
 
 	for (std::vector<Sprite*>::iterator iter = arr_location.begin(); iter != arr_location.end(); iter++)
 	{
@@ -519,6 +540,24 @@ void Game::unit_atk_cooltime(float dt)
 	Unit* unit = NULL;
 
 	for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
+	{
+		unit = (Unit*)*iterUnit;
+
+		unit->setCurSpeed(unit->getCurSpeed() + dt);
+		if (unit->getCurSpeed() >= unit->getMaxSpeed())
+			unit->setCurSpeed(unit->getMaxSpeed());
+	}
+
+	for (std::vector<Unit*>::iterator iterUnit = arr_boss_room_unit.begin(); iterUnit != arr_boss_room_unit.end(); iterUnit++)
+	{
+		unit = (Unit*)*iterUnit;
+
+		unit->setCurSpeed(unit->getCurSpeed() + dt);
+		if (unit->getCurSpeed() >= unit->getMaxSpeed())
+			unit->setCurSpeed(unit->getMaxSpeed());
+	}
+
+	for (std::vector<Unit*>::iterator iterUnit = arr_help_recv_unit.begin(); iterUnit != arr_help_recv_unit.end(); iterUnit++)
 	{
 		unit = (Unit*)*iterUnit;
 
@@ -1261,12 +1300,57 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		Point pt = Point(x, y);
 
 		//보내기 클릭하면 다른 위치로 보내기
+		HeroList* heroList = NULL;
+		Unit* unit = NULL;
+		
 		if (heroBoard->get_esc()->boundingBox().containsPoint(touches[0]->getLocation() - pt) || !heroBoard->boundingBox().containsPoint(touches[0]->getLocation()))
 		{
 			touch_hero = false;
 
 			heroBoard->setVisible(false);
 		}
+
+		for (std::vector<HeroList*>::iterator iterHero = arr_hero_list.begin(); iterHero != arr_hero_list.end(); iterHero++)
+		{
+			if (hero_menu_move == true)
+				break;
+
+			heroList = (HeroList*)*iterHero;
+			
+			if (heroList->getHero()->boundingBox().containsPoint(touches[0]->getLocation() - pt - Point(155, 0)))	//BOSS
+			{	
+				for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
+				{
+					unit = (Unit*)*iterUnit;
+
+					if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
+					{
+						arr_unit.erase(iterUnit);
+						arr_boss_room_unit.push_back(unit);
+
+						break;
+					}
+				}
+			}
+			else if (heroList->getHero()->boundingBox().containsPoint(touches[0]->getLocation() - pt - Point(120, 0)))		//MAP
+			{
+				for (std::vector<Unit*>::iterator iterUnit = arr_boss_room_unit.begin(); iterUnit != arr_boss_room_unit.end(); iterUnit++)
+				{
+					unit = (Unit*)*iterUnit;
+
+					if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
+					{
+						arr_boss_room_unit.erase(iterUnit);
+						arr_unit.push_back(unit);
+
+						break;
+					}
+				}
+			}
+		}
+		if (hero_menu_move == true)
+			hero_menu_move = false;
+		else update_hero_list();
 	}
 	
 	touch = false;
@@ -1426,6 +1510,8 @@ void Game::onTouchesMoved(const std::vector<Touch*>& touches, Event *event)
 
 	if (touch_hero == true && heroList->boundingBox().containsPoint(Point(touch_point)))
 	{
+		hero_menu_move = true;
+
 		HeroList* heroList = NULL;
 		HeroList* hero_out = (HeroList*)*arr_hero_list.begin();
 		
@@ -1600,7 +1686,6 @@ void Game::zorder_assort(float dt)
 			get_db_data(szFile, DEFENCEJS);
 
 			/////////// 보스 관련 수정중 -> 보스 생성 및 처치 실패
-			/*
 			if (inforBoard->getStage() % 10 == 5 && alive_boss == true)
 			{
 					sprintf(szFile, "alive_boss/%d", id);
@@ -1608,7 +1693,7 @@ void Game::zorder_assort(float dt)
 					GameOver();
 			}
 
-			if (inforBoard->getStage() % 10 == 0)
+			if (inforBoard->getStage() % 10 == 0 && inforBoard->getStage() > 0 && alive_boss == false)
 			{
 				boss_stage++;
 				alive_boss = true;
@@ -1616,11 +1701,7 @@ void Game::zorder_assort(float dt)
 				sprintf(szFile, "create_boss/%d", boss_stage);
 
 				get_db_data(szFile, DEFENCEJS);
-
-				addlabel(NULL, 0, 12);
-				//보스 생성
 			}
-			*/
 
 			summon_monster = 10;
 			inforBoard->setSoul(inforBoard->getSoul() + 3);
@@ -1765,6 +1846,27 @@ void Game::onMenu(Object* sender)
 		touch_hero = true;
 
 		getChildByTag(TAG_HERO)->getChildByTag(TAG_INTERFACE_HERO)->setVisible(true);
+		break;
+	case TAG_MENU_BOSS:
+		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true || touch_capsule == true || touch_hero == true) break;
+
+		Point pt;
+
+		if (touch_boss == false)
+		{
+			pt = Point(getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getPosition()) - Point(getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->getContentSize().width, 0);
+			touch_boss = true;
+		}
+		else
+		{
+			pt = Point(getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getPosition()) + Point(getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->getContentSize().width, 0);
+			touch_boss = false;
+		}
+
+		MoveTo* moveTo = MoveTo::create(1.f, pt);
+		getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->runAction(moveTo);
+
+		break;
 	}
 }
 
@@ -1992,6 +2094,17 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 		}
 
 		arr_mix_hero.push_back(mix_hero);
+	}
+	else if (!strcmp(compare, "boss"))
+	{
+		strtok(szFile, "/");
+		char * name = strtok(NULL, "/");
+		char * hp = strtok(NULL, "/");
+		char * def = strtok(NULL, "/");
+
+		create_boss(name, atof(hp), atof(def));
+
+		addlabel(NULL, 0, 12);
 	}
 
 	/*
@@ -2233,6 +2346,7 @@ void Game::update_hero_list()
 		heroList->setHelp("null.png");
 		heroList->setType(unit->getType());
 		heroList->setAtk(unit->getDamage());
+		heroList->setCount(unit->getCount());
 		heroList->init(arr_hero_list.size());
 
 		if (!rt.intersectsRect(heroList->getHero()->boundingBox()))
@@ -2255,6 +2369,7 @@ void Game::update_hero_list()
 		heroList->setHelp("null.png");
 		heroList->setType(unit->getType());
 		heroList->setAtk(unit->getDamage());
+		heroList->setCount(unit->getCount());
 		heroList->init(arr_hero_list.size());
 
 		if (!rt.intersectsRect(heroList->getHero()->boundingBox()))
@@ -2277,6 +2392,7 @@ void Game::update_hero_list()
 		heroList->setHelp("in.png");
 		heroList->setType(unit->getType());
 		heroList->setAtk(unit->getDamage());
+		heroList->setCount(unit->getCount());
 		heroList->init(arr_hero_list.size());
 
 		if (!rt.intersectsRect(heroList->getHero()->boundingBox()))
@@ -2288,4 +2404,58 @@ void Game::update_hero_list()
 	}
 
 	//새로운 클래스 생성(영웅 목록 저장할) 후 Mix_hero와 같이 추가
+}
+
+void Game::create_boss(char* name, float hp, float def)
+{
+	char szFile[64] = { 0, };
+
+	Point pt = getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->getContentSize();
+
+	sprintf(szFile, "boss_%s.png", name);
+
+	boss = new Monster();
+
+	boss->setBody(szFile);
+	boss->setEnergy(hp);
+	boss->setDefence(def);
+	boss->setNum(boss_stage);
+	
+	boss->getBody()->setPosition(Point(pt.x * 0.4, pt.y * 0.2));
+
+	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->addChild(boss->getBody());
+}
+
+void Game::atk_boss(float dt)
+{
+	Unit* unit = NULL;
+	bool right;
+
+	for (std::vector<Unit*>::iterator iterUnit = arr_boss_room_unit.begin(); iterUnit != arr_boss_room_unit.end(); iterUnit++)
+	{
+		unit = (Unit*)*iterUnit;
+
+		if (alive_boss == false) break;
+
+		if (unit->getMaxSpeed() <= unit->getCurSpeed())
+		{
+			if (unit->getBody()->getPositionX() - boss->getBody()->getPositionX() > 0)
+				right = false;
+			else right = true;
+
+			unit->setCurSpeed(0);
+			unit_atk_motion(unit, right);
+			addattack(boss);
+			//보스한테 데미지 주기
+
+			if (0 >= boss->subEnergy(unit->getDamage()))
+			{
+				boss->release();
+				delete boss;
+				// 보스 죽는 것
+			}
+			else
+				break;
+		}
+	}
 }
