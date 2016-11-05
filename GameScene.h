@@ -78,6 +78,8 @@ private:
 	void unitRemover(Node* sender);		//유닛 삭제
 	void allstop_motion(Node* sender);	//모션 멈춤
 	void labelRemover(Node* sender);	//라벨 제거
+	void removeChild_background(Node* sender);	//맵에서 제거 후 보스방 addChild
+	void removeChild_boss_background(Node* sender);	//보스방에서 제거 후 맵 addChild
 	
 	cocos2d::Point map_out_check(cocos2d::Point point);	//맵을 벗어나는지 확인
 	void touch_unit_check();	//유닛을 클릭했는지 여부

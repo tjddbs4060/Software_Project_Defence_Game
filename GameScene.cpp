@@ -194,6 +194,8 @@ bool Game::init()
 
 	_eventDispatcher->addEventListenerWithFixedPriority(listener, 1);
 
+	get_db_data("create_boss/1/asdf", 3000);
+
 	return true;
 }
 
@@ -1325,8 +1327,21 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 					if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 					{
+						Point pt = getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->getContentSize();
+						float xR = rand() % 10000;
+						float yR = rand() % 10000;
+						
+						pt.x *= (0.8 + (xR / 100000));
+						pt.y *= (0.2 + (yR / 100000 * 6));
+
 						arr_unit.erase(iterUnit);
 						arr_boss_room_unit.push_back(unit);
+
+						CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::removeChild_background, this));
+
+						unit->getBody()->setPosition(pt);
+
+						unit->getBody()->runAction(callfunc);
 
 						break;
 					}
@@ -1340,8 +1355,16 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 					if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 					{
+						Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
+
 						arr_boss_room_unit.erase(iterUnit);
 						arr_unit.push_back(unit);
+
+						CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::removeChild_boss_background, this));
+
+						unit->getBody()->setPosition(pt/2);
+
+						unit->getBody()->runAction(callfunc);
 
 						break;
 					}
@@ -1698,7 +1721,7 @@ void Game::zorder_assort(float dt)
 				boss_stage++;
 				alive_boss = true;
 
-				sprintf(szFile, "create_boss/%d", boss_stage);
+				sprintf(szFile, "create_boss/%d/%s", boss_stage, id);
 
 				get_db_data(szFile, DEFENCEJS);
 			}
@@ -2373,7 +2396,7 @@ void Game::update_hero_list()
 		heroList->init(arr_hero_list.size());
 
 		if (!rt.intersectsRect(heroList->getHero()->boundingBox()))
-			heroList->setVisible(false);
+			heroList->getHero()->setVisible(false);
 
 		heroBoard->addChild(heroList->getHero());
 
@@ -2396,7 +2419,7 @@ void Game::update_hero_list()
 		heroList->init(arr_hero_list.size());
 
 		if (!rt.intersectsRect(heroList->getHero()->boundingBox()))
-			heroList->setVisible(false);
+			heroList->getHero()->setVisible(false);
 
 		heroBoard->addChild(heroList->getHero());
 
@@ -2424,6 +2447,8 @@ void Game::create_boss(char* name, float hp, float def)
 	boss->getBody()->setPosition(Point(pt.x * 0.4, pt.y * 0.2));
 
 	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->addChild(boss->getBody());
+
+	alive_boss = true;
 }
 
 void Game::atk_boss(float dt)
@@ -2446,16 +2471,30 @@ void Game::atk_boss(float dt)
 			unit->setCurSpeed(0);
 			unit_atk_motion(unit, right);
 			addattack(boss);
-			//보스한테 데미지 주기
+			//보스한테 데미지 주기(get_db_data) & lock 설정 
 
 			if (0 >= boss->subEnergy(unit->getDamage()))
 			{
 				boss->release();
 				delete boss;
-				// 보스 죽는 것
+				// 보스 죽는 것(get_db_data)
 			}
 			else
 				break;
 		}
 	}
+}
+
+void Game::removeChild_background(Node* sender)
+{
+	getChildByTag(TAG_BACKGROUND)->removeChild(sender, false);
+
+	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->addChild(sender);
+}
+
+void Game::removeChild_boss_background(Node* sender)
+{
+	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->removeChild(sender, false);
+
+	getChildByTag(TAG_BACKGROUND)->addChild(sender);
 }

@@ -179,10 +179,25 @@ server.on('request', function(req, res){
         else if (data[0] == 'create_boss') {
           var sql = 'select * from boss_info where num = ?';
 
-          connection.query(sql, [data[1]], function(err, row, fields) {
-            console.log('success create boss');
-            res.end('boss/'+row[0].name+'/'+row[0].hp+'/'+row[0].def);
+          connection.query(sql, [data[1]], function(err1, row1, fields1) {
+            sql = 'select * from room_info where id = ?';
+
+            connection.query(sql, [data[2]], function(err2, row2, fields2) {
+              sql = 'insert into boss_room values (?, ?, ?, ?)';
+
+              connection.query(sql, [row2[0].num, row1[0].hp, row1[0].def, row1[0].name], function(){});
+
+              sql = 'select * from boss_room where num = ?';
+
+              connection.query(sql, [row2[0].num], function(err3, row3, fields3) {
+                console.log('success create '+row2[0].num+' - '+data[1]+' boss');
+                res.end('boss/'+row3[0].boss+'/'+row3[0].hp+'/'+row3[0].def);
+              });
+            });
           });
+        }
+        else if (data[0] == 'damage_boss') {
+          //보스 데미지 계산 & lock 설정...
         }
         else if (data[0] == 'start') {
           var sql = 'update room_list set start = true where id = ?';
