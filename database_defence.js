@@ -199,6 +199,38 @@ server.on('request', function(req, res){
         else if (data[0] == 'damage_boss') {
           //보스 데미지 계산 & lock 설정...
         }
+        else if (data[0] == 'member') {
+          var sql = 'select count(*) as c from user_info where id = ?';
+
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            if (row[0].c > 0) {
+              console.log('already ID');
+              res.end('fail_member'); //ID가 이미 있음
+            }
+            else {
+              sql = 'insert into user_info values(?, ?)';
+
+              connection.query(sql, [data[1], data[2]], function() {
+                console.log('create user');
+                res.end('success');
+              });
+            }
+          });
+        }
+        else if (data[0] == 'login') {
+          var sql = 'select count(*) as c from user_info where id = ? and password = ?';
+
+          connection.query(sql, [data[1], data[2]], function(err, row, fields) {
+            if (row[0].c > 0) {
+              console.log('success login');
+              res.end('success');
+            }
+            else {
+              console.log('fail login');
+              res.end('fail_login');
+            }
+          });
+        }
         else if (data[0] == 'start') {
           var sql = 'update room_list set start = true where id = ?';
 

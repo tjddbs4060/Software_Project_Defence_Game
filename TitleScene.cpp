@@ -65,6 +65,9 @@ void TitleScene::onMenu(cocos2d::Object* sender)
 	case TAG_TITLE_MENU_SINGLE:
 		//게임화면 연출
 
+		_eventDispatcher->autorelease();
+		_eventDispatcher->removeAllEventListeners();
+
 		Director::getInstance()->replaceScene(Game::scene());
 		break;
 	case TAG_TITLE_MENU_MULTI:

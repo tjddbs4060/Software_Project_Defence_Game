@@ -96,7 +96,7 @@ bool Game::init()
 	menuBoss->setTag(TAG_MENU_BOSS);
 	menuBoss->setPosition(Point(winSize.width / 2, 30));
 	menuBoss->setAnchorPoint(Point(1, 0));
-
+	
 	Menu* menu = Menu::create(menuSoul, menuSkip, menuGamble, menuUpgrade, menuMix, menuCapsule, menuHero, menuBoss, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
@@ -193,8 +193,6 @@ bool Game::init()
 	listener->onTouchesMoved = CC_CALLBACK_2(Game::onTouchesMoved, this);
 
 	_eventDispatcher->addEventListenerWithFixedPriority(listener, 1);
-
-	get_db_data("create_boss/1/asdf", 3000);
 
 	return true;
 }
@@ -928,6 +926,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setGold(inforBoard->getGold() - (10 + upgrade_count[0]));
 
 				addlabel("D", 0, 6);
+				update_hero_list();
 			}
 			else addlabel(NULL, 0, 7);
 		}
@@ -941,6 +940,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setGold(inforBoard->getGold() - (20 + upgrade_count[1] * 2));
 
 				addlabel("C", 0, 6);
+				update_hero_list();
 			}
 			else addlabel(NULL, 0, 7);
 		}
@@ -954,6 +954,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setGold(inforBoard->getGold() - (50 + upgrade_count[2] * 5));
 
 				addlabel("B", 0, 6);
+				update_hero_list();
 			}
 			else addlabel(NULL, 0, 7);
 		}
@@ -967,6 +968,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setGold(inforBoard->getGold() - (100 + upgrade_count[2] * 10));
 
 				addlabel("A", 0, 6);
+				update_hero_list();
 			}
 			else addlabel(NULL, 0, 7);
 		}
@@ -980,6 +982,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setGold(inforBoard->getGold() - (300 + upgrade_count[2] * 30));
 
 				addlabel("S", 0, 6);
+				update_hero_list();
 			}
 			else addlabel(NULL, 0, 7);
 		}
@@ -993,6 +996,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				inforBoard->setGold(inforBoard->getGold() - (500 + upgrade_count[2] * 50));
 
 				addlabel("SS", 0, 6);
+				update_hero_list();
 			}
 			else addlabel(NULL, 0, 7);
 		}
@@ -2475,6 +2479,8 @@ void Game::atk_boss(float dt)
 
 			if (0 >= boss->subEnergy(unit->getDamage()))
 			{
+				alive_boss = false;
+
 				boss->release();
 				delete boss;
 				// º¸½º Á×´Â °Í(get_db_data)

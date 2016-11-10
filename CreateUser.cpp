@@ -1,17 +1,17 @@
-#include "LoginScene.h"
+#include "CreateUser.h"
 
 USING_NS_CC;
 
-Scene* LoginScene::scene()
+Scene* CreateUser::scene()
 {
 	Scene* scene = Scene::create();
-	LoginScene* loginScene = LoginScene::create();
-	scene->addChild(loginScene);
+	CreateUser* createUser = CreateUser::create();
+	scene->addChild(createUser);
 
 	return scene;
 }
 
-bool LoginScene::init()
+bool CreateUser::init()
 {
 	if (!Layer::init())
 		return false;
@@ -28,17 +28,12 @@ bool LoginScene::init()
 	sprite_background->setScale(winSize.width / sprite_background->getContentSize().width);
 	spriteBatchNodeLogin->addChild(sprite_background);
 
-	Sprite* menuNormal = Sprite::createWithSpriteFrameName("login.png");
-	MenuItemSprite* menuLogin = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(LoginScene::onMenu, this));
-	menuLogin->setTag(TAG_LOGIN);
-	menuLogin->setPosition(Point(-40, -40));
+	Sprite* menuNormal = Sprite::createWithSpriteFrameName("member.png");
+	MenuItemSprite* menuLogin = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(CreateUser::onMenu, this));
+	menuLogin->setTag(TAG_MEMBER);
+	menuLogin->setPosition(Point(0, -40));
 
-	menuNormal = Sprite::createWithSpriteFrameName("member.png");
-	MenuItemSprite* menuMember = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(LoginScene::onMenu, this));
-	menuMember->setTag(TAG_MEMBER);
-	menuMember->setPosition(Point(30, -40));
-
-	Menu* menu = Menu::create(menuLogin, menuMember, NULL);
+	Menu* menu = Menu::create(menuLogin, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	CCTextFieldTTF *textfield_id = CCTextFieldTTF::textFieldWithPlaceHolder("Please, input your ID.", CCSize(480, 30), kCCTextAlignmentCenter, "Arial", 20);
@@ -54,24 +49,23 @@ bool LoginScene::init()
 	this->addChild(textfield_pw);
 
 	auto listener = EventListenerTouchAllAtOnce::create();
-
-	listener->onTouchesBegan = CC_CALLBACK_2(LoginScene::onTouchesBegan, this);
-	listener->onTouchesCancelled = CC_CALLBACK_2(LoginScene::onTouchesCancelled, this);
-	listener->onTouchesEnded = CC_CALLBACK_2(LoginScene::onTouchesEnded, this);
-	listener->onTouchesMoved = CC_CALLBACK_2(LoginScene::onTouchesMoved, this);
+	listener->onTouchesBegan = CC_CALLBACK_2(CreateUser::onTouchesBegan, this);
+	listener->onTouchesCancelled = CC_CALLBACK_2(CreateUser::onTouchesCancelled, this);
+	listener->onTouchesEnded = CC_CALLBACK_2(CreateUser::onTouchesEnded, this);
+	listener->onTouchesMoved = CC_CALLBACK_2(CreateUser::onTouchesMoved, this);
 
 	_eventDispatcher->addEventListenerWithFixedPriority(listener, 1);
 
 	return true;
 }
 
-void LoginScene::keyboardWillShow(CCIMEKeyboardNotificationInfo &info)
+void CreateUser::keyboardWillShow(CCIMEKeyboardNotificationInfo &info)
 {
 	CCTextFieldTTF *textfield = (CCTextFieldTTF*)this->getChildByTag(TAG_ID);
 	textfield->setString("");
 }
 
-void LoginScene::keyboardWillHide(CCIMEKeyboardNotificationInfo &info)
+void CreateUser::keyboardWillHide(CCIMEKeyboardNotificationInfo &info)
 {
 	/*
 	CCTextFieldTTF *textfield = (CCTextFieldTTF*)this->getChildByTag(200);
@@ -81,7 +75,7 @@ void LoginScene::keyboardWillHide(CCIMEKeyboardNotificationInfo &info)
 	*/
 }
 
-void LoginScene::onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event)
+void CreateUser::onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event)
 {
 	CCPoint pt = touches[0]->getLocation();
 	//pt = CCDirector::sharedDirector()->convertToGL(pt);
@@ -97,22 +91,22 @@ void LoginScene::onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, coc
 		textfield_pw->attachWithIME();
 }
 
-void LoginScene::onTouchesCancelled(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event)
+void CreateUser::onTouchesCancelled(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event)
 {
 
 }
 
-void LoginScene::onTouchesEnded(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event)
+void CreateUser::onTouchesEnded(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event)
 {
 
 }
 
-void LoginScene::onTouchesMoved(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event)
+void CreateUser::onTouchesMoved(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event)
 {
 
 }
 
-void LoginScene::get_db_data(char * data, int port)
+void CreateUser::get_db_data(char * data, int port)
 {
 	__String * dataToSend = __String::create(data);
 	char szFile[32] = { 0, };
@@ -123,12 +117,12 @@ void LoginScene::get_db_data(char * data, int port)
 	request->setUrl(szFile);
 	request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
 	request->setRequestData(dataToSend->getCString(), dataToSend->length());
-	request->setResponseCallback(CC_CALLBACK_2(LoginScene::onHttpRequestCompleted, this));
+	request->setResponseCallback(CC_CALLBACK_2(CreateUser::onHttpRequestCompleted, this));
 	cocos2d::network::HttpClient::getInstance()->send(request);
 	request->release();
 }
 
-void LoginScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response)
+void CreateUser::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response)
 {
 	std::vector<char> * buffer = response->getResponseData();
 
@@ -150,33 +144,27 @@ void LoginScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 		_eventDispatcher->autorelease();
 		_eventDispatcher->removeAllEventListeners();
 
-		Director::getInstance()->replaceScene(TitleScene::scene());
+		Director::getInstance()->replaceScene(LoginScene::scene());
 	}
-	else if (!strcmp(compare, "fail_login"))
+	else if (!strcmp(compare, "fail_member"))
 	{
-		//로그인 다시하달라는 MoveTo 라벨 출력(생겼다 사라지는)
+		//이미 존재하는 ID라는 표시
 	}
 }
 
-void LoginScene::onMenu(cocos2d::Object* sender)
-{	
-	CCTextFieldTTF *textfield_id = (CCTextFieldTTF*)this->getChildByTag(TAG_ID);
-	CCTextFieldTTF *textfield_pw = (CCTextFieldTTF*)this->getChildByTag(TAG_PW);
+void CreateUser::onMenu(cocos2d::Object* sender)
+{
 	char szFile[64] = { 0, };
 
 	switch (((Node*)sender)->getTag())
 	{
-	case TAG_LOGIN:
-		sprintf(szFile, "login/%s/%s", textfield_id->getString().data(), textfield_pw->getString().data());
+	case TAG_MEMBER:
+		CCTextFieldTTF *textfield_id = (CCTextFieldTTF*)this->getChildByTag(TAG_ID);
+		CCTextFieldTTF *textfield_pw = (CCTextFieldTTF*)this->getChildByTag(TAG_PW);
+
+		sprintf(szFile, "member/%s/%s", textfield_id->getString().data(), textfield_pw->getString().data());
 		
 		get_db_data(szFile, 3000);
-
-		break;
-	case TAG_MEMBER:
-		_eventDispatcher->autorelease();
-		_eventDispatcher->removeAllEventListeners();
-
-		Director::getInstance()->replaceScene(CreateUser::scene());
 
 		break;
 	}

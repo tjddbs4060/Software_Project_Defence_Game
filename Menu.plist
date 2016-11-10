@@ -103,6 +103,28 @@
 				<key>sourceSize</key>
 				<string>{500,340}</string>
 			</dict>
+			<key>login.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{500,280},{50,20}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{50,20}</string>
+			</dict>
+			<key>member.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{550,280},{50,20}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{50,20}</string>
+			</dict>
 		</dict>
 		<key>metadata</key>
 		<dict>

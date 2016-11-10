@@ -1,24 +1,23 @@
-#ifndef __DEFENCE_TITLESCENE_H__
-#define __DEFENCE_TITLESCENE_H__
+#ifndef __CREATE_USER_H__
+#define __CREATE_USER_H__
 
 #include "cocos2d.h"
 #include "Order.h"
 #include "Use_String.h"
-#include "TitleScene.h"
-#include "CreateUser.h"
+#include "LoginScene.h"
 
 #include "network/HttpClient.h"
 #include "network/HttpConnection-winrt.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
-#include "network/SocketIO.h""
+#include "network/SocketIO.h"
 
-class LoginScene : public cocos2d::Layer, public cocos2d::CCIMEDelegate
+class CreateUser : public cocos2d::Layer, public cocos2d::CCIMEDelegate
 {
 public:
 	virtual bool init();
 	static cocos2d::Scene* scene();
-	CREATE_FUNC(LoginScene);
+	CREATE_FUNC(CreateUser);
 
 	void onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event) override;
 	void onTouchesCancelled(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event) override;

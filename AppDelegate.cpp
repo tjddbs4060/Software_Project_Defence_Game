@@ -2,6 +2,7 @@
 #include "GameScene.h"
 #include "LoginScene.h"
 #include "TitleScene.h"
+#include "CreateUser.h"
 
 USING_NS_CC;
 
@@ -79,8 +80,9 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	/////////////////////
     //여기 밑 수정함
 	//auto scene = Game::scene();
-	//auto scene = LoginScene::scene();
-	auto scene = TitleScene::scene();
+	auto scene = LoginScene::scene();
+	//auto scene = TitleScene::scene();
+	//auto scene = CreateUser::scene();
     // run
     director->runWithScene(scene);
 	/////////////////////

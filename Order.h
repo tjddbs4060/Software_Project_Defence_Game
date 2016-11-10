@@ -58,4 +58,10 @@
 #define TAG_TITLE_MENU_OPTION 4003
 #define TAG_TITLE_MENU_EXIT 4004
 
+//Login & Create Scene
+#define TAG_ID 5000
+#define TAG_PW 5001
+#define TAG_LOGIN 5002
+#define TAG_MEMBER 5003
+
 #endif
