@@ -223,7 +223,7 @@ server.on('request', function(req, res){
           connection.query(sql, [data[1], data[2]], function(err, row, fields) {
             if (row[0].c > 0) {
               console.log('success login');
-              res.end('success');
+              res.end('success/'+data[1]);
             }
             else {
               console.log('fail login');
@@ -231,12 +231,68 @@ server.on('request', function(req, res){
             }
           });
         }
-        else if (data[0] == 'start') {
-          var sql = 'update room_list set start = true where id = ?';
+        else if (data[0] == 'single') {
+          var sql = 'insert into room_list(id, person, start, level) values (?, 1, 1, "easy")';
 
           connection.query(sql, [data[1]], function() {
-            console.log('start');
-            res.end('start');
+            sql = 'select * from room_list where id = ?';
+
+            connection.query(sql, [data[1]], function(err, row, fields) {
+              sql = 'insert into room_info values(?, ?, 1, 0, 1)';
+
+              connection.query(sql, [row[0].num, data[1]], function(){});
+
+              console.log('success single');
+              res.end('success');
+            });
+          });
+        }
+        else if (data[0] == 'join_room') {
+          var sql = 'select * , count(*) as c from room_list where person < 4 and start = 0';
+
+          connection.query(sql, [], function(err1, row1, fields1) {
+            if (row1[0].c < 1) {
+              sql = 'insert into room_list(id, person, start, level) values (?, 1, 0, "easy")';
+
+              connection.query(sql, [data[1]], function(){});
+
+              sql = 'select * from room_list where id = ?';
+
+              connection.query(sql, [data[1]], function(err2, row2, fields2) {
+                sql = 'insert into room_info values (?, ?, 1, 0, 1)';
+
+                connection.query(sql, [row2[0].num, data[1]], function() {});
+
+                console.log('create room boss');
+                res.end('room_success');
+              });
+            }
+            else {
+              sql = 'update room_list set person = person + 1 where num = ?';
+
+              connection.query(sql, [row1[0].num], function() {});
+
+              sql = 'insert into room_info values(?, ?, ?, 0, 1)';
+
+              connection.query(sql, [row1[0].num, data[1], row1[0].person + 1], function() {});
+
+              console.log('join room');
+              res.end('room_success');
+            }
+          });
+        }
+        else if (data[0] == 'room_person') {
+          var sql = 'select l.num, l.person, i.person_num from room_info as i, room_list as l where i.id = ? and i.num = l.num';
+
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            if (row[0].person == 4) {
+              console.log('start Game');
+              res.end('full_room/'+row[0].person_num);
+            }
+            else {
+              console.log('not ready Game');
+              res.end('empty_room');
+            }
           });
         }
         else {

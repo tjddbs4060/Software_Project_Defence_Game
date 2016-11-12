@@ -1,5 +1,7 @@
 #include "CreateUser.h"
 
+#pragma execution_character_set("UTF-8")
+
 USING_NS_CC;
 
 Scene* CreateUser::scene()
@@ -126,7 +128,6 @@ void CreateUser::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 {
 	std::vector<char> * buffer = response->getResponseData();
 
-	Use_String * use_string = new Use_String();
 	char szFile[128] = { 0, };
 	char temp[128] = { 0, };
 	char * compare;

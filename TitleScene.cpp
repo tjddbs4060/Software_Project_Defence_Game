@@ -1,11 +1,14 @@
 #include "TitleScene.h"
 
+#pragma execution_character_set("UTF-8")
+
 USING_NS_CC;
 
-Scene* TitleScene::scene()
+Scene* TitleScene::scene(char* name)
 {
 	Scene* scene = Scene::create();
 	TitleScene* title = TitleScene::create();
+	title->setID(name);
 	scene->addChild(title);
 
 	return scene;
@@ -60,21 +63,84 @@ bool TitleScene::init()
 
 void TitleScene::onMenu(cocos2d::Object* sender)
 {
+	char szFile[32] = { 0, };
+
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_TITLE_MENU_SINGLE:
 		//게임화면 연출
+		sprintf(szFile, "single/%s", getID());
 
+		get_db_data(szFile, 3000);
+		break;
+	case TAG_TITLE_MENU_MULTI:
 		_eventDispatcher->autorelease();
 		_eventDispatcher->removeAllEventListeners();
 
-		Director::getInstance()->replaceScene(Game::scene());
-		break;
-	case TAG_TITLE_MENU_MULTI:
+		sprintf(szFile, "join_room/%s", getID());
+
+		get_db_data(szFile, 3000);
+
+		Director::getInstance()->replaceScene(RoomList::scene(getID()));
 		break;
 	case TAG_TITLE_MENU_OPTION:
 		break;
 	case TAG_TITLE_MENU_EXIT:
 		break;
+	}
+}
+
+void TitleScene::setID(char* name)
+{
+	strcpy(id, name);
+}
+
+char* TitleScene::getID()
+{
+	return id;
+}
+
+void TitleScene::get_db_data(char * data, int port)
+{
+	__String * dataToSend = __String::create(data);
+	char szFile[32] = { 0, };
+
+	sprintf(szFile, "localhost:%d", port);
+
+	cocos2d::network::HttpRequest * request = new cocos2d::network::HttpRequest();
+	request->setUrl(szFile);
+	request->setRequestType(cocos2d::network::HttpRequest::Type::POST);
+	request->setRequestData(dataToSend->getCString(), dataToSend->length());
+	request->setResponseCallback(CC_CALLBACK_2(TitleScene::onHttpRequestCompleted, this));
+	cocos2d::network::HttpClient::getInstance()->send(request);
+	request->release();
+}
+
+void TitleScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response)
+{
+	std::vector<char> * buffer = response->getResponseData();
+
+	char szFile[128] = { 0, };
+	char temp[128] = { 0, };
+	char * compare;
+	for (unsigned int i = 0; i < buffer->size(); i++)
+		szFile[i] = (*buffer)[i];
+
+	if (buffer->size() == 0)
+		return;
+
+	strcpy(temp, szFile);
+	compare = strtok(temp, "/");
+
+	if (!strcmp(compare, "success"))
+	{
+		_eventDispatcher->autorelease();
+		_eventDispatcher->removeAllEventListeners();
+
+		Director::getInstance()->replaceScene(Game::scene(getID()));
+	}
+	else if (!strcmp(compare, "fail_single"))
+	{
+		//오류
 	}
 }

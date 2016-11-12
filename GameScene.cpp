@@ -13,16 +13,16 @@ Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(
 	for (int i = 0; i < 6; i++)
 		upgrade_count[i] = 0;
 
-	strcpy(id, "asdf");
-
 	boss = NULL;
 }
 
-Scene* Game::scene()
+Scene* Game::scene(char* name)
 {
 	auto scene = Scene::create();
 	auto layer = Game::create();
+	layer->setID(name);
 	scene->addChild(layer);
+
 	return scene;
 }
 
@@ -309,7 +309,7 @@ void Game::addmonster(float dt)
 
 	inforBoard->setMonster(inforBoard->getMonster() + 1);
 
-	sprintf(szFile, "add_monster/%s/%g/%g/%d", id, monster->getEnergy(), monster->getDefence(), monster->getNum());
+	sprintf(szFile, "add_monster/%s/%g/%g/%d", getID(), monster->getEnergy(), monster->getDefence(), monster->getNum());
 	get_db_data(szFile, DEFENCEJS);
 }
 
@@ -434,7 +434,7 @@ void Game::addunit(char* sprite_name, char* name, char* type, int number, float 
 	upgrade_update(type);
 	update_hero_list();
 
-	sprintf(szFile, "add_unit/%s/%g/%g/%s", id, unit->getDamage(), unit->getRange(), id);
+	sprintf(szFile, "add_unit/%s/%g/%g/%s", getID(), unit->getDamage(), unit->getRange(), getID());
 	get_db_data(szFile, DEFENCEJS);
 }
 
@@ -1715,7 +1715,7 @@ void Game::zorder_assort(float dt)
 			/////////// 보스 관련 수정중 -> 보스 생성 및 처치 실패
 			if (inforBoard->getStage() % 10 == 5 && alive_boss == true)
 			{
-					sprintf(szFile, "alive_boss/%d", id);
+					sprintf(szFile, "alive_boss/%d", getID());
 					get_db_data(szFile, DEFENCEJS);
 					GameOver();
 			}
@@ -1725,7 +1725,7 @@ void Game::zorder_assort(float dt)
 				boss_stage++;
 				alive_boss = true;
 
-				sprintf(szFile, "create_boss/%d/%s", boss_stage, id);
+				sprintf(szFile, "create_boss/%d/%s", boss_stage, getID());
 
 				get_db_data(szFile, DEFENCEJS);
 			}
@@ -2166,7 +2166,7 @@ void Game::server_continue(float dt)
 
 	char szFile[64] = { 0, };
 
-	sprintf(szFile, "time/%.2f/%s", inforBoard->getTime(), id);
+	sprintf(szFile, "time/%.2f/%s", inforBoard->getTime(), getID());
 	get_db_data(szFile, DEFENCEJS);
 }
 
@@ -2337,7 +2337,7 @@ void Game::GameOver()
 	}
 	arr_hero_list.clear();
 
-	sprintf(szFile, "gameover/%s", id);
+	sprintf(szFile, "gameover/%s", getID());
 
 	get_db_data(szFile, DEFENCEJS);
 	//게임오버 연출
@@ -2503,4 +2503,14 @@ void Game::removeChild_boss_background(Node* sender)
 	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->removeChild(sender, false);
 
 	getChildByTag(TAG_BACKGROUND)->addChild(sender);
+}
+
+void Game::setID(char* name)
+{
+	strcpy(id, name);
+}
+
+char* Game::getID()
+{
+	return id;
 }

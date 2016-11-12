@@ -11,7 +11,7 @@
 #include "network/HttpConnection-winrt.h"
 #include "network/HttpRequest.h"
 #include "network/HttpResponse.h"
-#include "network/SocketIO.h""
+#include "network/SocketIO.h"
 
 class LoginScene : public cocos2d::Layer, public cocos2d::CCIMEDelegate
 {

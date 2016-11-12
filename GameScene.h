@@ -33,7 +33,7 @@ class Game : public cocos2d::Layer
 public:
 	Game();
 	virtual bool init();
-	static cocos2d::Scene* scene();
+	static cocos2d::Scene* scene(char* name);
 
 	void onTouchesBegan(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event) override;
 	void onTouchesCancelled(const std::vector<cocos2d::Touch*>& touches, cocos2d::Event *event) override;
@@ -57,7 +57,9 @@ private:
 	void mix_hero_init();	//조합표 초기화	/////////////
 	void GameOver();	//게임 오버 시 실행
 	void update_hero_list();	//영웅 목록 업데이트
-	void create_boss(char* name, float hp, float def);
+	void create_boss(char* name, float hp, float def);	//보스 생성
+	void setID(char* name);
+	char* getID();
 
 	void onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response);	//http 연결
 	void get_db_data(char * data, int port);		//http에 data 전송
@@ -121,7 +123,7 @@ private:
 	float anc_height;	//앵커포인트의 이동할 수 있는 최대 높이
 	float anc_width;	//최대 넓이
 	float monster_hp_def[2];	//현재 몬스터의 hp, def
-	char id[64];
+	char id[32];		//유저의 id
 	int upgrade_count[6];		//등급 업그레이드 정도
 
 	cocos2d::Point touch_point;	//시작 터치지점

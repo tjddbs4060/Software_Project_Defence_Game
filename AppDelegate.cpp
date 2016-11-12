@@ -3,6 +3,7 @@
 #include "LoginScene.h"
 #include "TitleScene.h"
 #include "CreateUser.h"
+#include "RoomList.h"
 
 USING_NS_CC;
 
@@ -83,6 +84,7 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	auto scene = LoginScene::scene();
 	//auto scene = TitleScene::scene();
 	//auto scene = CreateUser::scene();
+	//auto scene = RoomList::scene("asdf");
     // run
     director->runWithScene(scene);
 	/////////////////////

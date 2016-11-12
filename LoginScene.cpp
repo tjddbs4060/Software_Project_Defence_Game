@@ -1,5 +1,7 @@
 #include "LoginScene.h"
 
+#pragma execution_character_set("UTF-8")
+
 USING_NS_CC;
 
 Scene* LoginScene::scene()
@@ -132,7 +134,6 @@ void LoginScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 {
 	std::vector<char> * buffer = response->getResponseData();
 
-	Use_String * use_string = new Use_String();
 	char szFile[128] = { 0, };
 	char temp[128] = { 0, };
 	char * compare;
@@ -147,10 +148,13 @@ void LoginScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 
 	if (!strcmp(compare, "success"))
 	{
+		strtok(szFile, "/");
+		char * id = strtok(NULL, "/");
+
 		_eventDispatcher->autorelease();
 		_eventDispatcher->removeAllEventListeners();
 
-		Director::getInstance()->replaceScene(TitleScene::scene());
+		Director::getInstance()->replaceScene(TitleScene::scene(id));
 	}
 	else if (!strcmp(compare, "fail_login"))
 	{
@@ -170,7 +174,6 @@ void LoginScene::onMenu(cocos2d::Object* sender)
 		sprintf(szFile, "login/%s/%s", textfield_id->getString().data(), textfield_pw->getString().data());
 		
 		get_db_data(szFile, 3000);
-
 		break;
 	case TAG_MEMBER:
 		_eventDispatcher->autorelease();
