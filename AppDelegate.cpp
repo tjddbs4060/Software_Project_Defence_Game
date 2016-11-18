@@ -80,8 +80,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // create a scene. it's an autorelease object
 	/////////////////////
     //여기 밑 수정함
-	//auto scene = Game::scene();
-	auto scene = LoginScene::scene();
+	auto scene = Game::scene("asdf");
+	//auto scene = LoginScene::scene();
 	//auto scene = TitleScene::scene();
 	//auto scene = CreateUser::scene();
 	//auto scene = RoomList::scene("asdf");

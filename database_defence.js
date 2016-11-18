@@ -43,46 +43,6 @@ server.on('request', function(req, res){
             res.end('monster/'+row[0].hp+'/'+row[0].def);
           });
         }
-        else if (data[0] == 'create_room') {
-          var sql = 'insert into room_list (id, person, level) values (?, 1, ?)';
-
-          connection.query(sql, [data[1], data[2]], function(err1, row1, fields1) {
-            sql = 'select num, id from room_list where id = ?';
-
-            connection.query(sql, [data[1]], function(err2, row2, fields2) {
-              sql = 'insert into room_info (num, id, person_num) values (?, ?, 1)';
-
-              connection.query(sql, [row2[0].num, row2[0].id], function() {
-                console.log('success create_room');
-                res.end('');
-              });
-            });
-          });
-        }
-        else if (data[0] == 'add_monster') {
-          var sql = 'insert into room_monster values (?, ?, ?, ?)';
-
-          connection.query(sql, [data[1], data[2], data[3], data[4]], function() {
-            console.log('success add_monster');
-            res.end('');
-          });
-        }
-        else if (data[0] == 'delete_monster') {
-          var sql = 'delete from room_monster where num = ?';
-
-          connection.query(sql, [data[1]], function() {
-            console.log('success delete_monster');
-            res.end('');
-          })
-        }
-        else if (data[0] == 'add_unit') {
-          var sql = 'insert into room_unit values (?, ?, ?, false, ?)';
-
-          connection.query(sql, [data[1], data[2], data[3], data[4]], function() {
-            console.log('success add_unit');
-            res.end('');
-          });
-        }
         else if (data[0] == 'time') {
           var sql = 'update room_list set time = ? where id = ?';
 
@@ -293,6 +253,49 @@ server.on('request', function(req, res){
               console.log('not ready Game');
               res.end('empty_room');
             }
+          });
+        }
+        else if (data[0] == 'update_monster') {
+          var sql = 'update room_info set all_monster = ? where id = ?';
+
+
+          connection.query(sql, [data[1], data[2]], function() {});
+
+          sql = 'select * from room_info where id = ?';
+
+          connection.query(sql, [data[2]], function(err1, row1, fields1) {
+            sql = 'select count(*) as c from room_info where num = ? and id != ?';
+
+            connection.query(sql, [row1[0].num, data[2]], function(err2, row2, fields2) {
+              sql = 'select * from room_info where num = ? and id != ?';
+
+              connection.query(sql, [row1[0].num, data[2]], function(err3, row3, fields3) {
+                var i = 0;
+                var send = 'friend/' + row2[0].c;
+
+                for (i = 0; i < row2[0].c; i++) {
+                  send += '/';
+                  send += row3[i].id;
+                  send += '/';
+                  send += row3[i].all_monster;
+                }
+
+                console.log('update monster');
+                res.end(send);
+              });
+            });
+          });
+        }
+        else if (data[0] == 'atk_boss') {
+          var sql = 'select * from room_info where id = ?';
+
+          connection.query(sql, [data[2]], function(err, row, fields) {
+            var sql = 'update boss_room set hp = hp - ? where num = ?';
+
+            connection.query(sql, [data[1], row[0].num], function(){});
+
+            console.log('atk_boss');
+            res.end('');
           });
         }
         else {

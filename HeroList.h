@@ -24,7 +24,8 @@ public:
 	void setType(char* name);
 	void setAtk(int damage);
 	void setCount(int num);
-
+	void setLocation(int num);
+	
 	cocos2d::Sprite* getHero();
 	cocos2d::Sprite* getMap();
 	cocos2d::Sprite* getBoss();
@@ -32,6 +33,7 @@ public:
 	char* getType();
 	int getCount();
 	int getAtk();
+	int getLocation();
 	
 	void init(int size);
 	void release();
@@ -44,6 +46,7 @@ private:
 	char type[2];
 	int count;
 	int atk;
+	int location;
 };
 
 #endif

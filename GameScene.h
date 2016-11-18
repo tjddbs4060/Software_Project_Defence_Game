@@ -80,8 +80,12 @@ private:
 	void unitRemover(Node* sender);		//유닛 삭제
 	void allstop_motion(Node* sender);	//모션 멈춤
 	void labelRemover(Node* sender);	//라벨 제거
-	void removeChild_background(Node* sender);	//맵에서 제거 후 보스방 addChild
-	void removeChild_boss_background(Node* sender);	//보스방에서 제거 후 맵 addChild
+	void removeChild_background_boss(Node* sender);	//맵에서 제거 후 보스방
+	void removeChild_background_help(Node* sender);		//맵에서 제거 후 도움 
+	void removeChild_boss_help(Node* sender);	//보스 -> 도움
+	void removeChild_boss_background(Node* sender);	//보스방에서 제거 후 맵
+	void removeChild_help_background(Node* sender);		//도움 -> 맵
+	void removeChild_help_boss(Node* sender);	//도움 -> 보스
 	
 	cocos2d::Point map_out_check(cocos2d::Point point);	//맵을 벗어나는지 확인
 	void touch_unit_check();	//유닛을 클릭했는지 여부
@@ -109,6 +113,7 @@ private:
 	bool touch_capsule;		//뽑기 터치 여부
 	bool touch_hero;		//히어로 메뉴 터치 여부
 	bool touch_boss;		//보스 메뉴 터치 여부
+	bool touch_friend;	//플레이어 메뉴 터치 여부
 	bool hero_menu_move;	//히어로 메뉴 스크롤 여부
 	bool Game_Start;	//게임 시작 여부
 	bool touch_unit;	//유닛을 터치하였는지 여부
@@ -125,6 +130,8 @@ private:
 	float monster_hp_def[2];	//현재 몬스터의 hp, def
 	char id[32];		//유저의 id
 	int upgrade_count[6];		//등급 업그레이드 정도
+	int boss_damage;		//보스에게 누적된 데미지
+	int help_user_select;	//도움 줄 유저
 
 	cocos2d::Point touch_point;	//시작 터치지점
 

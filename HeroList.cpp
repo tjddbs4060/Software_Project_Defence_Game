@@ -160,3 +160,13 @@ int HeroList::getCount()
 {
 	return count;
 }
+
+void HeroList::setLocation(int num)
+{
+	location = num;
+}
+
+int HeroList::getLocation()
+{
+	return location;
+}
