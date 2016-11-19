@@ -10,9 +10,12 @@ HeroList::~HeroList()
 {
 }
 
-void HeroList::setHero(Sprite* sprite)
+void HeroList::setHero(char* name)
 {
-	hero = Sprite::createWithSpriteFrame(sprite->getSpriteFrame());
+	char szFile[64] = { 0, };
+
+	sprintf(szFile, "%s.png", name);
+	hero = Sprite::createWithSpriteFrameName(szFile);
 }
 
 void HeroList::setMap(char* name)

@@ -17,7 +17,7 @@ public:
 	HeroList();
 	virtual ~HeroList();
 
-	void setHero(cocos2d::Sprite* sprite);
+	void setHero(char* name);
 	void setMap(char* name);
 	void setBoss(char* name);
 	void setHelp(char* name);

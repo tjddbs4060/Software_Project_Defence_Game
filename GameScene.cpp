@@ -481,16 +481,21 @@ void Game::unitRemover(Node* sender)
 	}
 }
 
-void Game::addunit(char* sprite_name, char* name, char* type, int number, float speed, float range, float damage)
+void Game::addunit(char* sprite_name, char* name, char* type, int number, float speed, float range, float damage, bool help = false)
 {
 	Size winSize = Director::getInstance()->getWinSize();
 	char szFile[64] = { 0, };
 
-	addlabel(name, 0, 0);
-
 	Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
 	float xpos = pt.x / 2;
 	float ypos = pt.y / 2;
+
+	if (help == true)
+	{
+		xpos = pt.x * 0.2;
+		ypos = pt.y * 0.8;
+	}
+
 	Unit* unit = new Unit();
 
 	//name을 이용한 이미지
@@ -1403,6 +1408,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				break;
 
 			heroList = (HeroList*)*iterHero;
+			char szFile[32] = { 0, };
 			//1 : 내맵 - 2 : 보스룸 - 3 : 보낸거
 
 			if (heroList->getHero()->boundingBox().containsPoint(touches[0]->getLocation() - pt - Point(155, 0)))	//BOSS
@@ -1437,7 +1443,10 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				}
 				else if (heroList->getLocation() == 3)
 				{
-					//도움 보낸거에서 보스방 -> get_db_data 사용하여 도움 보낸거에서 제거
+					sprintf(szFile, "bring_help/%s/%d/%s", heroList->getType(), heroList->getCount(), getID());
+
+					get_db_data(szFile, DEFENCEJS);
+
 					for (std::vector<Unit*>::iterator iterUnit = arr_help_send_unit.begin(); iterUnit != arr_help_send_unit.end(); iterUnit++)
 					{
 						unit = (Unit*)*iterUnit;
@@ -1493,7 +1502,10 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				}
 				else if (heroList->getLocation() == 3)
 				{
-					//도움 보낸거에서 나의 맵 -> get_db_data 이용하여 보낸거 제거
+					sprintf(szFile, "bring_help/%s/%d/%s", heroList->getType(), heroList->getCount(), getID());
+
+					get_db_data(szFile, DEFENCEJS);
+
 					for (std::vector<Unit*>::iterator iterUnit = arr_help_send_unit.begin(); iterUnit != arr_help_send_unit.end(); iterUnit++)
 					{
 						unit = (Unit*)*iterUnit;
@@ -1519,23 +1531,25 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			}
 			else if (heroList->getHero()->boundingBox().containsPoint(touches[0]->getLocation() - pt - Point(190, 0)))		//HELP
 			{
+				if (help_user_select == 0)
+					break;
+
 				if (heroList->getLocation() == 1)
 				{
-					//나의 맵에서 도움 보낸거 -> 도움 보낸거 추가
+					sprintf(szFile, "give_help/%s/%d/%d/%s", heroList->getType(), heroList->getCount(), help_user_select, getID());
+
+					get_db_data(szFile, DEFENCEJS);
+
 					for (std::vector<Unit*>::iterator iterUnit = arr_unit.begin(); iterUnit != arr_unit.end(); iterUnit++)
 					{
 						unit = (Unit*)*iterUnit;
 
 						if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 						{
-							Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
-							
 							arr_unit.erase(iterUnit);
 							arr_help_send_unit.push_back(unit);
 
 							CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::removeChild_background_help, this));
-
-							unit->getBody()->setPosition(pt / 2);
 
 							unit->getBody()->runAction(callfunc);
 
@@ -1545,21 +1559,20 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 				}
 				else if (heroList->getLocation() == 2)
 				{
-					//보스방에서 도움 보낸거 -> 도움 보낸거 추가
+					sprintf(szFile, "give_help/%s/%d/%d/%s", heroList->getType(), heroList->getCount(), help_user_select, getID());
+
+					get_db_data(szFile, DEFENCEJS);
+
 					for (std::vector<Unit*>::iterator iterUnit = arr_boss_room_unit.begin(); iterUnit != arr_boss_room_unit.end(); iterUnit++)
 					{
 						unit = (Unit*)*iterUnit;
 
 						if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 						{
-							Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
-
 							arr_boss_room_unit.erase(iterUnit);
 							arr_help_send_unit.push_back(unit);
 
 							CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::removeChild_boss_help, this));
-
-							unit->getBody()->setPosition(pt / 2);
 
 							unit->getBody()->runAction(callfunc);
 
@@ -1676,6 +1689,8 @@ void Game::add_unit_queue(float dt)
 
 		addunit(sprite, name, type, atoi(count), atof(speed), atof(range), atof(damage));
 		
+		addlabel(name, 0, 0);
+
 		delete queue;
 		iterQueue = arr_unit_queue.erase(iterQueue);
 
@@ -1683,6 +1698,28 @@ void Game::add_unit_queue(float dt)
 			break;
 	}
 
+	for (std::vector<Use_String*>::iterator iterQueue = arr_unit_help_queue.begin(); iterQueue != arr_unit_help_queue.end(); iterQueue++)
+	{
+		queue = (Use_String*)*iterQueue;
+
+		char * rev = queue->getString();
+		strtok(rev, "/");
+		char * sprite = strtok(NULL, "/");
+		char * name = strtok(NULL, "/");
+		char * type = strtok(NULL, "/");
+		char * count = strtok(NULL, "/");
+		char * speed = strtok(NULL, "/");
+		char * range = strtok(NULL, "/");
+		char * damage = strtok(NULL, "/");
+
+		addunit(sprite, name, type, atoi(count), atof(speed), atof(range), atof(damage), true);
+
+		delete queue;
+		iterQueue = arr_unit_help_queue.erase(iterQueue);
+
+		if (iterQueue == arr_unit_help_queue.end())
+			break;
+	}
 	/*
 	//String *str = new String(queue->subString(queue->getFindChar('/', 1) + 1, queue->getFindChar('/', 2) - 1));
 
@@ -2318,6 +2355,11 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 		use_string->setString(szFile);
 		arr_unit_queue.push_back(use_string);
 	}
+	else if (!strcmp(compare, "help_hero"))
+	{
+		use_string->setString(szFile);
+		arr_unit_help_queue.push_back(use_string);
+	}
 	else if (!strcmp(compare, "monster"))
 	{
 		strtok(szFile, "/");
@@ -2399,6 +2441,35 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 		create_boss(name, atof(hp), atof(def));
 
 		addlabel(NULL, 0, 12);
+	}
+	else if (!strcmp(compare, "bring_count"))
+	{
+		strtok(szFile, "/");
+		char * bring_count = strtok(NULL, "/");
+		
+		if (atoi(bring_count) != arr_help_recv_unit.size())
+		{
+			sprintf(szFile, "update_help_unit/%s", getID());
+
+			get_db_data(szFile, DEFENCEJS);
+		}
+	}
+	else if (!strcmp(compare, "update_help_unit"))
+	{
+		//유닛 추가	-> type/count/...
+		//일정한 위치에 중복 생성
+		strtok(szFile, "/");
+		char * count = strtok(NULL, "/");
+		char * type = NULL;
+		char * hero_count = NULL;
+
+		for (int i = 0; i < atoi(count); i++)
+		{
+			type = strtok(NULL, "/");
+			hero_count = strtok(NULL, "/");
+
+			sprintf(compare, "help_hero/%s/%s", type, hero_count);
+		}
 	}
 	else if (!strcmp(compare, "friend"))
 	{
@@ -2486,6 +2557,9 @@ void Game::server_continue(float dt)
 	get_db_data(szFile, DEFENCEJS);
 
 	sprintf(szFile, "update_monster/%d/%s", inforBoard->getMonster(), getID());
+	get_db_data(szFile, DEFENCEJS);
+
+	sprintf(szFile, "check_help_unit/%s", getID());
 	get_db_data(szFile, DEFENCEJS);
 
 	if (boss_damage > 0)
@@ -2694,7 +2768,7 @@ void Game::update_hero_list()
 
 		heroList = new HeroList();
 
-		heroList->setHero(unit->getBody());
+		heroList->setHero(unit->getName());
 		heroList->setMap("in.png");
 		heroList->setBoss("null.png");
 		heroList->setHelp("null.png");
@@ -2718,7 +2792,7 @@ void Game::update_hero_list()
 
 		heroList = new HeroList();
 
-		heroList->setHero(unit->getBody());
+		heroList->setHero(unit->getName());
 		heroList->setMap("null.png");
 		heroList->setBoss("in.png");
 		heroList->setHelp("null.png");
@@ -2742,7 +2816,7 @@ void Game::update_hero_list()
 
 		heroList = new HeroList();
 
-		heroList->setHero(unit->getBody());
+		heroList->setHero(unit->getName());
 		heroList->setMap("null.png");
 		heroList->setBoss("null.png");
 		heroList->setHelp("in.png");
@@ -2832,12 +2906,14 @@ void Game::removeChild_background_boss(Node* sender)
 
 void Game::removeChild_background_help(Node* sender)
 {
-	getChildByTag(TAG_BACKGROUND)->removeChild(sender, false);
+	//getChildByTag(TAG_BACKGROUND)->removeChild(sender, false);
+	sender->setVisible(false);
 }
 
 void Game::removeChild_boss_help(Node* sender)
 {
-	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->removeChild(sender, false);
+	//getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->removeChild(sender, false);
+	sender->setVisible(false);
 }
 
 void Game::removeChild_boss_background(Node* sender)
@@ -2849,12 +2925,28 @@ void Game::removeChild_boss_background(Node* sender)
 
 void Game::removeChild_help_background(Node* sender)
 {
-	getChildByTag(TAG_BACKGROUND)->addChild(sender);
+	//getChildByTag(TAG_BACKGROUND)->addChild(sender);
+	if (sender->getParent()->getTag() != TAG_BACKGROUND)
+	{
+		getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->removeChild(sender, false);
+
+		getChildByTag(TAG_BACKGROUND)->addChild(sender);
+	}
+
+	sender->setVisible(true);
 }
 
 void Game::removeChild_help_boss(Node* sender)
 {
-	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->addChild(sender);
+	//getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->addChild(sender);
+	if (sender->getParent()->getTag() == TAG_BACKGROUND)
+	{
+		getChildByTag(TAG_BACKGROUND)->removeChild(sender, false);
+
+		getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->addChild(sender);
+	}
+
+	sender->setVisible(true);
 }
 
 void Game::setID(char* name)

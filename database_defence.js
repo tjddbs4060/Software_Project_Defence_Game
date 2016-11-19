@@ -36,6 +36,13 @@ server.on('request', function(req, res){
             res.end('hero/'+'/'+row[0].sprite+'/'+row[0].name+'/'+row[0].type+'/'+row[0].count+'/'+row[0].speed+'/'+row[0].atk_range+'/'+row[0].damage);
           });
         }
+        else if (data[0] == 'help_hero') {
+          var sql = 'select * from hero where type = ? and count = ?';
+
+          connection.query(sql, [data[1], data[2]], function(err, row, fields) {
+            res.end('help_hero/'+'/'+row[0].sprite+'/'+row[0].name+'/'+row[0].type+'/'+row[0].count+'/'+row[0].speed+'/'+row[0].atk_range+'/'+row[0].damage);
+          });
+        }
         else if(data[0] == 'monster') {
           var sql = 'select * from monster_info where stage = ?';
 
@@ -296,6 +303,74 @@ server.on('request', function(req, res){
 
             console.log('atk_boss');
             res.end('');
+          });
+        }
+        else if (data[0] == 'bring_help') {
+          var sql = 'select * from help_unit where type = ? and count = ? and orig_id = ?';
+
+          connection.query(sql, [data[1], data[2], data[3]], function(err, row, fields) {
+            sql = 'update help_unit set bring = true where pri = ?';
+
+            connection.query(sql, [row[0].pri], function() {});
+
+            console.log('success bring');
+            res.end('');
+          });
+        }
+        else if (data[0] == 'give_help') {
+          var sql = 'select * from room_info where id = ?';
+
+          connection.query(sql, [data[4]], function(err1, row1, fields1) {
+            sql = 'select * from room_info where num = ?';
+
+            connection.query(sql, [row1[0].num], function(err2, row2, fields2) {
+              sql = 'insert into help_unit (orig_id, give_id, type, count, bring) values (?, ?, ?, ?, false)';
+
+              connection.query(sql, [data[4], row2[data[3]].id, data[1], data[2]], function() {});
+
+              console.log('add give_help');
+              res.end('');
+            });
+          });
+        }
+        else if (data[0] == 'update_help_unit') {
+          var sql = 'select count(*) as c from help_unit where give_id = ? and bring = true';
+
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            if (row[0].c > 0) {
+              sql = 'delete from help_unit where give_id = ? and bring = true';
+
+              connection.query(sql, [data[1]], function() {});
+            }
+          });
+
+          sql = 'select count(*) as c from help_unit where give_id = ?';
+
+          connection.query(sql, [data[1]], function(err1, row1, fields1) {
+            sql = 'select * from help_unit where give_id = ?';
+
+            connection.query(sql, [data[1]], function(err2, row2, fields2) {
+              var i = 0;
+              var send = 'update_help_unit/'+row1[0].c;
+
+              for (i = 0; i < row1[0].c; i++) {
+                send += '/';
+                send += row2[i].type;
+                send += '/';
+                send += row2[i].count;
+              }
+
+              console.log('update help unit');
+              res.end(send);
+            });
+          });
+        }
+        else if (data[0] == 'check_help_unit') {
+          var sql = 'select count(*) as c from help_unit where give_id = ?';
+
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            console.log('check_help_unit count');
+            res.end('bring_count/'+row[0].c);
           });
         }
         else {
