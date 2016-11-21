@@ -4,6 +4,7 @@
 #include "TitleScene.h"
 #include "CreateUser.h"
 #include "RoomList.h"
+#include "GameOver.h"
 
 USING_NS_CC;
 
@@ -80,9 +81,10 @@ bool AppDelegate::applicationDidFinishLaunching() {
     // create a scene. it's an autorelease object
 	/////////////////////
     //여기 밑 수정함
-	auto scene = Game::scene("asdf");
+	//auto scene = Game::scene("asdf");
+	//auto scene = GameOver::scene("asdf");
 	//auto scene = LoginScene::scene();
-	//auto scene = TitleScene::scene();
+	auto scene = TitleScene::scene("asdf");
 	//auto scene = CreateUser::scene();
 	//auto scene = RoomList::scene("asdf");
     // run

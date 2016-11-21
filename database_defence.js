@@ -95,53 +95,35 @@ server.on('request', function(req, res){
           });
         }
         else if (data[0] == 'gameover') {
-          var sql = 'delte from room_monster where id = ?';
-          connection.query(sql, [data[1]], function(){});
-
-          sql = 'delete from room_unit where origin = ?';
-          connection.query(sql, [data[1]], function(){});
-
-          sql = 'delete from boss_room where id = ?';
-          connection.query(sql, [data[1]], function(){});
-
-          sql = 'delete from room_info where id = ?';
-          connection.query(sql, [data[1]], function(){});
-
-          sql = 'select * from room_info where id = ?';
-          connection.query(sql, [data[1]], function(err, row, fields) {
-            if (row[0].person_num == 1) {
-              sql = 'delete from room_list where id = ?';
-              connection.query(sql, [data[1]], function(){});
-            }
-          });
-
-          console.log('success delete ' + data[1]);
-          res.end('');
-        }
-        else if (data[0] == 'alive_boss') {
           var sql = 'select * from room_info where id = ?';
 
-          connection.query(sql, [data[1]], function(err, row, fields) {
-            var num = row[0].num;
+          connection.query(sql, [data[1]], function(err1, row1, fields1) {
+            sql = 'select * from room_info where num = ?';
 
-            sql = 'delete from boss_room where num = ?';
-            connection.query(sql, [num], function(){});
+            connection.query(sql, [row1[0].num], function(err2, row2, fields2) {
+              var i = 0;
+              sql = 'delete from help_unit where orig_id = ?';
 
-            sql = 'delete from room_info where num = ?';
-            connection.query(sql, [num], function(){});
+              for (i = 0; i < 4; i++) {
+                connection.query(sql, [row2[i].id], function() {});
+              }
+            });
 
             sql = 'delete from room_list where num = ?';
-            connection.query(sql, [num], function(){});
 
-            sql = 'delete from room_monster where num = ?';
-            connection.query(sql, [num], function(){});
+            connection.query(sql, [row1[0].num], function() {});
 
-            sql = 'delete from room_unit where num = ?';
-            connection.query(sql, [num], function(){});
+            sql = 'delete from boss_room where num = ?';
 
-            console.log('success delete boss');
-            res.end('');
+            connection.query(sql, [row1[0].num], function() {});
+
+            sql = 'delete from room_info where num = ?';
+
+            connection.query(sql, [row1[0].num], function() {});
           });
+
+          console.log('gameover');
+          res.end('');
         }
         else if (data[0] == 'create_boss') {
           var sql = 'select * from boss_info where num = ?';
@@ -371,6 +353,32 @@ server.on('request', function(req, res){
           connection.query(sql, [data[1]], function(err, row, fields) {
             console.log('check_help_unit count');
             res.end('bring_count/'+row[0].c);
+          });
+        }
+        else if (data[0] == 'skip') {
+          var sql = 'update room_info set skip = ? where id = ?';
+
+          connection.query(sql, [data[1], data[2]], function() {});
+
+          console.log('skip_change');
+          res.end('');
+        }
+        else if (data[0] == 'skip_check') {
+          var sql = 'select * from room_list where id = ?';
+
+          connection.query(sql, [data[1]], function(err1, row1, fields1) {
+            sql = 'select count(*) as c from room_info where num = ? and skip = true';
+
+            connection.query(sql, [row1[0].num], function(err2, row2, fields2) {
+              if (row2[0].c == 4) {
+                console.log('success skip');
+                res.end('skip');
+              }
+              else {
+                console.log('not all skip');
+                res.end('');
+              }
+            });
           });
         }
         else {

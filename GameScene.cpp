@@ -619,6 +619,50 @@ void Game::unit_atk_monster(float dt)
 			}
 		}
 	}
+
+	for (std::vector<Unit*>::iterator iterUnit = arr_help_recv_unit.begin(); iterUnit != arr_help_recv_unit.end(); iterUnit++)
+	{
+		unit = (Unit*)*iterUnit;
+
+		for (std::vector<Monster*>::iterator iterMonster = arr_monster.begin(); iterMonster != arr_monster.end(); iterMonster++)
+		{
+			monster = (Monster*)*iterMonster;
+
+			if (calDistance(unit->getBody()->getPosition(), monster->getBody()->getPosition()) <= unit->getRange())
+			{
+				if (unit->getMaxSpeed() <= unit->getCurSpeed())
+				{
+					if (unit->getBody()->getPositionX() - monster->getBody()->getPositionX() > 0)
+						right = false;
+					else right = true;
+
+					unit->setCurSpeed(0);
+					unit_atk_motion(unit, right);
+					addattack(monster);
+					//addattack(unit->getBody()->getPosition(), monster->getBody()->getPosition(), unit);
+
+					if (0 >= monster->subEnergy(unit->getDamage()))
+					{
+						char szFile[64] = { 0, };
+
+						//delete_monster 부분
+
+						addmonster_death(monster->getBody()->getPosition());
+						monster->release();
+						delete monster;
+						iterMonster = arr_monster.erase(iterMonster);
+
+						inforBoard->setMonster(inforBoard->getMonster() - 1);
+
+						if (iterMonster == arr_monster.end())
+							break;
+					}
+					else
+						break;
+				}
+			}
+		}
+	}
 }
 
 void Game::unit_atk_cooltime(float dt)
@@ -1977,6 +2021,7 @@ void Game::monster_location_init(Sprite* sprite)
 
 void Game::zorder_assort(float dt)
 {
+	char szFile[32] = { 0, };
 	Unit* unit = NULL;
 	Monster* monster = NULL;
 
@@ -2041,9 +2086,6 @@ void Game::zorder_assort(float dt)
 	{
 		unschedule(schedule_selector(Game::addmonster));
 		summon_monster = 11;
-
-		if (skip == true)
-			inforBoard->setTime(1);
 	}
 
 	if (inforBoard->getSoul() <= 0)
@@ -2107,7 +2149,7 @@ void Game::screen_out()
 
 void Game::onMenu(Object* sender)
 {
-	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+	char szFile[32] = { 0, };
 
 	switch (((Node*)sender)->getTag())
 	{
@@ -2133,13 +2175,20 @@ void Game::onMenu(Object* sender)
 			skip = true;
 			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SKIP)->getChildByTag(TAG_MENU_SKIP_BACK)->setVisible(true);
 			
-			if (inforBoard->getTime() < 50 && inforBoard->getTime() > 1)
+			sprintf(szFile, "skip/true/%s", getID());
+			get_db_data(szFile, DEFENCEJS);
+			/*
+			if (inforBoard->getTime() < 51 && inforBoard->getTime() > 1)
 				inforBoard->setTime(1);
+			*/
 		}
 		else
 		{
 			skip = false;
 			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SKIP)->getChildByTag(TAG_MENU_SKIP_BACK)->setVisible(false);
+
+			sprintf(szFile, "skip/false/%s", getID());
+			get_db_data(szFile, DEFENCEJS);
 		}
 
 		break;
@@ -2471,6 +2520,12 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 			sprintf(compare, "help_hero/%s/%s", type, hero_count);
 		}
 	}
+	else if (!strcmp(compare, "skip"))
+	{
+		InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+
+		inforBoard->setTime(1);
+	}
 	else if (!strcmp(compare, "friend"))
 	{
 		CCTextFieldTTF * name = NULL;
@@ -2568,6 +2623,12 @@ void Game::server_continue(float dt)
 		get_db_data(szFile, DEFENCEJS);
 
 		boss_damage = 0;
+	}
+
+	if (skip == true)
+	{
+		sprintf(szFile, "skip_check/%s", getID());
+		get_db_data(szFile, DEFENCEJS);
 	}
 }
 
@@ -2705,16 +2766,14 @@ void Game::GameOver()
 	for (std::vector<Sprite*>::iterator iter = arr_location.begin(); iter != arr_location.end(); iter++)
 	{
 		arr = (Sprite*)*iter;
-		arr->release();
-		delete arr;
+		arr->removeFromParentAndCleanup(true);
 	}
 	arr_location.clear();
 
 	for (std::vector<Sprite*>::iterator iter = arr_label.begin(); iter != arr_label.end(); iter++)
 	{
 		arr = (Sprite*)*iter;
-		arr->release();
-		delete arr;
+		arr->removeFromParentAndCleanup(true);
 	}
 	arr_label.clear();
 
@@ -2741,7 +2800,14 @@ void Game::GameOver()
 	sprintf(szFile, "gameover/%s", getID());
 
 	get_db_data(szFile, DEFENCEJS);
-	//게임오버 연출
+	//게임오버 연출로 변경
+
+	_eventDispatcher->autorelease();
+	_eventDispatcher->removeAllEventListeners();
+
+	Scene* gameover = GameOver::scene(getID());
+	TransitionScene* transition = TransitionFade::create(1.5f, gameover);
+	Director::getInstance()->replaceScene(transition);
 }
 
 void Game::update_hero_list()
@@ -2861,6 +2927,8 @@ void Game::create_boss(char* name, float hp, float def)
 
 void Game::atk_boss(float dt)
 {
+	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
+
 	Unit* unit = NULL;
 	bool right;
 	char szFile[32] = { 0, };
@@ -2886,6 +2954,8 @@ void Game::atk_boss(float dt)
 			if (0 >= boss->subEnergy(unit->getDamage()))
 			{
 				alive_boss = false;
+
+				inforBoard->setGold(inforBoard->getGold() + (boss_stage * 300));
 
 				boss->release();
 				delete boss;

@@ -15,6 +15,7 @@
 #include "CapsuleBoard.h"
 #include "HeroBoard.h"
 #include "HeroList.h"
+#include "GameOver.h"
 
 #include <string>
 #include <vector>

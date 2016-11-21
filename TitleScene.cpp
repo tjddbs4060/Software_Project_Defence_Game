@@ -69,9 +69,15 @@ void TitleScene::onMenu(cocos2d::Object* sender)
 	{
 	case TAG_TITLE_MENU_SINGLE:
 		//게임화면 연출
+		_eventDispatcher->autorelease();
+		_eventDispatcher->removeAllEventListeners();
+
 		sprintf(szFile, "single/%s", getID());
 
 		get_db_data(szFile, 3000);
+
+		//싱글 플레이어로
+		Director::getInstance()->replaceScene(Game::scene(getID()));
 		break;
 	case TAG_TITLE_MENU_MULTI:
 		_eventDispatcher->autorelease();
