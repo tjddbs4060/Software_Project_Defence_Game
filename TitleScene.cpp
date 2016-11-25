@@ -77,7 +77,7 @@ void TitleScene::onMenu(cocos2d::Object* sender)
 		get_db_data(szFile, 3000);
 
 		//싱글 플레이어로
-		Director::getInstance()->replaceScene(Game::scene(getID()));
+		Director::getInstance()->replaceScene(SingleGame::scene(getID()));
 		break;
 	case TAG_TITLE_MENU_MULTI:
 		_eventDispatcher->autorelease();
@@ -137,16 +137,4 @@ void TitleScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 
 	strcpy(temp, szFile);
 	compare = strtok(temp, "/");
-
-	if (!strcmp(compare, "success"))
-	{
-		_eventDispatcher->autorelease();
-		_eventDispatcher->removeAllEventListeners();
-
-		Director::getInstance()->replaceScene(Game::scene(getID()));
-	}
-	else if (!strcmp(compare, "fail_single"))
-	{
-		//오류
-	}
 }

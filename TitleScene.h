@@ -5,6 +5,7 @@
 #include "Order.h"
 #include "GameScene.h"
 #include "RoomList.h"
+#include "SingleGameScene.h"
 
 #include "network/HttpClient.h"
 #include "network/HttpConnection-winrt.h"

@@ -101,22 +101,24 @@ server.on('request', function(req, res){
             sql = 'select * from room_info where num = ?';
 
             connection.query(sql, [row1[0].num], function(err2, row2, fields2) {
-              var i = 0;
-              sql = 'delete from help_unit where orig_id = ?';
+              sql = 'select count(*) as c from room_info where num = ?';
 
-              for (i = 0; i < 4; i++) {
-                connection.query(sql, [row2[i].id], function() {});
-              }
+              connection.query(sql, [row1[0].num], function(err3, row3, fields3) {
+                var i = 0;
+
+                sql = 'delete from help_unit where orig_id = ?';
+
+                for (i = 0; i < row2[0].c; i++) {
+                  connection.query(sql, [row3[i].id], function() {});
+                }
+              });
             });
-
             sql = 'delete from room_list where num = ?';
 
             connection.query(sql, [row1[0].num], function() {});
-
             sql = 'delete from boss_room where num = ?';
 
             connection.query(sql, [row1[0].num], function() {});
-
             sql = 'delete from room_info where num = ?';
 
             connection.query(sql, [row1[0].num], function() {});
@@ -183,17 +185,17 @@ server.on('request', function(req, res){
         else if (data[0] == 'single') {
           var sql = 'insert into room_list(id, person, start, level) values (?, 1, 1, "easy")';
 
-          connection.query(sql, [data[1]], function() {
-            sql = 'select * from room_list where id = ?';
+          connection.query(sql, [data[1]], function() {});
 
-            connection.query(sql, [data[1]], function(err, row, fields) {
-              sql = 'insert into room_info values(?, ?, 1, 0, 1)';
+          sql = 'select * from room_list where id = ?';
 
-              connection.query(sql, [row[0].num, data[1]], function(){});
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            sql = 'insert into room_info values(?, ?, 1, 0, 1, 0)';
 
-              console.log('success single');
-              res.end('success');
-            });
+            connection.query(sql, [row[0].num, data[1]], function(){});
+
+            console.log('success single');
+            res.end('success');
           });
         }
         else if (data[0] == 'join_room') {
@@ -208,7 +210,7 @@ server.on('request', function(req, res){
               sql = 'select * from room_list where id = ?';
 
               connection.query(sql, [data[1]], function(err2, row2, fields2) {
-                sql = 'insert into room_info values (?, ?, 1, 0, 1)';
+                sql = 'insert into room_info values (?, ?, 1, 0, 1, 0)';
 
                 connection.query(sql, [row2[0].num, data[1]], function() {});
 
@@ -221,7 +223,7 @@ server.on('request', function(req, res){
 
               connection.query(sql, [row1[0].num], function() {});
 
-              sql = 'insert into room_info values(?, ?, ?, 0, 1)';
+              sql = 'insert into room_info values(?, ?, ?, 0, 1, 0)';
 
               connection.query(sql, [row1[0].num, data[1], row1[0].person + 1], function() {});
 
