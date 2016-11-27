@@ -5,6 +5,7 @@
 #include "CreateUser.h"
 #include "RoomList.h"
 #include "GameOver.h"
+#include "ClientGameScene.h"
 
 USING_NS_CC;
 
@@ -84,7 +85,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
 	//auto scene = Game::scene("asdf");
 	//auto scene = GameOver::scene("asdf");
 	//auto scene = LoginScene::scene();
-	auto scene = TitleScene::scene("asdf");
+	//auto scene = TitleScene::scene("asdf");
+	auto scene = Client::scene("asdf");
 	//auto scene = CreateUser::scene();
 	//auto scene = RoomList::scene("asdf");
     // run

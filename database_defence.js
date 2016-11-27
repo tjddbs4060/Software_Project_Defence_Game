@@ -127,6 +127,14 @@ server.on('request', function(req, res){
           console.log('gameover');
           res.end('');
         }
+        else if (data[0] == 'gettime') {
+          var sql = 'select l from room_info as i, room_list as l where i.id = ? and i.num = l.num';
+
+          connection.query(sql, [data[1]], function(err, row, fields) {
+            console.log('success client time');
+            res.end('time/'+row[0].time+'/'+row[0].stage);
+          });
+        }
         else if (data[0] == 'create_boss') {
           var sql = 'select * from boss_info where num = ?';
 
