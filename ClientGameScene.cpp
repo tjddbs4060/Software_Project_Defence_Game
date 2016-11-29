@@ -2488,6 +2488,13 @@ void Client::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos
 
 		addlabel(NULL, 0, 12);
 	}
+	else if (!strcmp(compare, "alive_boss"))
+	{
+		strtok(szFile, "/");
+		char * hp = strtok(NULL, "/");
+
+		boss->setBoss(atof(hp));
+	}
 	else if (!strcmp(compare, "time"))
 	{
 		InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
@@ -2630,6 +2637,12 @@ void Client::server_continue(float dt)
 		get_db_data(szFile, DEFENCEJS);
 
 		boss_damage = 0;
+	}
+
+	if (alive_boss == true)
+	{
+		sprintf(szFile, "alive_boss/%s", getID());
+		get_db_data(szFile, DEFENCEJS);
 	}
 	/*
 	if (skip == true)

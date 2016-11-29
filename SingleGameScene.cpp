@@ -2180,7 +2180,7 @@ void SingleGame::server_continue(float dt)
 
 	sprintf(szFile, "check_help_unit/%s", getID());
 	get_db_data(szFile, DEFENCEJS);
-
+	
 	if (boss_damage > 0)
 	{
 		sprintf(szFile, "atk_boss/%d/%s", boss_damage, getID());

@@ -24,6 +24,13 @@ void Monster::setEnergy(float max)
 	maxEnergy = curEnergy = max;
 }
 
+void Monster::setBoss(float energy)
+{
+	curEnergy = energy;
+
+	subEnergy(0);
+}
+
 void Monster::setDefence(float def)
 {
 	defence = def;

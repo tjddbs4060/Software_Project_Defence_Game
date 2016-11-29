@@ -128,7 +128,7 @@ server.on('request', function(req, res){
           res.end('');
         }
         else if (data[0] == 'gettime') {
-          var sql = 'select l from room_info as i, room_list as l where i.id = ? and i.num = l.num';
+          var sql = 'select l.* from room_info as i, room_list as l where i.id = ? and i.num = l.num';
 
           connection.query(sql, [data[1]], function(err, row, fields) {
             console.log('success client time');
@@ -155,8 +155,18 @@ server.on('request', function(req, res){
             });
           });
         }
-        else if (data[0] == 'damage_boss') {
+        else if (data[0] == 'atk_boss') {
           //보스 데미지 계산 & lock 설정...
+          var sql = 'update room_info as r, boss_room as b set hp = hp - ? where r.id = ? and r.num = b.num';
+
+          connection.query(sql, [data[1], data[2]], function() {});
+
+          sql = 'select b.* from room_info as r, boss_room as b where r.id = ? and r.num = b.num';
+
+          connection.query(sql, [data[2]], function(err, row, fields) {
+            console.log('send boss hp');
+            res.end('alive_boss/'+row[0].hp);
+          });
         }
         else if (data[0] == 'member') {
           var sql = 'select count(*) as c from user_info where id = ?';

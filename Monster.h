@@ -14,6 +14,7 @@ public:
 	void setBody(char* name);
 	void setDefence(float def);
 	void setNum(int index);
+	void setBoss(float energy);
 	float getEnergy();
 	float getDefence();
 	int getNum();

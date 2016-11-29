@@ -2526,6 +2526,13 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 
 		inforBoard->setTime(1);
 	}
+	else if (!strcmp(compare, "alive_boss"))
+	{
+		strtok(szFile, "/");
+		char * hp = strtok(NULL, "/");
+
+		boss->setBoss(atof(hp));
+	}
 	else if (!strcmp(compare, "friend"))
 	{
 		CCTextFieldTTF * name = NULL;
@@ -2623,6 +2630,12 @@ void Game::server_continue(float dt)
 		get_db_data(szFile, DEFENCEJS);
 
 		boss_damage = 0;
+	}
+
+	if (alive_boss == true)
+	{
+		sprintf(szFile, "alive_boss/%s", getID());
+		get_db_data(szFile, DEFENCEJS);
 	}
 
 	if (skip == true)
