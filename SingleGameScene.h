@@ -71,7 +71,6 @@ private:
 	void zorder_assort(float dt);		//zorder 정렬
 	void screen_out();		//화면 벗어남 확인
 	void add_unit_queue(float dt);	//유닛 생성 큐(큐에 들어오면 바로 생성)
-	void server_continue(float dt);	//서버와 통신
 	void unit_atk_monster(float dt);	//유닛으로부터 몬스터 공격
 	void unit_atk_cooltime(float dt);	//유닛의 공격 가능 여부
 	void atk_boss(float dt);		//보스 공격
@@ -82,11 +81,7 @@ private:
 	void allstop_motion(Node* sender);	//모션 멈춤
 	void labelRemover(Node* sender);	//라벨 제거
 	void removeChild_background_boss(Node* sender);	//맵에서 제거 후 보스방
-	void removeChild_background_help(Node* sender);		//맵에서 제거 후 도움 
-	void removeChild_boss_help(Node* sender);	//보스 -> 도움
 	void removeChild_boss_background(Node* sender);	//보스방에서 제거 후 맵
-	void removeChild_help_background(Node* sender);		//도움 -> 맵
-	void removeChild_help_boss(Node* sender);	//도움 -> 보스
 
 	cocos2d::Point map_out_check(cocos2d::Point point);	//맵을 벗어나는지 확인
 	void touch_unit_check();	//유닛을 클릭했는지 여부
@@ -128,7 +123,6 @@ private:
 	float monster_hp_def[2];	//현재 몬스터의 hp, def
 	char id[32];		//유저의 id
 	int upgrade_count[6];		//등급 업그레이드 정도
-	int boss_damage;		//보스에게 누적된 데미지
 
 	cocos2d::Point touch_point;	//시작 터치지점
 

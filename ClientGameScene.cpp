@@ -298,6 +298,7 @@ void Client::addmonster(float dt)
 	if (inforBoard->getStage() > 100)
 	{
 		//GameClear();
+		GameOver();
 
 		return;
 	}
@@ -2626,7 +2627,7 @@ void Client::get_db_data(char * data, int port)
 	__String * dataToSend = __String::create(data);
 	char szFile[32] = { 0, };
 
-	sprintf(szFile, "localhost:%d", port);
+	sprintf(szFile, "http://192.168.219.102:%d", port);
 
 	cocos2d::network::HttpRequest * request = new cocos2d::network::HttpRequest();
 	request->setUrl(szFile);

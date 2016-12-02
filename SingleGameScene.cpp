@@ -5,7 +5,7 @@
 USING_NS_CC;
 
 SingleGame::SingleGame() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false), touch_hero(false), touch_boss(false), hero_menu_move(false)
-, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), alive_boss(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), boss_stage(0), monster_index(0), boss_damage(0)
+, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), alive_boss(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), boss_stage(0), monster_index(0)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
@@ -183,7 +183,6 @@ bool SingleGame::init()
 	schedule(schedule_selector(SingleGame::unit_atk_cooltime));
 	schedule(schedule_selector(SingleGame::unit_atk_monster));
 	schedule(schedule_selector(SingleGame::add_unit_queue));
-	schedule(schedule_selector(SingleGame::server_continue), 0.9f);
 	schedule(schedule_selector(SingleGame::atk_boss));
 
 	auto listener = EventListenerTouchAllAtOnce::create();
@@ -214,6 +213,7 @@ void SingleGame::addmonster(float dt)
 	if (inforBoard->getStage() > 100)
 	{
 		//GameClear();
+		GameOver();
 
 		return;
 	}
@@ -2155,7 +2155,7 @@ void SingleGame::get_db_data(char * data, int port)
 	__String * dataToSend = __String::create(data);
 	char szFile[32] = { 0, };
 
-	sprintf(szFile, "localhost:%d", port);
+	sprintf(szFile, "http://192.168.219.102:%d", port);
 
 	cocos2d::network::HttpRequest * request = new cocos2d::network::HttpRequest();
 	request->setUrl(szFile);
@@ -2164,36 +2164,6 @@ void SingleGame::get_db_data(char * data, int port)
 	request->setResponseCallback(CC_CALLBACK_2(SingleGame::onHttpRequestCompleted, this));
 	cocos2d::network::HttpClient::getInstance()->send(request);
 	request->release();
-}
-
-void SingleGame::server_continue(float dt)
-{
-	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
-
-	char szFile[64] = { 0, };
-
-	sprintf(szFile, "time/%.2f/%s", inforBoard->getTime(), getID());
-	get_db_data(szFile, DEFENCEJS);
-
-	sprintf(szFile, "update_monster/%d/%s", inforBoard->getMonster(), getID());
-	get_db_data(szFile, DEFENCEJS);
-
-	sprintf(szFile, "check_help_unit/%s", getID());
-	get_db_data(szFile, DEFENCEJS);
-	
-	if (boss_damage > 0)
-	{
-		sprintf(szFile, "atk_boss/%d/%s", boss_damage, getID());
-		get_db_data(szFile, DEFENCEJS);
-
-		boss_damage = 0;
-	}
-
-	if (skip == true)
-	{
-		sprintf(szFile, "skip_check/%s", getID());
-		get_db_data(szFile, DEFENCEJS);
-	}
 }
 
 void SingleGame::upgrade_update(char* up)
@@ -2270,7 +2240,6 @@ void SingleGame::GameOver()
 	unschedule(schedule_selector(SingleGame::unit_atk_cooltime));
 	unschedule(schedule_selector(SingleGame::unit_atk_monster));
 	unschedule(schedule_selector(SingleGame::add_unit_queue));
-	unschedule(schedule_selector(SingleGame::server_continue));
 
 	Monster* monster = NULL;
 
@@ -2474,7 +2443,6 @@ void SingleGame::atk_boss(float dt)
 			unit_atk_motion(unit, right);
 			addattack(boss);
 			//보스한테 데미지 주기(get_db_data) & lock 설정 
-			boss_damage += unit->getDamage();
 
 			if (0 >= boss->subEnergy(unit->getDamage()))
 			{
