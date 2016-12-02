@@ -171,7 +171,7 @@ void RoomList::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, coc
 		if (atoi(num) == 1)
 			Director::getInstance()->replaceScene(Game::scene(getID()));	//방장
 		else
-			Director::getInstance()->replaceScene(Game::scene(getID()));	//일반
+			Director::getInstance()->replaceScene(Client::scene(getID()));	//일반
 	}
 	else if (!strcmp(compare, "empty_room"))
 	{
@@ -185,5 +185,5 @@ void RoomList::server_continue(float dt)
 
 	sprintf(szFile, "room_person/%s", getID());
 
-	get_db_data(szFile, 3000);
+	get_db_data(szFile, DEFENCEJS);
 }

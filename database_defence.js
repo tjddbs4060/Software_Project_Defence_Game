@@ -40,7 +40,7 @@ server.on('request', function(req, res){
           var sql = 'select * from hero where type = ? and count = ?';
 
           connection.query(sql, [data[1], data[2]], function(err, row, fields) {
-            res.end('help_hero/'+'/'+row[0].sprite+'/'+row[0].name+'/'+row[0].type+'/'+row[0].count+'/'+row[0].speed+'/'+row[0].atk_range+'/'+row[0].damage);
+            res.end('help_hero/'+row[0].sprite+'/'+row[0].name+'/'+row[0].type+'/'+row[0].count+'/'+row[0].speed+'/'+row[0].atk_range+'/'+row[0].damage);
           });
         }
         else if(data[0] == 'monster') {
@@ -51,9 +51,9 @@ server.on('request', function(req, res){
           });
         }
         else if (data[0] == 'time') {
-          var sql = 'update room_list set time = ? where id = ?';
+          var sql = 'update room_list set time = ?, stage = ? where id = ?';
 
-          connection.query(sql, [data[1], data[2]], function() {
+          connection.query(sql, [data[1], data[2], data[3]], function() {
             console.log('success time');
             res.end('');
           });
@@ -336,17 +336,7 @@ server.on('request', function(req, res){
           });
         }
         else if (data[0] == 'update_help_unit') {
-          var sql = 'select count(*) as c from help_unit where give_id = ? and bring = true';
-
-          connection.query(sql, [data[1]], function(err, row, fields) {
-            if (row[0].c > 0) {
-              sql = 'delete from help_unit where give_id = ? and bring = true';
-
-              connection.query(sql, [data[1]], function() {});
-            }
-          });
-
-          sql = 'select count(*) as c from help_unit where give_id = ?';
+          var sql = 'select count(*) as c from help_unit where give_id = ?';
 
           connection.query(sql, [data[1]], function(err1, row1, fields1) {
             sql = 'select * from help_unit where give_id = ?';
@@ -368,7 +358,11 @@ server.on('request', function(req, res){
           });
         }
         else if (data[0] == 'check_help_unit') {
-          var sql = 'select count(*) as c from help_unit where give_id = ?';
+          var sql = 'delete from help_unit where bring = true';
+
+          connection.query(sql, [], function() {});
+
+          sql = 'select count(*) as c from help_unit where give_id = ?';
 
           connection.query(sql, [data[1]], function(err, row, fields) {
             console.log('check_help_unit count');

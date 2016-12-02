@@ -2298,7 +2298,7 @@ void SingleGame::GameOver()
 		unit->release();
 		delete unit;
 	}
-	arr_unit.clear();
+	arr_boss_room_unit.clear();
 	
 	Use_String* use_string = NULL;
 

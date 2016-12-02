@@ -173,7 +173,7 @@ void LoginScene::onMenu(cocos2d::Object* sender)
 	case TAG_LOGIN:
 		sprintf(szFile, "login/%s/%s", textfield_id->getString().data(), textfield_pw->getString().data());
 		
-		get_db_data(szFile, 3000);
+		get_db_data(szFile, DEFENCEJS);
 		break;
 	case TAG_MEMBER:
 		_eventDispatcher->autorelease();

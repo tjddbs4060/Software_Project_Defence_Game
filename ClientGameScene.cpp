@@ -4,8 +4,8 @@
 
 USING_NS_CC;
 
-Client::Client() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false), touch_hero(false), touch_boss(false), hero_menu_move(false), touch_friend(false)
-, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), alive_boss(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), boss_stage(0), monster_index(0), boss_damage(0), help_user_select(0)
+Client::Client() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false), touch_hero(false), touch_boss(false), hero_menu_move(false), touch_friend(false), monster_add_start(false)
+, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), alive_boss(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), boss_stage(0), monster_index(0), boss_damage(0), help_user_select(0), help_size(0)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
@@ -492,8 +492,8 @@ void Client::addunit(char* sprite_name, char* name, char* type, int number, floa
 
 	if (help == true)
 	{
-		xpos = pt.x * 0.2;
-		ypos = pt.y * 0.8;
+		xpos = pt.x * 0.3;
+		ypos = pt.y * 0.6;
 	}
 
 	Unit* unit = new Unit();
@@ -517,7 +517,10 @@ void Client::addunit(char* sprite_name, char* name, char* type, int number, floa
 	getChildByTag(TAG_BACKGROUND)->addChild(unit->getBody(), ZORDER_CHARACTER, TAG_CHARACTER);
 	unit->getBody()->addChild(sprite, ZORDER_RANGE, TAG_RANGE);
 
-	arr_unit.push_back(unit);
+	if (help == false)
+		arr_unit.push_back(unit);
+	else
+		arr_help_recv_unit.push_back(unit);
 
 	upgrade_update(type);
 	update_hero_list();
@@ -2042,40 +2045,39 @@ void Client::zorder_assort(float dt)
 	InforBoard* inforBoard = (InforBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INFORBOARD);
 	SoulBoard* soulBoard = (SoulBoard*)getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_SOUL);
 
-	if (summon_monster > 0 && !((int)inforBoard->getTime()))
+	if (summon_monster == 11 && monster_add_start == true)
 	{
-		if (summon_monster == 11)
+		char szFile[64];
+
+		monster_add_start = false;
+
+		sprintf(szFile, "monster/%d", inforBoard->getStage());
+		get_db_data(szFile, DEFENCEJS);
+
+		/////////// 보스 관련 수정중 -> 보스 생성 및 처치 실패
+		if (inforBoard->getStage() % 10 == 5 && alive_boss == true)
 		{
-			char szFile[64];
-
-			inforBoard->setStage(inforBoard->getStage() + 1);
-			sprintf(szFile, "monster/%d", inforBoard->getStage());
+			sprintf(szFile, "alive_boss/%d", getID());
 			get_db_data(szFile, DEFENCEJS);
-
-			/////////// 보스 관련 수정중 -> 보스 생성 및 처치 실패
-			if (inforBoard->getStage() % 10 == 5 && alive_boss == true)
-			{
-				sprintf(szFile, "alive_boss/%d", getID());
-				get_db_data(szFile, DEFENCEJS);
-				GameOver();
-			}
-
-			if (inforBoard->getStage() % 10 == 0 && inforBoard->getStage() > 0 && alive_boss == false)
-			{
-				boss_stage++;
-				alive_boss = true;
-
-				sprintf(szFile, "create_boss/%d/%s", boss_stage, getID());
-
-				get_db_data(szFile, DEFENCEJS);
-			}
-
-			summon_monster = 10;
-			inforBoard->setSoul(inforBoard->getSoul() + 3);
-			soulBoard->setSoul(inforBoard->getSoul());
-			soulBoard->updateNumber(soulBoard);
-			addlabel(NULL, 3, 3);
+			GameOver();
 		}
+
+		if (inforBoard->getStage() % 10 == 0 && inforBoard->getStage() > 0 && alive_boss == false)
+		{
+			boss_stage++;
+			alive_boss = true;
+
+			sprintf(szFile, "create_boss/%d/%s", boss_stage, getID());
+
+			get_db_data(szFile, DEFENCEJS);
+		}
+
+		summon_monster = 10;
+		inforBoard->setSoul(inforBoard->getSoul() + 3);
+		soulBoard->setSoul(inforBoard->getSoul());
+		soulBoard->updateNumber(soulBoard);
+		addlabel(NULL, 3, 3);
+
 		schedule(schedule_selector(Client::addmonster), 1.f);
 		new_soul_1 = true;
 		new_soul_2 = false;
@@ -2172,7 +2174,7 @@ void Client::onMenu(Object* sender)
 			skip = true;
 			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SKIP)->getChildByTag(TAG_MENU_SKIP_BACK)->setVisible(true);
 
-			sprintf(szFile, "skip/true/%s", getID());
+			sprintf(szFile, "skip/1/%s", getID());
 			get_db_data(szFile, DEFENCEJS);
 			/*
 			if (inforBoard->getTime() < 51 && inforBoard->getTime() > 1)
@@ -2184,7 +2186,7 @@ void Client::onMenu(Object* sender)
 			skip = false;
 			getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_SKIP)->getChildByTag(TAG_MENU_SKIP_BACK)->setVisible(false);
 
-			sprintf(szFile, "skip/false/%s", getID());
+			sprintf(szFile, "skip/0/%s", getID());
 			get_db_data(szFile, DEFENCEJS);
 		}
 
@@ -2509,6 +2511,7 @@ void Client::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos
 		{
 			inforBoard->setStage(atoi(stage));
 			summon_monster = 11;
+			monster_add_start = true;
 		}
 	}
 	else if (!strcmp(compare, "bring_count"))
@@ -2516,8 +2519,21 @@ void Client::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos
 		strtok(szFile, "/");
 		char * bring_count = strtok(NULL, "/");
 
-		if (atoi(bring_count) != arr_help_recv_unit.size())
+		int count = atoi(bring_count);
+
+		if (count != help_size)
 		{
+			Unit* unit = NULL;
+
+			for (std::vector<Unit*>::iterator iter = arr_help_recv_unit.begin(); iter != arr_help_recv_unit.end(); iter++)
+			{
+				unit = (Unit*)*iter;
+				unit->release();
+				delete unit;
+			}
+			arr_help_recv_unit.clear();
+
+			help_size = count;
 			sprintf(szFile, "update_help_unit/%s", getID());
 
 			get_db_data(szFile, DEFENCEJS);
@@ -2532,12 +2548,15 @@ void Client::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos
 		char * type = NULL;
 		char * hero_count = NULL;
 
-		for (int i = 0; i < atoi(count); i++)
+		int unit_count = atoi(count);
+
+		for (int i = 0; i < unit_count; i++)
 		{
 			type = strtok(NULL, "/");
 			hero_count = strtok(NULL, "/");
 
 			sprintf(compare, "help_hero/%s/%s", type, hero_count);
+			get_db_data(compare, DEFENCEJS);
 		}
 	}
 	else if (!strcmp(compare, "friend"))
@@ -2553,7 +2572,9 @@ void Client::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos
 		char * name_3 = strtok(NULL, "/");
 		char * monster_3 = strtok(NULL, "/");
 
-		if (atoi(count) > 0)
+		int friend_count = atoi(count);
+
+		if (friend_count > 0)
 		{
 			name = (CCTextFieldTTF*)getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_NAME_1);
 			name->setString(name_1);
@@ -2564,7 +2585,7 @@ void Client::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos
 
 			getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_HELP_1)->setVisible(true);
 
-			if (atoi(count) > 1)
+			if (friend_count > 1)
 			{
 				name = (CCTextFieldTTF*)getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_NAME_2);
 				name->setString(name_2);
@@ -2575,7 +2596,7 @@ void Client::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos
 
 				getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_HELP_2)->setVisible(true);
 
-				if (atoi(count) > 2)
+				if (friend_count > 2)
 				{
 					name = (CCTextFieldTTF*)getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_NAME_3);
 					name->setString(name_3);
@@ -2755,7 +2776,7 @@ void Client::GameOver()
 		unit->release();
 		delete unit;
 	}
-	arr_unit.clear();
+	arr_boss_room_unit.clear();
 
 	for (std::vector<Unit*>::iterator iter = arr_help_send_unit.begin(); iter != arr_help_send_unit.end(); iter++)
 	{
@@ -2763,7 +2784,7 @@ void Client::GameOver()
 		unit->release();
 		delete unit;
 	}
-	arr_unit.clear();
+	arr_help_send_unit.clear();
 
 	for (std::vector<Unit*>::iterator iter = arr_help_recv_unit.begin(); iter != arr_help_recv_unit.end(); iter++)
 	{
@@ -2771,7 +2792,7 @@ void Client::GameOver()
 		unit->release();
 		delete unit;
 	}
-	arr_unit.clear();
+	arr_help_recv_unit.clear();
 
 	Use_String* use_string = NULL;
 
@@ -2781,6 +2802,13 @@ void Client::GameOver()
 		delete use_string;
 	}
 	arr_unit_queue.clear();
+
+	for (std::vector<Use_String*>::iterator iter = arr_unit_help_queue.begin(); iter != arr_unit_help_queue.end(); iter++)
+	{
+		use_string = (Use_String*)*iter;
+		delete use_string;
+	}
+	arr_unit_help_queue.clear();
 
 	Sprite* arr = NULL;
 

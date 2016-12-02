@@ -165,7 +165,7 @@ void CreateUser::onMenu(cocos2d::Object* sender)
 
 		sprintf(szFile, "member/%s/%s", textfield_id->getString().data(), textfield_pw->getString().data());
 		
-		get_db_data(szFile, 3000);
+		get_db_data(szFile, DEFENCEJS);
 
 		break;
 	}

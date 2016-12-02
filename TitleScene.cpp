@@ -74,7 +74,7 @@ void TitleScene::onMenu(cocos2d::Object* sender)
 
 		sprintf(szFile, "single/%s", getID());
 
-		get_db_data(szFile, 3000);
+		get_db_data(szFile, DEFENCEJS);
 
 		//싱글 플레이어로
 		Director::getInstance()->replaceScene(SingleGame::scene(getID()));
@@ -85,7 +85,7 @@ void TitleScene::onMenu(cocos2d::Object* sender)
 
 		sprintf(szFile, "join_room/%s", getID());
 
-		get_db_data(szFile, 3000);
+		get_db_data(szFile, DEFENCEJS);
 
 		Director::getInstance()->replaceScene(RoomList::scene(getID()));
 		break;

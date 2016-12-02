@@ -4,6 +4,7 @@
 #include "cocos2d.h"
 #include "Order.h"
 #include "GameScene.h"
+#include "ClientGameScene.h"
 
 #include "network/HttpClient.h"
 #include "network/HttpConnection-winrt.h"
