@@ -35,25 +35,29 @@ bool TitleScene::init()
 	Sprite* menuSelect = Sprite::createWithSpriteFrameName("single_menu_select.png");
 	MenuItemSprite* menuSingle = MenuItemSprite::create(menuNormal, menuSelect, CC_CALLBACK_1(TitleScene::onMenu, this));
 	menuSingle->setTag(TAG_TITLE_MENU_SINGLE);
-	menuSingle->setPosition(Point(0, 40));
+	menuSingle->setPosition(Point(0, 15));
+	menuSingle->setScale(0.5);
 
 	menuNormal = Sprite::createWithSpriteFrameName("multi_menu_normal.png");
 	menuSelect = Sprite::createWithSpriteFrameName("multi_menu_select.png");
 	MenuItemSprite* menuMulti = MenuItemSprite::create(menuNormal, menuSelect, CC_CALLBACK_1(TitleScene::onMenu, this));
 	menuMulti->setTag(TAG_TITLE_MENU_MULTI);
-	menuMulti->setPosition(Point(0, -10));
+	menuMulti->setPosition(Point(0, -30));
+	menuMulti->setScale(0.5);
 
 	menuNormal = Sprite::createWithSpriteFrameName("option_menu_normal.png");
 	menuSelect = Sprite::createWithSpriteFrameName("option_menu_select.png");
 	MenuItemSprite* menuOption = MenuItemSprite::create(menuNormal, menuSelect, CC_CALLBACK_1(TitleScene::onMenu, this));
 	menuOption->setTag(TAG_TITLE_MENU_OPTION);
-	menuOption->setPosition(Point(0, -60));
+	menuOption->setPosition(Point(0, -75));
+	menuOption->setScale(0.5);
 
 	menuNormal = Sprite::createWithSpriteFrameName("exit_menu_normal.png");
 	menuSelect = Sprite::createWithSpriteFrameName("exit_menu_select.png");
 	MenuItemSprite* menuExit = MenuItemSprite::create(menuNormal, menuSelect, CC_CALLBACK_1(TitleScene::onMenu, this));
 	menuExit->setTag(TAG_TITLE_MENU_EXIT);
-	menuExit->setPosition(Point(0, -110));
+	menuExit->setPosition(Point(0, -120));
+	menuExit->setScale(0.5);
 
 	Menu* menu = Menu::create(menuSingle, menuMulti, menuOption, menuExit, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);

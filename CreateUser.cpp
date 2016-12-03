@@ -30,23 +30,28 @@ bool CreateUser::init()
 	sprite_background->setScale(winSize.width / sprite_background->getContentSize().width);
 	spriteBatchNodeLogin->addChild(sprite_background);
 
-	Sprite* menuNormal = Sprite::createWithSpriteFrameName("member.png");
-	MenuItemSprite* menuLogin = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(CreateUser::onMenu, this));
-	menuLogin->setTag(TAG_MEMBER);
-	menuLogin->setPosition(Point(0, -40));
+	Sprite* menuNormal = Sprite::createWithSpriteFrameName("create.png");
+	MenuItemSprite* menuMember = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(CreateUser::onMenu, this));
+	menuMember->setTag(TAG_MEMBER);
+	menuMember->setPosition(Point(30, -100));
 
-	Menu* menu = Menu::create(menuLogin, NULL);
+	menuNormal = Sprite::createWithSpriteFrameName("back.png");
+	MenuItemSprite* menuLogin = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(CreateUser::onMenu, this));
+	menuLogin->setTag(TAG_LOGIN);
+	menuLogin->setPosition(Point(-40, -100));
+
+	Menu* menu = Menu::create(menuLogin, menuMember, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	CCTextFieldTTF *textfield_id = CCTextFieldTTF::textFieldWithPlaceHolder("Please, input your ID.", CCSize(480, 30), kCCTextAlignmentCenter, "Arial", 20);
 	textfield_id->setAnchorPoint(Point(0, 0));
-	textfield_id->setPosition(Point(0, 200));
+	textfield_id->setPosition(Point(0, 150));
 	textfield_id->setTag(TAG_ID);
 	this->addChild(textfield_id);
 
 	CCTextFieldTTF *textfield_pw = CCTextFieldTTF::textFieldWithPlaceHolder("Please, input your PW.", CCSize(480, 30), kCCTextAlignmentCenter, "Arial", 20);
 	textfield_pw->setAnchorPoint(Point(0, 0));
-	textfield_pw->setPosition(Point(0, 150));
+	textfield_pw->setPosition(Point(0, 100));
 	textfield_pw->setTag(TAG_PW);
 	this->addChild(textfield_pw);
 
@@ -162,6 +167,14 @@ void CreateUser::onMenu(cocos2d::Object* sender)
 
 	switch (((Node*)sender)->getTag())
 	{
+	case TAG_LOGIN:
+		sound_title_menu();
+
+		_eventDispatcher->autorelease();
+		_eventDispatcher->removeAllEventListeners();
+
+		Director::getInstance()->replaceScene(LoginScene::scene());
+		break;
 	case TAG_MEMBER:
 		CCTextFieldTTF *textfield_id = (CCTextFieldTTF*)this->getChildByTag(TAG_ID);
 		CCTextFieldTTF *textfield_pw = (CCTextFieldTTF*)this->getChildByTag(TAG_PW);

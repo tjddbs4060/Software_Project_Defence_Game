@@ -37,25 +37,25 @@ bool LoginScene::init()
 	Sprite* menuNormal = Sprite::createWithSpriteFrameName("login.png");
 	MenuItemSprite* menuLogin = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(LoginScene::onMenu, this));
 	menuLogin->setTag(TAG_LOGIN);
-	menuLogin->setPosition(Point(-40, -40));
+	menuLogin->setPosition(Point(-40, -100));
 
 	menuNormal = Sprite::createWithSpriteFrameName("member.png");
 	MenuItemSprite* menuMember = MenuItemSprite::create(menuNormal, menuNormal, CC_CALLBACK_1(LoginScene::onMenu, this));
 	menuMember->setTag(TAG_MEMBER);
-	menuMember->setPosition(Point(30, -40));
+	menuMember->setPosition(Point(30, -100));
 
 	Menu* menu = Menu::create(menuLogin, menuMember, NULL);
 	addChild(menu, ZORDER_MENU, TAG_MENU);
 
 	CCTextFieldTTF *textfield_id = CCTextFieldTTF::textFieldWithPlaceHolder("Please, input your ID.", CCSize(480, 30), kCCTextAlignmentCenter, "Arial", 20);
 	textfield_id->setAnchorPoint(Point(0, 0));
-	textfield_id->setPosition(Point(0, 200));
+	textfield_id->setPosition(Point(0, 150));
 	textfield_id->setTag(TAG_ID);
 	this->addChild(textfield_id);
 
 	CCTextFieldTTF *textfield_pw = CCTextFieldTTF::textFieldWithPlaceHolder("Please, input your PW.", CCSize(480, 30), kCCTextAlignmentCenter, "Arial", 20);
 	textfield_pw->setAnchorPoint(Point(0, 0));
-	textfield_pw->setPosition(Point(0, 150));
+	textfield_pw->setPosition(Point(0, 100));
 	textfield_pw->setTag(TAG_PW);
 	this->addChild(textfield_pw);
 

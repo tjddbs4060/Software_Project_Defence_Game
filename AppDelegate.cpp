@@ -111,8 +111,8 @@ bool AppDelegate::applicationDidFinishLaunching() {
     //여기 밑 수정함
 	//auto scene = Game::scene("asdf");
 	//auto scene = GameOver::scene("asdf");
-	auto scene = LoginScene::scene();
-	//auto scene = TitleScene::scene("asdf");
+	//auto scene = LoginScene::scene();
+	auto scene = TitleScene::scene("asdf");
 	//auto scene = Client::scene("asdf");
 	//auto scene = CreateUser::scene();
 	//auto scene = RoomList::scene("asdf");

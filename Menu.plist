@@ -4,6 +4,17 @@
 	<dict>
 		<key>frames</key>
 		<dict>
+			<key>title_background.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,0},{500,340}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{500,340}</string>
+			</dict>
 			<key>exit_menu_normal.png</key>
 			<dict>
 				<key>frame</key>
@@ -70,7 +81,7 @@
 				<key>sourceSize</key>
 				<string>{260,70}</string>
 			</dict>
-			<key>single_menu_normal.png</key>
+			<key>single_menu_select.png</key>
 			<dict>
 				<key>frame</key>
 				<string>{{500,210},{260,70}}</string>
@@ -81,29 +92,7 @@
 				<key>sourceSize</key>
 				<string>{260,70}</string>
 			</dict>
-			<key>single_menu_select.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{760,210},{260,70}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{260,70}</string>
-			</dict>
-			<key>title_background.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,0},{500,340}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{500,340}</string>
-			</dict>
-			<key>login.png</key>
+			<key>back.png</key>
 			<dict>
 				<key>frame</key>
 				<string>{{500,280},{50,20}}</string>
@@ -114,7 +103,7 @@
 				<key>sourceSize</key>
 				<string>{50,20}</string>
 			</dict>
-			<key>member.png</key>
+			<key>create.png</key>
 			<dict>
 				<key>frame</key>
 				<string>{{550,280},{50,20}}</string>
@@ -124,6 +113,39 @@
 				<false />
 				<key>sourceSize</key>
 				<string>{50,20}</string>
+			</dict>
+			<key>login.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{600,280},{50,20}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{50,20}</string>
+			</dict>
+			<key>member.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{650,280},{50,20}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{50,20}</string>
+			</dict>
+			<key>single_menu_normal.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{760,210},{260,70}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{260,70}</string>
 			</dict>
 		</dict>
 		<key>metadata</key>
