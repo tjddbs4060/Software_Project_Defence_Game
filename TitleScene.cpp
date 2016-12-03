@@ -65,10 +65,14 @@ void TitleScene::onMenu(cocos2d::Object* sender)
 {
 	char szFile[32] = { 0, };
 
+	sound_menu_button();
+
 	switch (((Node*)sender)->getTag())
 	{
 	case TAG_TITLE_MENU_SINGLE:
 		//게임화면 연출
+		CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic();
+
 		_eventDispatcher->autorelease();
 		_eventDispatcher->removeAllEventListeners();
 
@@ -80,6 +84,8 @@ void TitleScene::onMenu(cocos2d::Object* sender)
 		Director::getInstance()->replaceScene(SingleGame::scene(getID()));
 		break;
 	case TAG_TITLE_MENU_MULTI:
+		CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic();
+
 		_eventDispatcher->autorelease();
 		_eventDispatcher->removeAllEventListeners();
 
@@ -137,4 +143,19 @@ void TitleScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 
 	strcpy(temp, szFile);
 	compare = strtok(temp, "/");
+}
+
+void TitleScene::sound_menu_button()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("menu_button.wav");
+}
+
+void TitleScene::sound_w_off()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("w_off.wav");
+}
+
+void TitleScene::sound_w_on()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("w_on.wav");
 }

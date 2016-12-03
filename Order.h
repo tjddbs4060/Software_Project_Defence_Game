@@ -1,6 +1,8 @@
 #ifndef __ORDER_H__
 #define __ORDER_H__
 
+#include "SimpleAudioEngine.h"
+
 //GameScene
 #define MAX_MONSTER 50
 

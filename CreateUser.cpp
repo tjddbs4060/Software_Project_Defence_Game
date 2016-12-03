@@ -142,6 +142,8 @@ void CreateUser::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 
 	if (!strcmp(compare, "success"))
 	{
+		sound_title_menu();
+
 		_eventDispatcher->autorelease();
 		_eventDispatcher->removeAllEventListeners();
 
@@ -150,6 +152,7 @@ void CreateUser::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 	else if (!strcmp(compare, "fail_member"))
 	{
 		//이미 존재하는 ID라는 표시
+		sound_title_fail();
 	}
 }
 
@@ -169,4 +172,14 @@ void CreateUser::onMenu(cocos2d::Object* sender)
 
 		break;
 	}
+}
+
+void CreateUser::sound_title_menu()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("title_menu.wav");
+}
+
+void CreateUser::sound_title_fail()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("title_fail.wav");
 }

@@ -7,6 +7,8 @@
 #include "GameOver.h"
 #include "ClientGameScene.h"
 
+#include "SimpleAudioEngine.h"
+
 USING_NS_CC;
 
 static cocos2d::Size designResolutionSize = cocos2d::Size(480, 320);
@@ -79,6 +81,30 @@ bool AppDelegate::applicationDidFinishLaunching() {
     }
 	*/
     register_all_packages();
+
+	CocosDenshion::SimpleAudioEngine* audioEngine = CocosDenshion::SimpleAudioEngine::getInstance();
+	audioEngine->setBackgroundMusicVolume(0.1);
+	audioEngine->preloadBackgroundMusic("title_bgm.mp3");
+	audioEngine->preloadBackgroundMusic("game_bgm.mp3");
+
+	audioEngine->setEffectsVolume(0.7);
+	audioEngine->preloadEffect("upgrade.wav");
+	audioEngine->preloadEffect("gamble.wav");
+	audioEngine->preloadEffect("capsule.wav");
+	audioEngine->preloadEffect("gameover.wav");
+	audioEngine->preloadEffect("ok_button.wav");
+	audioEngine->preloadEffect("boss_create.wav");
+	audioEngine->preloadEffect("menu_button.wav");
+	audioEngine->preloadEffect("w_off.wav");
+	audioEngine->preloadEffect("w_on.wav");
+	audioEngine->preloadEffect("interface_open.wav");
+	audioEngine->preloadEffect("title_menu.wav");
+	audioEngine->preloadEffect("title_fail.wav");
+	audioEngine->preloadEffect("hero_mix.wav");
+	audioEngine->preloadEffect("stage.wav");
+	audioEngine->preloadEffect("unit_move.wav");
+	audioEngine->preloadEffect("boss_room_open.wav");
+	audioEngine->preloadEffect("boss_delete.wav");
 	
     // create a scene. it's an autorelease object
 	/////////////////////
@@ -101,7 +127,7 @@ void AppDelegate::applicationDidEnterBackground() {
     Director::getInstance()->stopAnimation();
 
     // if you use SimpleAudioEngine, it must be paused
-    // SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
+	CocosDenshion::SimpleAudioEngine::getInstance()->pauseBackgroundMusic();
 }
 
 // this function will be called when the app is active again
@@ -109,5 +135,5 @@ void AppDelegate::applicationWillEnterForeground() {
     Director::getInstance()->startAnimation();
 
     // if you use SimpleAudioEngine, it must resume here
-    // SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
+    CocosDenshion::SimpleAudioEngine::getInstance()->resumeBackgroundMusic();
 }

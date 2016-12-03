@@ -35,6 +35,10 @@ bool Game::init()
 	srand((unsigned int)time(NULL));
 	mix_hero_init();
 
+	CocosDenshion::SimpleAudioEngine* audioEngine = CocosDenshion::SimpleAudioEngine::getInstance();
+	if (audioEngine->isBackgroundMusicPlaying() == false)
+		audioEngine->playBackgroundMusic("game_bgm.mp3", true);
+
 	Size winSize = Director::getInstance()->getWinSize();
 	
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Thing.plist");
@@ -917,6 +921,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		}
 		else if (soulBoard->get_ok()->boundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
+			sound_ok_button();
+
 			touch_soul = false;
 			new_soul_1 = true;
 			new_soul_2 = false;
@@ -998,6 +1004,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - 10 >= 0)
 			{
+				sound_gamble();
+
 				temp = gamble->low_gamble();
 
 				inforBoard->setGold(inforBoard->getGold() - 10);
@@ -1011,6 +1019,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - 100 >= 0)
 			{
+				sound_gamble();
+
 				temp = gamble->middle_gamble();
 
 				inforBoard->setGold(inforBoard->getGold() - 100);
@@ -1024,6 +1034,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - 500 >= 0)
 			{
+				sound_gamble();
+
 				temp = gamble->high_gamble();
 
 				inforBoard->setGold(inforBoard->getGold() - 500);
@@ -1054,6 +1066,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - (10 + upgrade_count[0]) >= 0)
 			{
+				sound_upgrade();
+
 				upgrade_count[0]++;
 				upgrade->setD(upgrade_count[0]);
 				upgrade_update("D");
@@ -1068,6 +1082,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - (20 + upgrade_count[1] * 2) >= 0)
 			{
+				sound_upgrade();
+
 				upgrade_count[1]++;
 				upgrade->setC(upgrade_count[1]);
 				upgrade_update("C");
@@ -1082,6 +1098,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - (50 + upgrade_count[2] * 5) >= 0)
 			{
+				sound_upgrade();
+
 				upgrade_count[2]++;
 				upgrade->setB(upgrade_count[2]);
 				upgrade_update("B");
@@ -1096,6 +1114,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - (100 + upgrade_count[2] * 10) >= 0)
 			{
+				sound_upgrade();
+
 				upgrade_count[3]++;
 				upgrade->setA(upgrade_count[3]);
 				upgrade_update("A");
@@ -1110,6 +1130,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - (300 + upgrade_count[2] * 30) >= 0)
 			{
+				sound_upgrade();
+
 				upgrade_count[4]++;
 				upgrade->setS(upgrade_count[4]);
 				upgrade_update("S");
@@ -1124,6 +1146,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		{
 			if (inforBoard->getGold() - (500 + upgrade_count[2] * 50) >= 0)
 			{
+				sound_upgrade();
+
 				upgrade_count[5]++;
 				upgrade->setSS(upgrade_count[5]);
 				upgrade_update("SS");
@@ -1241,6 +1265,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 					}
 					update_hero_list();
 
+					sound_hero_mix();
+
 					sprintf(szFile, "hero/%s/%d", mix_hero->get_result_hero_type(), mix_hero->get_result_hero_count());
 					get_db_data(szFile, DEFENCEJS);
 				}
@@ -1267,6 +1293,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			{
 				if (inforBoard->getJewelry() >= 1)
 				{
+					sound_capsule();
+
 					inforBoard->setGold(inforBoard->getGold() - 10);
 					inforBoard->setJewelry(inforBoard->getJewelry() - 1);
 					
@@ -1294,6 +1322,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			{
 				if (inforBoard->getJewelry() >= 2)
 				{
+					sound_capsule();
+
 					inforBoard->setGold(inforBoard->getGold() - 50);
 					inforBoard->setJewelry(inforBoard->getJewelry() - 2);
 
@@ -1321,6 +1351,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			{
 				if (inforBoard->getJewelry() >= 3)
 				{
+					sound_capsule();
+
 					inforBoard->setGold(inforBoard->getGold() - 150);
 					inforBoard->setJewelry(inforBoard->getJewelry() - 3);
 
@@ -1348,6 +1380,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			{
 				if (inforBoard->getJewelry() >= 5)
 				{
+					sound_capsule();
+
 					inforBoard->setGold(inforBoard->getGold() - 500);
 					inforBoard->setJewelry(inforBoard->getJewelry() - 5);
 
@@ -1375,6 +1409,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			{
 				if (inforBoard->getJewelry() >= 10)
 				{
+					sound_capsule();
+
 					inforBoard->setGold(inforBoard->getGold() - 1200);
 					inforBoard->setJewelry(inforBoard->getJewelry() - 10);
 
@@ -1402,6 +1438,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 			{
 				if (inforBoard->getJewelry() >= 15)
 				{
+					sound_capsule();
+
 					inforBoard->setGold(inforBoard->getGold() - 2000);
 					inforBoard->setJewelry(inforBoard->getJewelry() - 15);
 
@@ -1469,6 +1507,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 						if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 						{
+							sound_unit_move();
+
 							Point pt = getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->getContentSize();
 							float xR = rand() % 10000;
 							float yR = rand() % 10000;
@@ -1501,6 +1541,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 						if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 						{
+							sound_unit_move();
+
 							Point pt = getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->getContentSize();
 							float xR = rand() % 10000;
 							float yR = rand() % 10000;
@@ -1533,6 +1575,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 						if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 						{
+							sound_unit_move();
+
 							Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
 
 							arr_boss_room_unit.erase(iterUnit);
@@ -1560,6 +1604,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 						if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 						{
+							sound_unit_move();
+
 							Point pt = getChildByTag(TAG_BACKGROUND)->getContentSize();
 
 							arr_help_send_unit.erase(iterUnit);
@@ -1594,6 +1640,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 						if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 						{
+							sound_unit_move();
+
 							arr_unit.erase(iterUnit);
 							arr_help_send_unit.push_back(unit);
 
@@ -1617,6 +1665,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 
 						if (!strcmp(heroList->getType(), unit->getType()) && heroList->getCount() == unit->getCount())
 						{
+							sound_unit_move();
+
 							arr_boss_room_unit.erase(iterUnit);
 							arr_help_send_unit.push_back(unit);
 
@@ -1653,6 +1703,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		}
 		else if (getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_HELP_1)->getBoundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
+			sound_ok_button();
+
 			help = (Sprite*)getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_HELP_1);
 
 			help->setSpriteFrame(frameCache->getSpriteFrameByName("in.png"));
@@ -1669,6 +1721,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		}
 		else if (getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_HELP_2)->getBoundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
+			sound_ok_button();
+
 			help = (Sprite*)getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_HELP_1);
 
 			help->setSpriteFrame(frameCache->getSpriteFrameByName("null.png"));
@@ -1685,6 +1739,8 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		}
 		else if (getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_HELP_3)->getBoundingBox().containsPoint(touches[0]->getLocation() - pt))
 		{
+			sound_ok_button();
+
 			help = (Sprite*)getChildByTag(TAG_INTERFACE_FRIEND)->getChildByTag(TAG_INTERFACE_FRIEND_HELP_1);
 
 			help->setSpriteFrame(frameCache->getSpriteFrameByName("null.png"));
@@ -2054,6 +2110,8 @@ void Game::zorder_assort(float dt)
 		{
 			char szFile[64];
 
+			sound_stage();
+
 			inforBoard->setStage(inforBoard->getStage() + 1);
 			sprintf(szFile, "monster/%d", inforBoard->getStage());
 			get_db_data(szFile, DEFENCEJS);
@@ -2160,6 +2218,8 @@ void Game::onMenu(Object* sender)
 	case TAG_MENU_SOUL:
 		if (touch_gamble == true || touch_upgrade == true || touch_mix == true || touch_capsule == true || touch_hero == true || touch_friend == true || touch_boss == true) break;
 
+		sound_interface_open();
+
 		touch_soul = true;
 		new_soul_1 = false;
 		new_soul_2 = false;
@@ -2169,11 +2229,15 @@ void Game::onMenu(Object* sender)
 	case TAG_MENU_GAMBLE:
 		if (touch_soul == true || touch_upgrade == true || touch_mix == true || touch_capsule == true || touch_hero == true || touch_friend == true || touch_boss == true) break;
 
+		sound_interface_open();
+
 		touch_gamble = true;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_GAMBLE)->setVisible(true);
 		break;
 	case TAG_MENU_SKIP:
+		sound_interface_open();
+
 		if (skip == false)
 		{
 			skip = true;
@@ -2199,12 +2263,16 @@ void Game::onMenu(Object* sender)
 	case TAG_MENU_UPGRADE:
 		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_capsule == true || touch_hero == true || touch_friend == true || touch_boss == true) break;
 
+		sound_interface_open();
+
 		touch_upgrade = true;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_UPGRADE)->setVisible(true);
 		break;
 	case TAG_MENU_MIX:
 		if (touch_soul == true || touch_gamble == true || touch_upgrade == true || touch_capsule == true || touch_hero == true || touch_friend == true || touch_boss == true) break;
+
+		sound_interface_open();
 
 		touch_mix = true;
 
@@ -2213,12 +2281,16 @@ void Game::onMenu(Object* sender)
 	case TAG_MENU_CAPSULE:
 		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true || touch_hero == true || touch_friend == true || touch_boss == true) break;
 
+		sound_interface_open();
+
 		touch_capsule = true;
 
 		getChildByTag(TAG_UNIT)->getChildByTag(TAG_INTERFACE_CAPSULE)->setVisible(true);
 		break;
 	case TAG_MENU_HERO:
 		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true || touch_capsule == true || touch_friend == true || touch_boss == true) break;
+
+		sound_interface_open();
 
 		touch_hero = true;
 
@@ -2227,12 +2299,16 @@ void Game::onMenu(Object* sender)
 	case TAG_MENU_FRIEND:
 		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true || touch_capsule == true || touch_hero == true || touch_boss == true) break;
 
+		sound_interface_open();
+
 		touch_friend = true;
 
 		getChildByTag(TAG_INTERFACE_FRIEND)->setVisible(true);
 		break;
 	case TAG_MENU_BOSS:
 		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true || touch_capsule == true || touch_hero == true || touch_friend == true) break;
+
+		sound_boss_room_open();
 
 		Point pt;
 
@@ -2738,6 +2814,8 @@ void Game::GameOver()
 {
 	char szFile[64] = { 0, };
 
+	sound_gameover();
+
 	unschedule(schedule_selector(Game::zorder_assort));
 	unschedule(schedule_selector(Game::unit_atk_cooltime));
 	unschedule(schedule_selector(Game::unit_atk_monster));
@@ -2950,6 +3028,8 @@ void Game::create_boss(char* name, float hp, float def)
 {
 	char szFile[64] = { 0, };
 
+	sound_boss_create();
+
 	Point pt = getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->getChildByTag(TAG_INTERFACE_BOSS)->getContentSize();
 
 	sprintf(szFile, "boss_%s.png", name);
@@ -2996,6 +3076,8 @@ void Game::atk_boss(float dt)
 
 			if (0 >= boss->subEnergy(unit->getDamage()))
 			{
+				sound_boss_delete();
+
 				alive_boss = false;
 
 				inforBoard->setGold(inforBoard->getGold() + (boss_stage * 300));
@@ -3070,4 +3152,64 @@ void Game::setID(char* name)
 char* Game::getID()
 {
 	return id;
+}
+
+void Game::sound_interface_open()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("interface.wav");
+}
+
+void Game::sound_ok_button()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("ok_button.wav");
+}
+
+void Game::sound_gamble()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("gamble.wav");
+}
+
+void Game::sound_upgrade()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("upgrade.wav");
+}
+
+void Game::sound_capsule()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("capsule.wav");
+}
+
+void Game::sound_gameover()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("gameover.wav");
+}
+
+void Game::sound_boss_create()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("boss_create.wav");
+}
+
+void Game::sound_boss_room_open()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("boss_room_open.wav");
+}
+
+void Game::sound_hero_mix()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("hero_mix.wav");
+}
+
+void Game::sound_boss_delete()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("boss_delete.wav");
+}
+
+void Game::sound_stage()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("stage.wav");
+}
+
+void Game::sound_unit_move()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("unit_move.wav");
 }

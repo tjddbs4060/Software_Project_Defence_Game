@@ -31,6 +31,10 @@ private:
 	void onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d::network::HttpResponse * response);
 
 	char id[32];
+
+	void sound_menu_button();
+	void sound_w_off();
+	void sound_w_on();
 };
 
 #endif

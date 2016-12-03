@@ -32,6 +32,9 @@ private:
 	void get_db_data(char * data, int port);		//http에 data 전송
 
 	void onMenu(cocos2d::Object* sender);	//인터페이스 메뉴
+
+	void sound_title_menu();
+	void sound_title_fail();
 };
 
 #endif

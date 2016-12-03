@@ -139,6 +139,19 @@ private:
 	cocos2d::Point touch_point;	//시작 터치지점
 
 	Unit* now_unit;	//현재 선택한 유닛
+
+	void sound_interface_open();
+	void sound_ok_button();
+	void sound_gamble();
+	void sound_upgrade();
+	void sound_capsule();
+	void sound_gameover();
+	void sound_boss_create();
+	void sound_boss_room_open();
+	void sound_hero_mix();
+	void sound_boss_delete();
+	void sound_stage();
+	void sound_unit_move();
 };
 
 #endif

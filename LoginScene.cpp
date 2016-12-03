@@ -18,6 +18,10 @@ bool LoginScene::init()
 	if (!Layer::init())
 		return false;
 
+	CocosDenshion::SimpleAudioEngine* audioEngine = CocosDenshion::SimpleAudioEngine::getInstance();
+	if (audioEngine->isBackgroundMusicPlaying() == false)
+		audioEngine->playBackgroundMusic("title_bgm.mp3", true);
+	
 	Size winSize = Director::getInstance()->getWinSize();
 
 	SpriteFrameCache::getInstance()->addSpriteFramesWithFile("Menu.plist");
@@ -148,6 +152,8 @@ void LoginScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 
 	if (!strcmp(compare, "success"))
 	{
+		sound_title_menu();
+
 		strtok(szFile, "/");
 		char * id = strtok(NULL, "/");
 
@@ -159,6 +165,7 @@ void LoginScene::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, c
 	else if (!strcmp(compare, "fail_login"))
 	{
 		//로그인 다시하달라는 MoveTo 라벨 출력(생겼다 사라지는)
+		sound_title_fail();
 	}
 }
 
@@ -176,6 +183,8 @@ void LoginScene::onMenu(cocos2d::Object* sender)
 		get_db_data(szFile, DEFENCEJS);
 		break;
 	case TAG_MEMBER:
+		sound_title_menu();
+
 		_eventDispatcher->autorelease();
 		_eventDispatcher->removeAllEventListeners();
 
@@ -183,4 +192,14 @@ void LoginScene::onMenu(cocos2d::Object* sender)
 
 		break;
 	}
+}
+
+void LoginScene::sound_title_menu()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("title_menu.wav");
+}
+
+void LoginScene::sound_title_fail()
+{
+	CocosDenshion::SimpleAudioEngine::getInstance()->playEffect("title_fail.wav");
 }
