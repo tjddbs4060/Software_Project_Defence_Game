@@ -64,8 +64,11 @@ bool SingleGame::init()
 	skip_back->setTag(TAG_MENU_SKIP_BACK);
 	skip_back->setPosition(menuNormal->getContentSize().width / 2, menuNormal->getContentSize().height / 2);
 
-	RotateBy* rotate = RotateBy::create(2.f, 360);
-	RepeatForever* repeat = RepeatForever::create(rotate);
+	FadeOut* fadeOut = FadeOut::create(1.0);
+	FadeIn* fadeIn = FadeIn::create(1.0);
+	Sequence* sequence = Sequence::create(fadeOut, fadeIn, NULL);
+
+	RepeatForever* repeat = RepeatForever::create(sequence);
 
 	skip_back->runAction(repeat);
 	menuSkip->addChild(skip_back);
@@ -2295,6 +2298,8 @@ void SingleGame::mix_hero_init()
 void SingleGame::GameOver()
 {
 	char szFile[64] = { 0, };
+
+	CocosDenshion::SimpleAudioEngine::getInstance()->stopBackgroundMusic();
 
 	sound_gameover();
 

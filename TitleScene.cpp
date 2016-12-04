@@ -102,6 +102,8 @@ void TitleScene::onMenu(cocos2d::Object* sender)
 	case TAG_TITLE_MENU_OPTION:
 		break;
 	case TAG_TITLE_MENU_EXIT:
+		Director::getInstance()->end();
+
 		break;
 	}
 }
