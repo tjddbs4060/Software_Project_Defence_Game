@@ -4,50 +4,6 @@
 	<dict>
 		<key>frames</key>
 		<dict>
-			<key>A_button.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{965,550},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
-			<key>A_capsule.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{965,590},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
-			<key>B_button.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{965,630},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
-			<key>B_capsule.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{965,670},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
 			<key>boss_1.png</key>
 			<dict>
 				<key>frame</key>
@@ -91,61 +47,6 @@
 				<false />
 				<key>sourceSize</key>
 				<string>{10,10}</string>
-			</dict>
-			<key>C_button.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{965,710},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
-			<key>C_capsule.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,800},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
-			<key>capsule_select_menu.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,400},{250,200}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{250,200}</string>
-			</dict>
-			<key>D_button.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,600},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
-			<key>D_capsule.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,640},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
 			</dict>
 			<key>death_01.png</key>
 			<dict>
@@ -201,39 +102,6 @@
 				<false />
 				<key>sourceSize</key>
 				<string>{9,8}</string>
-			</dict>
-			<key>esc_button.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,550},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>friend_menu.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{250,400},{250,200}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{250,200}</string>
-			</dict>
-			<key>gamble_select_menu.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{515,550},{250,200}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<true />
-				<key>sourceSize</key>
-				<string>{250,200}</string>
 			</dict>
 			<key>gameover.png</key>
 			<dict>
@@ -818,28 +686,6 @@
 				<key>sourceSize</key>
 				<string>{100,100}</string>
 			</dict>
-			<key>S_button.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,680},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
-			<key>S_capsule.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,720},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
 			<key>select_button.png</key>
 			<dict>
 				<key>frame</key>
@@ -961,28 +807,6 @@
 				<key>sourceSize</key>
 				<string>{10,10}</string>
 			</dict>
-			<key>SS_button.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,760},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
-			<key>SS_capsule.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,840},{40,40}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{40,40}</string>
-			</dict>
 			<key>up_button.png</key>
 			<dict>
 				<key>frame</key>
@@ -993,17 +817,6 @@
 				<false />
 				<key>sourceSize</key>
 				<string>{9,8}</string>
-			</dict>
-			<key>upgrade_select_menu.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{715,550},{250,200}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{250,200}</string>
 			</dict>
 			<key>background.png</key>
 			<dict>
@@ -1027,131 +840,10 @@
 				<key>sourceSize</key>
 				<string>{480,60}</string>
 			</dict>
-			<key>number_0.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,565},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_1.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,580},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_2.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,595},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_3.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,610},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_4.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,625},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_5.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,640},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_6.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,655},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_7.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,670},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_8.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,685},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_9.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,700},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
-			<key>number_col.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{1005,715},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
 			<key>capsule.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{0,880},{40,40}}</string>
+				<string>{{965,550},{40,40}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -1162,7 +854,7 @@
 			<key>friend.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{0,920},{40,40}}</string>
+				<string>{{965,590},{40,40}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -1173,7 +865,7 @@
 			<key>Gamble.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{0,960},{40,40}}</string>
+				<string>{{965,630},{40,40}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -1184,7 +876,7 @@
 			<key>hero.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{40,800},{40,40}}</string>
+				<string>{{965,670},{40,40}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -1195,7 +887,7 @@
 			<key>mix.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{40,600},{40,40}}</string>
+				<string>{{965,710},{40,40}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -1217,7 +909,7 @@
 			<key>Soul.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{40,640},{40,40}}</string>
+				<string>{{0,800},{40,40}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -1236,7 +928,62 @@
 				<key>sourceSize</key>
 				<string>{30,30}</string>
 			</dict>
+			<key>upgrade.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,600},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>capsule_select_menu.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,400},{250,200}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{250,200}</string>
+			</dict>
+			<key>friend_menu.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{250,400},{250,200}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{250,200}</string>
+			</dict>
+			<key>gamble_select_menu.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{515,550},{250,200}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<true />
+				<key>sourceSize</key>
+				<string>{250,200}</string>
+			</dict>
 			<key>soul_select_menu.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{715,550},{250,200}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{250,200}</string>
+			</dict>
+			<key>upgrade_select_menu.png</key>
 			<dict>
 				<key>frame</key>
 				<string>{{715,750},{250,200}}</string>
@@ -1247,7 +994,249 @@
 				<key>sourceSize</key>
 				<string>{250,200}</string>
 			</dict>
-			<key>upgrade.png</key>
+			<key>number_0.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,550},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_1.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,565},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_2.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,580},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_3.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,595},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_4.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,610},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_5.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,625},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_6.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,640},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_7.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,655},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_8.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,670},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_9.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,685},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>number_col.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,700},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>A_capsule.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,640},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>B_capsule.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,680},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>C_capsule.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,720},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>D_capsule.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,760},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>S_capsule.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,840},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>SS_capsule.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,880},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>A_button.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,920},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>B_button.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,960},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>C_button.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{40,800},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>D_button.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{40,600},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>S_button.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{40,640},{40,40}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{40,40}</string>
+			</dict>
+			<key>SS_button.png</key>
 			<dict>
 				<key>frame</key>
 				<string>{{40,680},{40,40}}</string>
@@ -1257,6 +1246,17 @@
 				<false />
 				<key>sourceSize</key>
 				<string>{40,40}</string>
+			</dict>
+			<key>esc_button.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{1005,715},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
 			</dict>
 		</dict>
 		<key>metadata</key>

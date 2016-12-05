@@ -59,7 +59,7 @@
 				<key>sourceSize</key>
 				<string>{260,70}</string>
 			</dict>
-			<key>option_menu_normal.png</key>
+			<key>single_menu_select.png</key>
 			<dict>
 				<key>frame</key>
 				<string>{{500,140},{260,70}}</string>
@@ -70,32 +70,10 @@
 				<key>sourceSize</key>
 				<string>{260,70}</string>
 			</dict>
-			<key>option_menu_select.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{760,140},{260,70}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{260,70}</string>
-			</dict>
-			<key>single_menu_select.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{500,210},{260,70}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{260,70}</string>
-			</dict>
 			<key>back.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{500,280},{50,20}}</string>
+				<string>{{500,210},{50,20}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -106,7 +84,7 @@
 			<key>create.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{550,280},{50,20}}</string>
+				<string>{{550,210},{50,20}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -117,7 +95,7 @@
 			<key>login.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{600,280},{50,20}}</string>
+				<string>{{600,210},{50,20}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -128,7 +106,7 @@
 			<key>member.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{650,280},{50,20}}</string>
+				<string>{{650,210},{50,20}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>
@@ -139,7 +117,7 @@
 			<key>single_menu_normal.png</key>
 			<dict>
 				<key>frame</key>
-				<string>{{760,210},{260,70}}</string>
+				<string>{{760,140},{260,70}}</string>
 				<key>offset</key>
 				<string>{0,0}</string>
 				<key>rotated</key>

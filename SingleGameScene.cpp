@@ -466,7 +466,7 @@ float SingleGame::calDistance(Point from, Point to)
 	return sqrtf(pow(x, 2) + pow(y, 2));
 }
 
-void SingleGame::addattack(Monster* monster)
+void SingleGame::addattack(Monster* monster, float scale)
 {
 	Sprite* sprite_bullet = Sprite::createWithSpriteFrameName("bullet.png");
 	sprite_bullet->setPosition(Point(15, 15));
@@ -517,7 +517,7 @@ void SingleGame::unit_atk_monster(float dt)
 
 					unit->setCurSpeed(0);
 					unit_atk_motion(unit, right);
-					addattack(monster);
+					addattack(monster, 1.0);
 					//addattack(unit->getBody()->getPosition(), monster->getBody()->getPosition(), unit);
 
 					if (0 >= monster->subEnergy(unit->getDamage()))
@@ -2510,7 +2510,7 @@ void SingleGame::atk_boss(float dt)
 
 			unit->setCurSpeed(0);
 			unit_atk_motion(unit, right);
-			addattack(boss);
+			addattack(boss, 1.0);
 			//보스한테 데미지 주기(get_db_data) & lock 설정 
 
 			if (0 >= boss->subEnergy(unit->getDamage()))

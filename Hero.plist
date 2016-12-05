@@ -983,17 +983,6 @@
 				<key>sourceSize</key>
 				<string>{30,30}</string>
 			</dict>
-			<key>esc_button_mix.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{480,350},{15,15}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{15,15}</string>
-			</dict>
 			<key>gold.png</key>
 			<dict>
 				<key>frame</key>
@@ -1555,17 +1544,6 @@
 				<key>sourceSize</key>
 				<string>{30,30}</string>
 			</dict>
-			<key>hero_list_label.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{500,0},{218,12}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{218,12}</string>
-			</dict>
 			<key>hero_list_main.png</key>
 			<dict>
 				<key>frame</key>
@@ -1576,17 +1554,6 @@
 				<false />
 				<key>sourceSize</key>
 				<string>{2,30}</string>
-			</dict>
-			<key>hero_list_menu.png</key>
-			<dict>
-				<key>frame</key>
-				<string>{{0,0},{250,200}}</string>
-				<key>offset</key>
-				<string>{0,0}</string>
-				<key>rotated</key>
-				<false />
-				<key>sourceSize</key>
-				<string>{250,200}</string>
 			</dict>
 			<key>hero_list_number_0.png</key>
 			<dict>
@@ -4789,6 +4756,28 @@
 				<key>sourceSize</key>
 				<string>{30,30}</string>
 			</dict>
+			<key>esc_button_mix.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{480,350},{15,15}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{15,15}</string>
+			</dict>
+			<key>hero_list_menu.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{0,0},{250,200}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{250,200}</string>
+			</dict>
 			<key>mix_menu.png</key>
 			<dict>
 				<key>frame</key>
@@ -4799,6 +4788,17 @@
 				<true />
 				<key>sourceSize</key>
 				<string>{200,250}</string>
+			</dict>
+			<key>hero_list_label.png</key>
+			<dict>
+				<key>frame</key>
+				<string>{{500,0},{218,12}}</string>
+				<key>offset</key>
+				<string>{0,0}</string>
+				<key>rotated</key>
+				<false />
+				<key>sourceSize</key>
+				<string>{218,12}</string>
 			</dict>
 		</dict>
 		<key>metadata</key>

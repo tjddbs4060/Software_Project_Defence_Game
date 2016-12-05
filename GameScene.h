@@ -49,7 +49,7 @@ private:
 	void addunit(char* sprite_name, char* name, char* type, int number, float speed, float range, float damage, bool help);		//유닛 추가
 	void addunit_mix(cocos2d::Point pt);	//조합하여 유닛 삭제
 	void addunit_sell(cocos2d::Point pt);	//팔아서 유닛 삭제
-	void addattack(Monster* monster);	//공격 모션
+	void addattack(Monster* monster, float scale);	//공격 모션
 	void unit_atk_motion(Unit* unit, bool right);	//유닛 공격 모션
 	void move_unit(Unit* unit, bool right);		//유닛 움직임 모션
 	void addlabel(char* name, int gold, int choice);	//라벨 생성
