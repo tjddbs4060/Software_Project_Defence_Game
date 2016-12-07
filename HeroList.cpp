@@ -127,7 +127,7 @@ void HeroList::init(int size)
 			break;
 	}
 
-	float xPos = 68 + (pt.x/2) + (count*4);
+	float xPos = 78 + (pt.x/2) + (count*4);
 	Sprite* sprite_number = NULL;
 
 	for (int i = 0; i < count; i++)
@@ -141,11 +141,11 @@ void HeroList::init(int size)
 		xPos -= 6;
 	}
 
-	map->setPosition(Point(120, 0) + pt/2);
+	map->setPosition(Point(130, 0) + pt/2);
 	map->setTag(TAG_HERO_LIST_MAIN_MAP);
-	boss->setPosition(Point(155, 0) + pt/2);
+	boss->setPosition(Point(165, 0) + pt/2);
 	boss->setTag(TAG_HERO_LIST_MAIN_BOSS);
-	help->setPosition(Point(190, 0) + pt/2);
+	help->setPosition(Point(200, 0) + pt/2);
 	help->setTag(TAG_HERO_LIST_MAIN_HELP);
 
 	hero->addChild(hero_type);

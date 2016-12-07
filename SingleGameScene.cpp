@@ -344,28 +344,31 @@ void SingleGame::monsterRemover(Node* sender)
 
 	if (NULL != monster)
 	{
-		addmonster_death(sender->getPosition());
+		addmonster_death(sender->getPosition(), 0.43, false);
 		monster->release();
 		delete monster;
 	}
 }
 
-void SingleGame::addmonster_death(Point pt)
+void SingleGame::addmonster_death(Point pt, float scale, bool isboss)
 {
 	char szFile[64] = { 0, };
 
-	Sprite* sprite_death = Sprite::createWithSpriteFrameName("death_01.png");
+	Sprite* sprite_death = Sprite::createWithSpriteFrameName("death_0.png");
 	sprite_death->setPosition(pt);
+	sprite_death->setScale(scale);
 
-	getChildByTag(TAG_BACKGROUND)->addChild(sprite_death, ZORDER_MONSTER_DEATH);
+	if (isboss == false)
+		getChildByTag(TAG_BACKGROUND)->addChild(sprite_death, ZORDER_MONSTER_DEATH);
+	else getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->addChild(sprite_death, ZORDER_MONSTER_DEATH);
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 
 	auto animation = Animation::create();
 
-	for (int i = 1; i < 4; i++)
+	for (int i = 0; i < 8; i++)
 	{
-		sprintf(szFile, "death_%02d.png", i);
+		sprintf(szFile, "death_%d.png", i);
 		animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 	}
 	animation->setDelayPerUnit(0.05f);
@@ -468,18 +471,21 @@ float SingleGame::calDistance(Point from, Point to)
 
 void SingleGame::addattack(Monster* monster, float scale)
 {
-	Sprite* sprite_bullet = Sprite::createWithSpriteFrameName("bullet.png");
+	char szFile[64] = { 0, };
+
+	Sprite* sprite_bullet = Sprite::createWithSpriteFrameName("bullet_0.png");
 	sprite_bullet->setPosition(Point(15, 15));
 
 	SpriteFrameCache* frameCache = SpriteFrameCache::getInstance();
 
 	auto animation = Animation::create();
 
-	for (int i = 1; i < 4; i++)
+	for (int i = 0; i < 5; i++)
 	{
-		animation->addSpriteFrame(frameCache->getSpriteFrameByName("bullet.png"));
+		sprintf(szFile, "bullet_%d.png", i);
+		animation->addSpriteFrame(frameCache->getSpriteFrameByName(szFile));
 	}
-	animation->setDelayPerUnit(0.05f);
+	animation->setDelayPerUnit(0.08f);
 
 	Animate* animate = Animate::create(animation);
 	CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(SingleGame::selfRemover, this));
@@ -517,7 +523,7 @@ void SingleGame::unit_atk_monster(float dt)
 
 					unit->setCurSpeed(0);
 					unit_atk_motion(unit, right);
-					addattack(monster, 1.0);
+					addattack(monster, 0.43);
 					//addattack(unit->getBody()->getPosition(), monster->getBody()->getPosition(), unit);
 
 					if (0 >= monster->subEnergy(unit->getDamage()))
@@ -526,7 +532,7 @@ void SingleGame::unit_atk_monster(float dt)
 
 						//delete_monster ºÎºÐ
 
-						addmonster_death(monster->getBody()->getPosition());
+						addmonster_death(monster->getBody()->getPosition(), 0.43, false);
 						monster->release();
 						delete monster;
 						iterMonster = arr_monster.erase(iterMonster);
@@ -1376,8 +1382,8 @@ void SingleGame::onTouchesEnded(const std::vector<Touch*>& touches, Event *event
 							float xR = rand() % 10000;
 							float yR = rand() % 10000;
 
-							pt.x *= (0.8 + (xR / 100000));
-							pt.y *= (0.2 + (yR / 100000 * 6));
+							pt.x *= (0.7 + (xR / 100000 * 2));
+							pt.y *= (0.2 + (yR / 100000 * 3));
 
 							arr_unit.erase(iterUnit);
 							arr_boss_room_unit.push_back(unit);
@@ -2571,6 +2577,8 @@ void SingleGame::atk_boss(float dt)
 			if (0 >= boss->subEnergy(unit->getDamage()))
 			{
 				sound_boss_delete();
+
+				addmonster_death(boss->getBody()->getPosition(), 1.0, true);
 
 				alive_boss = false;
 
