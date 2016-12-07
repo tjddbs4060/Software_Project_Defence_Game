@@ -1479,6 +1479,7 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 		float x = heroBoard->getPositionX() - (heroBoard->getContentSize().width / 2);
 		float y = heroBoard->getPositionY() - (heroBoard->getContentSize().height / 2);
 		Point pt = Point(x, y);
+		bool end = false;
 
 		//보내기 클릭하면 다른 위치로 보내기
 		HeroList* heroList = NULL;
@@ -1527,7 +1528,31 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 							unit->getBody()->setPosition(pt);
 
 							unit->getBody()->runAction(callfunc);
+							///////////////////////////
+							HeroList* new_heroList = new HeroList();
 
+							new_heroList->setHero(unit->getName());
+							new_heroList->setMap("null.png");
+							new_heroList->setBoss("in.png");
+							new_heroList->setHelp("null.png");
+							new_heroList->setType(unit->getType());
+							new_heroList->setAtk(unit->getDamage());
+							new_heroList->setCount(unit->getCount());
+							new_heroList->init(0);
+							new_heroList->setLocation(2);
+
+							new_heroList->getHero()->setPosition(heroList->getHero()->getPosition());
+
+							heroBoard->addChild(new_heroList->getHero());
+
+							iterHero = arr_hero_list.erase(iterHero);
+							heroList->release();
+							delete heroList;
+
+							arr_hero_list.push_back(new_heroList);
+
+							end = true;
+							/////////////////////
 							break;
 						}
 					}
@@ -1561,7 +1586,31 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 							unit->getBody()->setPosition(pt);
 
 							unit->getBody()->runAction(callfunc);
+							///////////////////////////
+							HeroList* new_heroList = new HeroList();
 
+							new_heroList->setHero(unit->getName());
+							new_heroList->setMap("null.png");
+							new_heroList->setBoss("in.png");
+							new_heroList->setHelp("null.png");
+							new_heroList->setType(unit->getType());
+							new_heroList->setAtk(unit->getDamage());
+							new_heroList->setCount(unit->getCount());
+							new_heroList->init(0);
+							new_heroList->setLocation(2);
+
+							new_heroList->getHero()->setPosition(heroList->getHero()->getPosition());
+
+							heroBoard->addChild(new_heroList->getHero());
+
+							iterHero = arr_hero_list.erase(iterHero);
+							heroList->release();
+							delete heroList;
+
+							arr_hero_list.push_back(new_heroList);
+
+							end = true;
+							/////////////////////
 							break;
 						}
 					}
@@ -1590,7 +1639,31 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 							unit->getBody()->setPosition(pt / 2);
 
 							unit->getBody()->runAction(callfunc);
+							///////////////////////////
+							HeroList* new_heroList = new HeroList();
 
+							new_heroList->setHero(unit->getName());
+							new_heroList->setMap("in.png");
+							new_heroList->setBoss("null.png");
+							new_heroList->setHelp("null.png");
+							new_heroList->setType(unit->getType());
+							new_heroList->setAtk(unit->getDamage());
+							new_heroList->setCount(unit->getCount());
+							new_heroList->init(0);
+							new_heroList->setLocation(1);
+
+							new_heroList->getHero()->setPosition(heroList->getHero()->getPosition());
+
+							heroBoard->addChild(new_heroList->getHero());
+
+							iterHero = arr_hero_list.erase(iterHero);
+							heroList->release();
+							delete heroList;
+
+							arr_hero_list.push_back(new_heroList);
+
+							end = true;
+							/////////////////////
 							break;
 						}
 					}
@@ -1619,7 +1692,31 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 							unit->getBody()->setPosition(pt / 2);
 
 							unit->getBody()->runAction(callfunc);
+							///////////////////////////
+							HeroList* new_heroList = new HeroList();
 
+							new_heroList->setHero(unit->getName());
+							new_heroList->setMap("in.png");
+							new_heroList->setBoss("null.png");
+							new_heroList->setHelp("null.png");
+							new_heroList->setType(unit->getType());
+							new_heroList->setAtk(unit->getDamage());
+							new_heroList->setCount(unit->getCount());
+							new_heroList->init(0);
+							new_heroList->setLocation(1);
+
+							new_heroList->getHero()->setPosition(heroList->getHero()->getPosition());
+
+							heroBoard->addChild(new_heroList->getHero());
+
+							iterHero = arr_hero_list.erase(iterHero);
+							heroList->release();
+							delete heroList;
+
+							arr_hero_list.push_back(new_heroList);
+
+							end = true;
+							/////////////////////
 							break;
 						}
 					}
@@ -1651,7 +1748,31 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 							CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::removeChild_background_help, this));
 
 							unit->getBody()->runAction(callfunc);
+							///////////////////////////
+							HeroList* new_heroList = new HeroList();
 
+							new_heroList->setHero(unit->getName());
+							new_heroList->setMap("null.png");
+							new_heroList->setBoss("null.png");
+							new_heroList->setHelp("in.png");
+							new_heroList->setType(unit->getType());
+							new_heroList->setAtk(unit->getDamage());
+							new_heroList->setCount(unit->getCount());
+							new_heroList->init(0);
+							new_heroList->setLocation(3);
+
+							new_heroList->getHero()->setPosition(heroList->getHero()->getPosition());
+
+							heroBoard->addChild(new_heroList->getHero());
+
+							iterHero = arr_hero_list.erase(iterHero);
+							heroList->release();
+							delete heroList;
+
+							arr_hero_list.push_back(new_heroList);
+
+							end = true;
+							/////////////////////
 							break;
 						}
 					}
@@ -1676,17 +1797,43 @@ void Game::onTouchesEnded(const std::vector<Touch*>& touches, Event *event)
 							CallFuncN* callfunc = CallFuncN::create(CC_CALLBACK_1(Game::removeChild_boss_help, this));
 
 							unit->getBody()->runAction(callfunc);
+							///////////////////////////
+							HeroList* new_heroList = new HeroList();
 
+							new_heroList->setHero(unit->getName());
+							new_heroList->setMap("null.png");
+							new_heroList->setBoss("null.png");
+							new_heroList->setHelp("in.png");
+							new_heroList->setType(unit->getType());
+							new_heroList->setAtk(unit->getDamage());
+							new_heroList->setCount(unit->getCount());
+							new_heroList->init(0);
+							new_heroList->setLocation(3);
+
+							new_heroList->getHero()->setPosition(heroList->getHero()->getPosition());
+
+							heroBoard->addChild(new_heroList->getHero());
+
+							iterHero = arr_hero_list.erase(iterHero);
+							heroList->release();
+							delete heroList;
+
+							arr_hero_list.push_back(new_heroList);
+
+							end = true;
+							/////////////////////
 							break;
 						}
 					}
 				}
 				else break;
 			}
+			if (end == true)
+				break;
 		}
 		if (hero_menu_move == true)
 			hero_menu_move = false;
-		else update_hero_list();
+		//else update_hero_list();
 	}
 
 	if (touch_friend == true)
@@ -2294,6 +2441,8 @@ void Game::onMenu(Object* sender)
 		if (touch_soul == true || touch_gamble == true || touch_mix == true || touch_upgrade == true || touch_capsule == true || touch_friend == true || touch_boss == true) break;
 
 		sound_interface_open();
+
+		update_hero_list();
 
 		touch_hero = true;
 
