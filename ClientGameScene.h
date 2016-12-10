@@ -124,6 +124,7 @@ private:
 	bool skip;			//skip 여부
 	bool alive_boss;	//보스 생사 여부
 	bool monster_add_start;	//몬스터 생성 시작
+	bool atk_start_boss;
 	int help_size;	//도움 받은 유닛 수
 	int mix_list;	//조합표의 목록 수
 	int boss_stage;		//보스 스테이지

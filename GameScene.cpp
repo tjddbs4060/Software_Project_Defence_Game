@@ -5,7 +5,7 @@
 USING_NS_CC;
 
 Game::Game() : Game_Start(false), touch(false), touch_unit(false), touch_gamble(false), touch_upgrade(false), touch_mix(false), touch_capsule(false), touch_hero(false), touch_boss(false), hero_menu_move(false), touch_friend(false)
-, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), alive_boss(false), mix_list(2), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), boss_stage(0), monster_index(0), boss_damage(0), help_user_select(0), help_size(0)
+, new_soul_1(false), new_soul_2(false), touch_soul(false), skip(false), alive_boss(false), mix_list(52), now_unit(NULL), summon_monster(0), anc_height(0), anc_width(0), boss_stage(0), monster_index(0), boss_damage(0), help_user_select(0), help_size(0), atk_start_boss(false)
 {
 	for (int i = 0; i < 2; i++)
 		monster_hp_def[i] = 0;
@@ -2624,8 +2624,8 @@ void Game::onHttpRequestCompleted(cocos2d::network::HttpClient * sender, cocos2d
 	std::vector<char> * buffer = response->getResponseData();
 
 	Use_String * use_string = new Use_String();
-	char szFile[128] = { 0, };
-	char temp[128] = { 0, };
+	char szFile[256] = { 0, };
+	char temp[256] = { 0, };
 	char * compare;
 	for (unsigned int i = 0; i < buffer->size(); i++)
 		szFile[i] = (*buffer)[i];
@@ -2854,7 +2854,9 @@ void Game::get_db_data(char * data, int port)
 	__String * dataToSend = __String::create(data);
 	char szFile[32] = { 0, };
 
-	sprintf(szFile, "http://192.168.219.102:%d", port);
+	//모바일 버전
+	//sprintf(szFile, "http://192.168.219.102:%d", port);
+	sprintf(szFile, "localhost:%d", port);
 
 	cocos2d::network::HttpRequest * request = new cocos2d::network::HttpRequest();
 	request->setUrl(szFile);
@@ -3204,7 +3206,7 @@ void Game::create_boss(char* name, float hp, float def)
 
 	getChildByTag(TAG_MENU)->getChildByTag(TAG_MENU_BOSS)->addChild(boss->getBody());
 
-	alive_boss = true;
+	atk_start_boss = true;
 }
 
 void Game::atk_boss(float dt)
@@ -3219,7 +3221,7 @@ void Game::atk_boss(float dt)
 	{
 		unit = (Unit*)*iterUnit;
 
-		if (alive_boss == false) break;
+		if (atk_start_boss == false) break;
 
 		if (unit->getMaxSpeed() <= unit->getCurSpeed())
 		{
@@ -3244,8 +3246,8 @@ void Game::atk_boss(float dt)
 				inforBoard->setGold(inforBoard->getGold() + (boss_stage * 300));
 
 				boss->release();
-				delete boss;
 				// 보스 죽는 것(get_db_data)
+				atk_start_boss = false;
 			}
 			else
 				break;
