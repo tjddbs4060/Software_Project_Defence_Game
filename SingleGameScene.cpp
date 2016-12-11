@@ -2342,7 +2342,7 @@ void SingleGame::upgrade_update(char* up)
 		unit = (Unit*)*iterUnit;
 
 		if (!strcmp(unit->getType(), up))
-			unit->setDamage(damage * pow(rate, upgrade_count[index]));
+			unit->setDamage(damage * rate * (upgrade_count[index]+1));
 	}
 }
 

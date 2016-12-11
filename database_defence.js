@@ -368,12 +368,12 @@ server.on('request', function(req, res){
           var sql = 'select * from room_info where id = ?';
 
           connection.query(sql, [data[4]], function(err1, row1, fields1) {
-            sql = 'select * from room_info where num = ?';
+            sql = 'select * from room_info where num = ? and id != ?';
 
-            connection.query(sql, [row1[0].num], function(err2, row2, fields2) {
+            connection.query(sql, [row1[0].num, data[4]], function(err2, row2, fields2) {
               sql = 'insert into help_unit (orig_id, give_id, type, count, bring) values (?, ?, ?, ?, false)';
 
-              connection.query(sql, [data[4], row2[data[3]].id, data[1], data[2]], function() {});
+              connection.query(sql, [data[4], row2[data[3]-1].id, data[1], data[2]], function() {});
 
               console.log('add give_help');
               res.end('');
